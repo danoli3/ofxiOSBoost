@@ -9,11 +9,15 @@ License: See Boost License LICENSE.MD
 How to use
 ================================================================================
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Add the ofxiOSBoost to your project (src and libs) :
+
 In Xcode Build Settings for your project:
--- Add to Library Search Paths: "$(SRCROOT)/../../addons/ofxIOSBoost/lib/"
--- Add to Header Search Paths: "$(SRCROOT)/../../addons/ofxiOSBoost/src"
-In Xcode Build Phases add the libs in the addons/ofxIOSBoost/lib/ directory to Link Binary With Libraries
+- Add to Library Search Paths: "$(SRCROOT)/../../addons/ofxIOSBoost/lib/"
+- Add to Header Search Paths: "$(SRCROOT)/../../addons/ofxiOSBoost/src"
+
+
+In Xcode Build Phases
+- Add the libs in the addons/ofxIOSBoost/lib/ directory to Link Binary With Libraries
+
 - Enjoy boost :)
 
 ================================================================================
