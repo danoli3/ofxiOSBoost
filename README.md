@@ -1,7 +1,7 @@
-#ofxiOSBoost for Boost 1.51
+#ofxiOSBoost for Boost 1.55.0
 ============
 
-###Boost C++ Libraries iOS 6.0 / 5.1 / 5.0 building with armv7
+###Boost C++ Libraries 1.55.0 Pre-compiled for iOS
 ================================================================================
 License: See Boost License LICENSE.MD
 
@@ -9,12 +9,24 @@ License: See Boost License LICENSE.MD
 How to use
 ================================================================================
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Add the ofxiOSBoost to your project (src and libs)
+- Add the ofxiOSBoost to your project (src and libs) :
+In Xcode Build Settings for your project:
+-- Add to Library Search Paths: "$(SRCROOT)/../../addons/ofxIOSBoost/lib/"
+-- Add to Header Search Paths: "$(SRCROOT)/../../addons/ofxiOSBoost/src"
+In Xcode Build Phases add the libs in the addons/ofxIOSBoost/lib/ directory to Link Binary With Libraries
 - Enjoy boost :)
 
+================================================================================
+Other architectures for iOS
+================================================================================
+See the other branches on this repository
+- arm64 : 1.55.0 built for arm64 (iOS 7 64bit only) [iPhone 5s +]
+- armv7s : 1.55.0 built for armv7s (iOS 6+)
+- armv7 : Clone of master - (iOS 5, 6, 7+)
+- armv6 : 1.55.0 built for armv6 (iOS 4+)
 
 ================================================================================
-Documentation on Boost 1.51
+Documentation on Boost 1.55.0
 ================================================================================
 
-See: http://www.boost.org/users/history/version_1_51_0.html
+See: http://www.boost.org/users/history/version_1_55_0.html
