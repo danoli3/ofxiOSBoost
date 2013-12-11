@@ -13,9 +13,9 @@ How to use
 - Once completed in the terminal continue with the next steps.
 - Add the ofxiOSBoost to your project (src and libs for your chosen architecture) :
 In Xcode Build Settings for your project:
--- Add to Library Search Paths: "$(SRCROOT)/../../addons/ofxIOSBoost/lib/$architecture" - Where $architecture is the one you want to build against.
--- Add to Framework Search Paths: "$(SRCROOT)/../../addons/ofxiOSBoost/src"
-In Xcode Build Phases add the libs in the addons/ofxIOSBoost/lib/$architecture directory to Link Binary With Libraries
+-- Add to Library Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/lib/$architecture" - Where $architecture is the one you want to build against.
+-- Add to Framework Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/src"
+In Xcode Build Phases add the libs in the addons/ofxiOSBoost/lib/$architecture directory to Link Binary With Libraries
 - Enjoy boost :)
 
 ================================================================================
