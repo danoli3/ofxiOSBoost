@@ -11,10 +11,12 @@ How to use
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
 - Double click and run boost.command (this will download the 1.55.0 version of boost and begin compiling the library).
 - Once completed in the terminal continue with the next steps.
-- Add the ofxiOSBoost to your project (src and libs for your chosen architecture) :
+- Add the ofxiOSBoost to your project (src and libs for your chosen architecture)
+
 In Xcode Build Settings for your project:
--- Add to Library Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/lib/$architecture" - Where $architecture is the one you want to build against.
--- Add to Framework Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/src"
+- Add to Library Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/lib/$architecture" - Where $architecture is the one you want to build against.
+
+- Add to Framework Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/src"
 In Xcode Build Phases add the libs in the addons/ofxiOSBoost/lib/$architecture directory to Link Binary With Libraries
 - Enjoy boost :)
 
