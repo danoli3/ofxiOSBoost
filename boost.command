@@ -38,10 +38,10 @@ cd "$here" || exit 1
 # Should perhaps also consider/use instead: -BOOST_SP_USE_PTHREADS
 
 : ${TARBALLDIR:=`pwd`}
-: ${SRCDIR:=`pwd`temp/src}
+: ${SRCDIR:=`pwd`/temp/src}
 : ${IOSBUILDDIR:=`pwd`/lib/}
 : ${IOSINCLUDEDIR:=`pwd`/src/boost}
-: ${PREFIXDIR:=`pwd`temp/ios/prefix}
+: ${PREFIXDIR:=`pwd`/temp/ios/prefix}
 : ${IOSFRAMEWORKDIR:=`pwd`/ios/framework}
 : ${COMPILER:="clang++"}
 
