@@ -17,3 +17,6 @@
 # Do no ignore the debug folder
 !*/debug/
 !*/debug/*
+.DS_Store
+
+libs/boost/lib/.DS_Store
