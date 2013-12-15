@@ -37,12 +37,11 @@ cd "$here" || exit 1
 #
 # Should perhaps also consider/use instead: -BOOST_SP_USE_PTHREADS
 
-: ${TARBALLDIR:=`pwd`}
-: ${SRCDIR:=`pwd`/temp/src}
-: ${IOSBUILDDIR:=`pwd`/lib/}
-: ${IOSINCLUDEDIR:=`pwd`/src/boost}
-: ${PREFIXDIR:=`pwd`/temp/ios/prefix}
-: ${IOSFRAMEWORKDIR:=`pwd`/ios/framework}
+: ${TARBALLDIR:=`pwd`/..}
+: ${SRCDIR:=`pwd`/../temp/src}
+: ${IOSBUILDDIR:=`pwd`/../libs/boost/lib}
+: ${IOSINCLUDEDIR:=`pwd`/../libs/boost/include/boost}
+: ${PREFIXDIR:=`pwd`/../temp/ios/prefix}
 : ${COMPILER:="clang++"}
 
 : ${BOOST_VERSION:=1.55.0}
@@ -50,6 +49,8 @@ cd "$here" || exit 1
 
 BOOST_TARBALL=$TARBALLDIR/boost_$BOOST_VERSION2.tar.bz2
 BOOST_SRC=$SRCDIR/boost_${BOOST_VERSION2}
+BOOST_INCLUDE=$BOOST_SRC/boost
+
 
 #===============================================================================
 ARM_DEV_CMD="xcrun --sdk iphoneos"
@@ -90,7 +91,9 @@ cleanEverythingReadyToStart()
     rm -rf iphone-build iphonesim-build osx-build
     rm -rf $IOSBUILDDIR
     rm -rf $PREFIXDIR
-    rm -rf $IOSFRAMEWORKDIR/$FRAMEWORK_NAME.framework
+    rm -rf $IOSINCLUDEDIR
+    rm -rf $TARBALLDIR/temp
+#    rm -rf $IOSFRAMEWORKDIR/$FRAMEWORK_NAME.framework
     doneSection
 }
 
@@ -107,6 +110,7 @@ postcleanEverything()
     rm -rf  $IOSBUILDDIR/i386/obj
 	rm -rf  $IOSBUILDDIR/x86_64/obj
     rm -f $TARBALLDIR/boost_${BOOST_VERSION2}.tar.bz2
+    rm -rf $TARBALLDIR/temp
 	doneSection
 }
 
@@ -274,6 +278,7 @@ scrunchAllLibsTogetherInOneLibPerPlatform()
 buildIncludes()
 {
     
+     mkdir -p $IOSINCLUDEDIR
     echo "Copying includes..."
     cp -r $PREFIXDIR/include/boost/*  $IOSINCLUDEDIR/
 

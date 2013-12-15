@@ -13,11 +13,18 @@ How to use
 - Once completed in the terminal continue with the next steps.
 - Add the ofxiOSBoost to your project (src and libs for your chosen architecture)
 
-In Xcode Build Settings for your project:
-- Add to Library Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/lib/$architecture" - Where $architecture is the one you want to build against.
 
-- Add to Framework Search Paths: "$(SRCROOT)../../../addons/ofxiOSBoost/src"
-In Xcode Build Phases add the libs in the addons/ofxiOSBoost/lib/$architecture directory to Link Binary With Libraries
+How to get working with a project in Xcode?
+============
+
+In Xcode Build Settings for your project*:
+- Add to Library Search Paths: "$(SRCROOT)/../../../addons/ofxOSXBoost/libs/boost/lib/armv7" **(choose your architecture here)
+- Add to Header Search Paths: "$(SRCROOT)/../../../addons/ofxOSXBoost/libs/boost/include"
+
+
+In Xcode Build Phases
+- Add the libs in the addons/ofxiOSBoost/libs/boost/lib/armv7/ directory to Link Binary With Libraries
+
 - Enjoy boost :)
 
 ================================================================================

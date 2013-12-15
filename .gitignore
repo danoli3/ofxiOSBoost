@@ -1,0 +1,16 @@
+# Do no ignore the debug folder
+!*/debug/
+!*/debug/*
+
+
+*.pbxuser
+*.perspective
+*.perspectivev3
+*.xccheckout
+
+*.mode1v3
+*.mode2v3
+
+xcuserdata/
+
+*.app
