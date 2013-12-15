@@ -1,2 +1,19 @@
 
 .DS_Store
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+
+# Do no ignore the debug folder
+!*/debug/
+!*/debug/*
