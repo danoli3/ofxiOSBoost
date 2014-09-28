@@ -39,11 +39,11 @@ If not openFrameworks just add the ``` libs/boost/include ``` to Header Search P
 ### Architectures in Pre-Build Library (Fat Lib)
 See the other branches on this repository (All libc++ std=c11)
 
-- arm64 : (iOS 7, 8 64bit only) [iPhone 5S, iPhone 6, iPhone 6 Plus, iPad Air]
-- armv7s : (iOS 6-7, iPhone 5, iPhone 5C)
-- armv7 : (iOS 5, 6, 7, 8)
-- i386 : (iOS Simulator iPad 2, 3, 4, iPhone 4S, 5, 5C)
-- x86_64 : (iOS Simulator iPad Air, iPhone 5S, iPhone 6, iPhone 6 Plus)
+- arm64 : (iOS 7, 8 64bit only) [iPhone 5S, iPhone 6, iPhone 6 Plus, iPad Air, Retina iPad Mini]
+- armv7s : (iOS 6-7) [iPhone 5, iPhone 5c, iPad 4]
+- armv7 : (iOS 5+) [iPhone 3GS, iPhone 4, iPhone 4S, iPod 3G/4G/5G, iPad, iPad 2, iPad 3, iPad Mini]
+- i386 : (iOS Simulator) [iPad 2, 3, 4, iPhone 4S, 5, 5C]
+- x86_64 : (iOS Simulator) [iPad Air, iPhone 5S, iPhone 6, iPhone 6 Plus]
 
 
 ============
