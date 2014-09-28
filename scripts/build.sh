@@ -259,11 +259,11 @@ buildBoostForIPhoneOS()
     
     set +e    
     echo "------------------"
+    LOG="$LOGDIR/build-iphone-stage.log"
     echo "Running bjam for iphone-build stage"
     echo "To see status in realtime check:"
     echo " ${LOG}"
     echo "Please stand by..."
-    LOG="$LOGDIR/build-iphone-stage.log"
     ./bjam -j16 --build-dir=iphone-build -sBOOST_BUILD_USER_CONFIG=$BOOST_SRC/tools/build/example/user-config.jam --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-${IPHONE_SDKVERSION} define=_LITTLE_ENDIAN link=static stage > "${LOG}" 2>&1
     if [ $? != 0 ]; then 
         echo "Problem while Building iphone-build stage - Please check ${LOG}"
@@ -273,11 +273,11 @@ buildBoostForIPhoneOS()
     fi
 
     echo "------------------"
+    LOG="$LOGDIR/build-iphone-install.log"
     echo "Running bjam for iphone-build install"
     echo "To see status in realtime check:"
     echo " ${LOG}"
     echo "Please stand by..."
-    LOG="$LOGDIR/build-iphone-install.log"
     ./bjam -j16 --build-dir=iphone-build -sBOOST_BUILD_USER_CONFIG=$BOOST_SRC/tools/build/example/user-config.jam --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-${IPHONE_SDKVERSION} define=_LITTLE_ENDIAN link=static install > "${LOG}" 2>&1
     if [ $? != 0 ]; then 
         echo "Problem while Building iphone-build install - Please check ${LOG}"
@@ -288,11 +288,11 @@ buildBoostForIPhoneOS()
     doneSection
 
     echo "------------------"
+    LOG="$LOGDIR/build-iphone-simulator-build.log"
     echo "Running bjam for iphone-sim-build "
     echo "To see status in realtime check:"
     echo " ${LOG}"
     echo "Please stand by..."
-    LOG="$LOGDIR/build-iphone-simulator-build.log"
     ./bjam -j16 --build-dir=iphonesim-build -sBOOST_BUILD_USER_CONFIG=$BOOST_SRC/tools/build/example/user-config.jam --stagedir=iphonesim-build/stage --toolset=darwin-${IPHONE_SDKVERSION}~iphonesim architecture=x86 target-os=iphone macosx-version=iphonesim-${IPHONE_SDKVERSION} link=static stage > "${LOG}" 2>&1
     if [ $? != 0 ]; then 
         echo "Problem while Building iphone-simulator build - Please check ${LOG}"
