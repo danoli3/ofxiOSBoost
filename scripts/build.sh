@@ -34,10 +34,36 @@ BOOST_V1=1.55.0
 BOOST_V2=1_55_0
 
 
+SDKVERSION=`xcrun -sdk iphoneos --show-sdk-version`
+OSX_SDKVERSION=`xcrun -sdk macosx --show-sdk-version`
+DEVELOPER=`xcode-select -print-path`
+XCODE_ROOT=`xcode-select -print-path`
+
+if [ ! -d "$DEVELOPER" ]; then
+  echo "xcode path is not set correctly $DEVELOPER does not exist (most likely because of xcode > 4.3)"
+  echo "run"
+  echo "sudo xcode-select -switch <xcode path>"
+  echo "for default installation:"
+  echo "sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer"
+  exit 1
+fi
+
+case $DEVELOPER in  
+     *\ * )
+           echo "Your Xcode path contains whitespaces, which is not supported."
+           exit 1
+          ;;
+esac
+
+case $CURRENTPATH in  
+     *\ * )
+           echo "Your path contains whitespaces, which is not supported by 'make install'."
+           exit 1
+          ;;
+esac
+
 : ${BOOST_LIBS:="random regex graph random chrono thread signals filesystem system date_time"}
-: ${IPHONE_SDKVERSION:=`xcodebuild -showsdks | grep iphoneos | egrep "[[:digit:]]+\.[[:digit:]]+" -o | tail -1`}
-: ${OSX_SDKVERSION:=`xcrun -sdk macosx --show-sdk-version`}
-: ${XCODE_ROOT:=`xcode-select -print-path`}
+: ${IPHONE_SDKVERSION:=`$SDKVERSION | grep iphoneos | egrep "[[:digit:]]+\.[[:digit:]]+" -o | tail -1`}
 : ${EXTRA_CPPFLAGS:="-DBOOST_AC_USE_PTHREADS -DBOOST_SP_USE_PTHREADS -std=$CPPSTD -stdlib=$STDLIB"}
 
 # The EXTRA_CPPFLAGS definition works around a thread race issue in
@@ -167,7 +193,7 @@ updateBoost()
 {
     echo Updating boost into $BOOST_SRC...
 
-    cp $BOOST_SRC/tools/build/v2/user-config.jam $BOOST_SRC/tools/build/v2/user-config.jam-bk
+    cp $BOOST_SRC/tools/build/v2/user-config.jam $BOOST_SRC/tools/build/v2/user-config.jam.bk
 
     cat >> $BOOST_SRC/tools/build/v2/user-config.jam <<EOF
 using darwin : ${IPHONE_SDKVERSION}~iphone
