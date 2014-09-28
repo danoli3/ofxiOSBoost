@@ -1,4 +1,5 @@
-language: cpp
+language: objective-c
 compiler: clang
+before-script:
 script: 
  - scripts/build.sh
