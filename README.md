@@ -1,7 +1,8 @@
-#ofxiOSBoost for Boost 1.55.0
+#ofxiOSBoost for Boost 1.56.0  ![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master-test)
 ============
 
-###Boost C++ Libraries 1.55.0 Script to compile boost for iOS
+
+###Boost C++ Libraries 1.56.0 Script to compile boost for iOS
 ================================================================================
 License: See Boost License LICENSE.MD
 
@@ -18,8 +19,8 @@ How to get working with a project in Xcode?
 ============
 
 In Xcode Build Settings for your project*:
-- Add to Library Search Paths: "$(SRCROOT)/../../../addons/ofxOSXBoost/libs/boost/lib/armv7" **(choose your architecture here)
-- Add to Header Search Paths: "$(SRCROOT)/../../../addons/ofxOSXBoost/libs/boost/include"
+- Add to Library Search Paths: "$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/lib/armv7" **(choose your architecture here)
+- Add to Header Search Paths: "$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/include"
 
 
 In Xcode Build Phases
@@ -31,12 +32,11 @@ In Xcode Build Phases
 Architectures that will be built in the script for iOS
 ================================================================================
 - arm64 : 1.55.0 built for arm64 (iOS 7 64bit only) [iPhone 5s +]
-- armv7s : 1.55.0 built for armv7s (iOS 6+)
-- armv7 : Clone of master - (iOS 5, 6, 7+)
-- armv6 : 1.55.0 built for armv6 (iOS 4+)
+- armv7s : 1.55.0 built for armv7s (iOS 6+ [iPhone 5,5c])
+- armv7 : Clone of master - (iOS 5, 6, 7, 8)
 
 ================================================================================
-Documentation on Boost 1.55.0
+Documentation on Boost 1.56.0
 ================================================================================
 
-See: http://www.boost.org/users/history/version_1_55_0.html
+See: http://www.boost.org/users/history/version_1_56_0.html
