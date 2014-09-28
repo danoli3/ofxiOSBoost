@@ -153,6 +153,18 @@ postcleanEverything()
 	doneSection
 }
 
+prepare()
+{
+    CURRENTPATH=`pwd`
+    LOGDIR="$CURRENTPATH/build/logs/"
+    mkdir -p $LOGDIR
+
+    mkdir -p $OUTPUT_DIR
+    mkdir -p $OUTPUT_DIR_SRC
+    mkdir -p $OUTPUT_DIR_LIB
+
+}
+
 #===============================================================================
 
 downloadBoost()
@@ -243,12 +255,39 @@ buildBoostForIPhoneOS()
     cd $BOOST_SRC
 
     # Install this one so we can copy the includes for the frameworks...
-    ./bjam -j16 --build-dir=iphone-build --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-${IPHONE_SDKVERSION} define=_LITTLE_ENDIAN link=static stage
-    ./bjam -j16 --build-dir=iphone-build --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-${IPHONE_SDKVERSION} define=_LITTLE_ENDIAN link=static install
+
+    
+    set +e    
+    echo "------------------"
+    LOG="$LOGDIR/build-iphone-stage.log"
+    ./bjam -j16 --build-dir=iphone-build --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-${IPHONE_SDKVERSION} define=_LITTLE_ENDIAN link=static stage > "${LOG}" 2>&1
+    if [ $? != 0 ]; then 
+        echo "Problem while Building iphone-build stage - Please check ${LOG}"
+        exit 1
+    else 
+        echo "iphone-build stage successful"
+    fi
+
+    echo "------------------"
+    LOG="$LOGDIR/build-iphone-install.log"
+    ./bjam -j16 --build-dir=iphone-build --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-${IPHONE_SDKVERSION} define=_LITTLE_ENDIAN link=static install > "${LOG}" 2>&1
+    if [ $? != 0 ]; then 
+        echo "Problem while Building iphone-build install - Please check ${LOG}"
+        exit 1
+    else 
+        echo "iphone-build install successful"
+    fi
     doneSection
 
-    ./bjam -j16 --build-dir=iphonesim-build --stagedir=iphonesim-build/stage --toolset=darwin-${IPHONE_SDKVERSION}~iphonesim architecture=x86 target-os=iphone macosx-version=iphonesim-${IPHONE_SDKVERSION} link=static stage
-    doneSection
+    echo "------------------"
+    LOG="$LOGDIR/build-iphone-simulator-build.log"
+    ./bjam -j16 --build-dir=iphonesim-build --stagedir=iphonesim-build/stage --toolset=darwin-${IPHONE_SDKVERSION}~iphonesim architecture=x86 target-os=iphone macosx-version=iphonesim-${IPHONE_SDKVERSION} link=static stage > "${LOG}" 2>&1
+    if [ $? != 0 ]; then 
+        echo "Problem while Building iphone-simulator build - Please check ${LOG}"
+        exit 1
+    else 
+        echo "iphone-simulator build successful"
+    fi
 
     doneSection
 }
@@ -307,16 +346,6 @@ scrunchAllLibsTogetherInOneLibPerPlatform()
     echo ...x86_64
     (cd $IOSBUILDDIR/x86_64;  $SIM_DEV_CMD ar crus libboost.a obj/*.o; )
 
-    mkdir -p $OUTPUT_DIR
-    mkdir -p $OUTPUT_DIR_SRC
-    mkdir -p $OUTPUT_DIR_LIB
-
-
-    echo "------------------"
-    echo "Copying Includes to Final Dir $OUTPUT_DIR_SRC"
-    cp -r $PREFIXDIR/include/boost/*  $OUTPUT_DIR_SRC/
-    echo "------------------"
-
     echo "Making fat lib for iOS Boost $BOOST_VERSION"
     lipo -c $IOSBUILDDIR/armv7/libboost.a \
             $IOSBUILDDIR/armv7s/libboost.a \
@@ -334,9 +363,20 @@ scrunchAllLibsTogetherInOneLibPerPlatform()
 buildIncludes()
 {
     
-     mkdir -p $IOSINCLUDEDIR
-    echo "Copying includes..."
-    cp -r $PREFIXDIR/include/boost/*  $IOSINCLUDEDIR/
+    mkdir -p $IOSINCLUDEDIR
+    echo "------------------"
+    echo "Copying Includes to Final Dir $OUTPUT_DIR_SRC"
+    LOG="$LOGDIR/buildIncludes.log"
+    set +e
+
+    cp -r $PREFIXDIR/include/boost/*  $OUTPUT_DIR_SRC/ > "${LOG}" 2>&1
+    if [ $? != 0 ]; then 
+        echo "Problem while copying includes - Please check ${LOG}"
+        exit 1
+    else 
+        echo "Copy of Includes successful"
+    fi
+    echo "------------------"
 
     doneSection
 }
@@ -366,6 +406,7 @@ echo
 downloadBoost
 unpackBoost
 #inventMissingHeaders
+prepare
 bootstrapBoost
 updateBoost
 buildBoostForIPhoneOS
