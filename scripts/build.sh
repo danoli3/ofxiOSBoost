@@ -63,7 +63,7 @@ case $CURRENTPATH in
 esac
 
 : ${BOOST_LIBS:="random regex graph random chrono thread signals filesystem system date_time"}
-: ${IPHONE_SDKVERSION:=`$SDKVERSION | grep iphoneos | egrep "[[:digit:]]+\.[[:digit:]]+" -o | tail -1`}
+: ${IPHONE_SDKVERSION:=`xcodebuild -showsdks | grep iphoneos | egrep "[[:digit:]]+\.[[:digit:]]+" -o | tail -1`}
 : ${EXTRA_CPPFLAGS:="-DBOOST_AC_USE_PTHREADS -DBOOST_SP_USE_PTHREADS -std=$CPPSTD -stdlib=$STDLIB"}
 
 # The EXTRA_CPPFLAGS definition works around a thread race issue in
@@ -394,7 +394,6 @@ echo "BOOST_VERSION:     $BOOST_VERSION"
 echo "BOOST_LIBS:        $BOOST_LIBS"
 echo "BOOST_SRC:         $BOOST_SRC"
 echo "IOSBUILDDIR:       $IOSBUILDDIR"
-echo "OSXBUILDDIR:       $OSXBUILDDIR"
 echo "PREFIXDIR:         $PREFIXDIR"
 echo "IOSFRAMEWORKDIR:   $IOSFRAMEWORKDIR"
 echo "OSXFRAMEWORKDIR:   $OSXFRAMEWORKDIR"
