@@ -1,4 +1,4 @@
 language: cpp
 compiler: clang
 script: 
- - script/build.sh
+ - scripts/build.sh
