@@ -1,6 +1,7 @@
-#ofxiOSBoost for Boost 1.56.0  ![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master-test)
+#ofxiOSBoost for Boost 1.56.0  ![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)
 ============
 ### Boost C++ Libraries 1.56.0 Pre-compiled for iOS
+![image](https://github.com/danoli3/ofxiOSBoost/blob/master/ofxaddons_thumbnail.png)
 ============
 - Addon with Boost 1.56.0 for iOS / Xcode 
 - Precompiled library and Command to build yourself
@@ -54,7 +55,7 @@ See the other branches on this repository (All libc++ std=c11)
 - Add the ofxiOSBoost to your project (src and libs for your chosen architecture)
 
 
-#### Documentation on Boost 1.55.0
+#### Documentation on Boost 1.56.0
 ========
 
 See: http://www.boost.org/users/history/version_1_56_0.html
