@@ -60,9 +60,15 @@ See the other branches on this repository (All libc++ std=c11)
 
 
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Double click and run scripts/build.command (this will download the 1.56.0 version of boost and begin compiling the library).
+- Double click and run ```scripts/build-libc++.command``` (this will download the 1.56.0 version of boost and begin compiling the library).
 - Once completed in the terminal continue with the next steps.
-- Add the ofxiOSBoost to your project (src and libs for your chosen architecture)
+- Add the ofxiOSBoost to your project (src and libs for your chosen architecture)`
+
+#### Alternative Build Script:
+- Build using libstdc++ by running the ```scripts/build-libstdc++.command```
+
+#### Clean script
+- Run the clean script from ```scripts/cleanAll.command``` to remove pre-compiled code and the final built library
 
 
 

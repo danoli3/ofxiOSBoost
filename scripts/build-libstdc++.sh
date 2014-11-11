@@ -1,5 +1,5 @@
 #===============================================================================
-# Filename:  boost.sh
+# Filename:  build-libstdc++.sh
 # Author:    Pete Goodliffe, Daniel Rosser
 # Copyright: (c) Copyright 2009 Pete Goodliffe, 2013 Daniel Rosser
 # Licence:   Please feel free to use this, with attribution
@@ -24,8 +24,8 @@ here="`dirname \"$0\"`"
 echo "cd-ing to $here"
 cd "$here" || exit 1
 
-CPPSTD=c++11    #c++89, c++99, c++14
-STDLIB=libc++   # libstdc++
+CPPSTD=c++98    #c++11, c++99, c++14
+STDLIB=libstdc++   # libc++
 COMPILER=clang++
 
 BOOST_V1=1.56.0
