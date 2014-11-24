@@ -9,6 +9,7 @@
 - Check Branches for others or to be specific 
 - Designed for use as an open frameworks addon, however should definitely work for other iOS projects
 - Built with clang++ and using libc++ and std=c++11
+- Alternate release with libstdc++
 - License: See Boost License [LICENSE.MD](https://github.com/danoli3/ofxiOSBoost/blob/master/LICENSE.md)
 
 ============
@@ -37,7 +38,6 @@ If not openFrameworks just add the ``` libs/boost/include ``` to Header Search P
 ============
 
 ### Architectures in Pre-Build Library (Fat Lib)
-See the other branches on this repository (All libc++ std=c11)
 
 - arm64 : (iOS 7, 8 64bit only) [iPhone 5S, iPhone 6, iPhone 6 Plus, iPad Air, Retina iPad Mini]
 - armv7s : (iOS 6-7) [iPhone 5, iPhone 5c, iPad 4]
@@ -60,9 +60,15 @@ See the other branches on this repository (All libc++ std=c11)
 
 
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Double click and run scripts/build.command (this will download the 1.56.0 version of boost and begin compiling the library).
+- Double click and run ```scripts/build-libc++.command``` (this will download the 1.56.0 version of boost and begin compiling the library).
 - Once completed in the terminal continue with the next steps.
-- Add the ofxiOSBoost to your project (src and libs for your chosen architecture)
+- Add the ofxiOSBoost to your project (src and libs for your chosen architecture)`
+
+#### Alternative Build Script:
+- Build using libstdc++ by running the ```scripts/build-libstdc++.command```
+
+#### Clean script
+- Run the clean script from ```scripts/cleanAll.command``` to remove pre-compiled code and the final built library
 
 
 

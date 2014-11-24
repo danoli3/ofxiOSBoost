@@ -2,4 +2,7 @@ language: objective-c
 compiler: clang
 before-script:
 script: 
- - scripts/build.sh
+ - scripts/build-libc++.sh
+ - scripts/cleanAll.sh
+ - scripts/build-libstdc++.sh
+ - scripts/cleanAll.sh
