@@ -13,11 +13,11 @@ Boost is the library that can (and should) be used to ease c++ development.
   s.platform     = :ios, '8.0'
   s.ios.deployment_target = '8.0'
   s.requires_arc = false
-  s.ios.source_files = "libs/boost/include/**/*.{h,hpp}"
+  s.ios.source_files = "libs/boost/include/**/*.{h,hpp,ipp}"
   s.ios.header_mappings_dir = "libs/boost/include"
-  s.ios.public_header_files = "libs/boost/include/**/*.{h,hpp}"
+  s.ios.public_header_files = "libs/boost/include/**/*.{h,hpp,ipp}"
 
-  s.ios.preserve_paths = "libs/boost/include/**/*.{h,hpp}", "libs/boost/ios/**/*.a"
+  s.ios.preserve_paths = "libs/boost/include/**/*.{h,hpp,ipp}", "libs/boost/ios/**/*.a"
   s.ios.vendored_libraries = "libs/boost/ios/**/*.a"
 
 end
