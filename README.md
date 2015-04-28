@@ -84,10 +84,10 @@ Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty
 #### Documentation on Boost 1.58.0
 
 
-See: http://www.boost.org/users/history/version_1_57_0.html
+See: http://www.boost.org/users/history/version_1_58_0.html
 
 
-### Version 1.58.0 (Date): 24th November 2014
+### Version 1.58.0 (Date): April 17th, 2015
 
 
 
