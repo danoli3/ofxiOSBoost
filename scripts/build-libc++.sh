@@ -28,8 +28,8 @@ CPPSTD=c++11    #c++89, c++99, c++14
 STDLIB=libc++   # libstdc++
 COMPILER=clang++
 
-BOOST_V1=1.57.0
-BOOST_V2=1_57_0
+BOOST_V1=1.58.0
+BOOST_V2=1_58_0
 
 CURRENTPATH=`pwd`
 LOGDIR="$CURRENTPATH/build/logs/"
