@@ -29,8 +29,8 @@ STDLIB=libc++   # libstdc++
 COMPILER=clang++
 PARALLEL_MAKE=16   # how many threads to make boost with
 
-BOOST_V1=1.58.0
-BOOST_V2=1_58_0
+BOOST_V1=1.59.0
+BOOST_V2=1_59_0
 
 CURRENTPATH=`pwd`
 LOGDIR="$CURRENTPATH/build/logs/"
