@@ -34,7 +34,7 @@ BOOST_V2=1_59_0
 
 CURRENTPATH=`pwd`
 LOGDIR="$CURRENTPATH/build/logs/"
-
+IOS_MIN_VERSION=6.0
 SDKVERSION=`xcrun -sdk iphoneos --show-sdk-version`
 OSX_SDKVERSION=`xcrun -sdk macosx --show-sdk-version`
 DEVELOPER=`xcode-select -print-path`
@@ -65,7 +65,7 @@ esac
 
 : ${BOOST_LIBS:="random regex graph random chrono thread signals filesystem system date_time"}
 : ${IPHONE_SDKVERSION:=`xcodebuild -showsdks | grep iphoneos | egrep "[[:digit:]]+\.[[:digit:]]+" -o | tail -1`}
-: ${EXTRA_CPPFLAGS:="-fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=$STDLIB"}
+: ${EXTRA_CPPFLAGS:="-fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=$STDLIB -miphoneos-version-min=$IOS_MIN_VERSION"}
 
 : ${TARBALLDIR:=`pwd`/..}
 : ${SRCDIR:=`pwd`/../build/src}

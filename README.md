@@ -1,8 +1,8 @@
-#ofxiOSBoost for Boost 1.58.0  ![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)
+#ofxiOSBoost for Boost 1.59.0  ![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)
 =====================================
 
 
-### Boost C++ Libraries 1.58.0 Pre-compiled for iOS
+### Boost C++ Libraries 1.59.0 Pre-compiled for iOS
 ![image](https://github.com/danoli3/ofxiOSBoost/blob/master/ofxaddons_thumbnail.png)
 
 - Addon with Boost 1.58.0 for iOS / Xcode 
@@ -27,14 +27,15 @@
 
 ### How To Link to an Xcode Project?
 
-In Xcode Build Settings for your project:
+In Xcode **Build Settings** for your project:
 
-- Add to Library Search Paths ( ```LIBRARY_SEARCH_PATHS``` ) ```$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/lib/ios ```
-- Add to Header Search Paths ( ```HEADER_SEARCH_PATHS``` )  
+- Add to **Library Search Paths** ( ```LIBRARY_SEARCH_PATHS``` ) ```$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/lib/ios ```
+- Add to **Header Search Paths** ( ```HEADER_SEARCH_PATHS``` )  
 ```$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/include ```
 
-In the Target under Build Phases
-- Add to 'Link Binary With Libraries' the ```boost.a``` found in the ```ofxiOSBoost/libs/boost/lib/ios``` directory.
+In Xcode for a **Build Target** select the **Target under Build Phases**
+
+- Add to **'Link Binary With Libraries'** the ```boost.a``` found in the ```ofxiOSBoost/libs/boost/lib/ios``` directory.
 
 If not openFrameworks just add the ``` libs/boost/include ``` to Header Search Paths and the  ``` libs/boost/ios ``` to Library Search Paths
 
@@ -45,10 +46,10 @@ If not openFrameworks just add the ``` libs/boost/include ``` to Header Search P
 ### Architectures in Pre-Build Library (Fat Lib)
 See the other branches on this repository (All libc++ std=c11)
 
-- ```arm64``` : (iOS 7, 8 64bit only) [iPhone 5S, iPhone 6, iPhone 6 Plus, iPad Air]
-- ```armv7``` : (iOS 5, 6, 7, 8) [All devices]
+- ```arm64``` : (iOS 7, 8, 9 64bit only) [iPhone 5S, iPhone 6/6S, iPhone 6/6S Plus, iPad Air /2, iPad Mini Retina 1/2/3/4,  iPad Pro]
+- ```armv7``` : (iOS 5, 6, 7, 8, 9) [All devices]
 - ```i386``` : (iOS Simulator iPad 2, 3, 4, iPhone 4S, 5, 5C)
-- ```x86_64```: (iOS Simulator iPad Air, iPhone 5S, iPhone 6, iPhone 6 Plus)
+- ```x86_64```: (iOS Simulator iPad Air, iPhone 5S, iPhone 6/6S, iPhone 6/6S Plus)
 
 Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty Matrix](https://developer.apple.com/library/ios/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html)
 
@@ -68,7 +69,7 @@ Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty
 
 
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Double click and run ```scripts/build-libc++.command``` (this will download the 1.58.0 version of boost and begin compiling the library).
+- Double click and run ```scripts/build-libc++.command``` (this will download the 1.59.0 version of boost and begin compiling the library).
 - Once completed in the terminal continue with the next steps.
 - Add the ofxiOSBoost to your project (src and libs for your chosen architecture)`
 
@@ -81,13 +82,15 @@ Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty
 
 ============
 
-#### Documentation on Boost 1.58.0
+#### Documentation on Boost 1.59.0
 
 
-See: http://www.boost.org/users/history/version_1_58_0.html
+See: http://www.boost.org/users/history/version_1_59_0.html
 
 
-### Version 1.58.0 (Date): April 17th, 2015
+### Version 1.59.0 (Date): August 13th, 2015
+
+============
 
 
 
