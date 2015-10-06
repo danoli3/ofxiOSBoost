@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ofxiOSBoost"
-  s.version      = "1.58.0"
+  s.version      = "1.59.0"
   s.summary      = "Boost C++ library"
   s.description  = <<-DESC
 Boost is the library that can (and should) be used to ease c++ development.
