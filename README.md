@@ -5,7 +5,7 @@
 ### Boost C++ Libraries 1.59.0 Pre-compiled for iOS
 ![image](https://github.com/danoli3/ofxiOSBoost/blob/master/ofxaddons_thumbnail.png)
 
-- Addon with Boost 1.58.0 for iOS / Xcode 
+- Addon with Boost 1.59.0 for iOS / Xcode 
 - Precompiled library and Command to build yourself
 - Master is currently a Fat Lib of All Standard Architectures
 - Check Branches for others or to be specific 
