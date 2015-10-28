@@ -93,8 +93,6 @@ ARM_DEV_CMD="xcrun --sdk iphoneos"
 SIM_DEV_CMD="xcrun --sdk iphonesimulator"
 OSX_DEV_CMD="xcrun --sdk macosx"
 
-ARM_COMBINED_LIB=$IOSBUILDDIR/lib_boost_arm.a
-
 #===============================================================================
 
 
@@ -367,7 +365,7 @@ scrunchAllLibsTogetherInOneLibPerPlatform()
             $IOSBUILDDIR/arm64/libboost.a \
             $IOSBUILDDIR/i386/libboost.a \
             $IOSBUILDDIR/x86_64/libboost.a \
-            -output $OUTPUT_DIR_LIB/boost.a
+            -output $OUTPUT_DIR_LIB/libboost.a
 
     echo "Completed Fat Lib"
     echo "------------------"

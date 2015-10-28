@@ -16,7 +16,7 @@
 
 meta:
 	ADDON_NAME = ofxiOSBoost
-	ADDON_DESCRIPTION = Addon for the open source boost libraries 1.56.0. Includes pre-compiled binarys and scripts to build.
+	ADDON_DESCRIPTION = Addon for the open source boost libraries 1.59.0. Includes pre-compiled binarys and scripts to build.
 	ADDON_AUTHOR = Danoli3
 	ADDON_TAGS = "ios" "boost"
 	ADDON_URL = http://github.com/danoli3/ofxiOSBoost
@@ -29,7 +29,7 @@ common:
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
 	# specified here separated by spaces or one per line using +=
-	ADDON_INCLUDES = "$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/include"
+	ADDON_INCLUDES = "libs/boost/include"
 	
 	# any special flag that should be passed to the compiler when using this
 	# addon
@@ -64,6 +64,6 @@ osx:
 	# binary libraries, these will be usually parsed from the file system but some 
 	# libraries need to passed to the linker in a specific order 
 	ADDON_LIBS =
-	ADDON_LIBS += libs/boost/lib/ios/boost.a
+	ADDON_LIBS += libs/boost/lib/ios/libboost.a
 	
 	

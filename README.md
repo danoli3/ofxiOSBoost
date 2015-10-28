@@ -35,7 +35,7 @@ In Xcode **Build Settings** for your project:
 
 In Xcode for a **Build Target** select the **Target under Build Phases**
 
-- Add to **'Link Binary With Libraries'** the ```boost.a``` found in the ```ofxiOSBoost/libs/boost/lib/ios``` directory.
+- Add to **'Link Binary With Libraries'** the ```libboost.a``` found in the ```ofxiOSBoost/libs/boost/lib/ios``` directory.
 
 If not openFrameworks just add the ``` libs/boost/include ``` to Header Search Paths and the  ``` libs/boost/ios ``` to Library Search Paths
 
