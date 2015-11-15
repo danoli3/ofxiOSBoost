@@ -1,3 +1,5 @@
+#! /bin/bash
+#
 #===============================================================================
 # Filename:  cleanAll.sh
 # Author:    Pete Goodliffe, Daniel Rosser
@@ -8,8 +10,6 @@
 #
 # Cleans the Build Boost framework environment for the iPhone.
 #===============================================================================
-
-#!/bin/sh
 here="`dirname \"$0\"`"
 echo "cd-ing to $here"
 cd "$here" || exit 1

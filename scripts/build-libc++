@@ -1,3 +1,5 @@
+#! /bin/bash
+#
 #===============================================================================
 # Filename:  build-libc++.sh
 # Author:    Pete Goodliffe, Daniel Rosser
@@ -18,8 +20,6 @@
 # Then go get the source tar.bz of the boost you want to build, shove it in the
 # same directory as this script, and run "./boost.sh". Grab a cuppa. And voila.
 #===============================================================================
-
-#!/bin/sh
 here="`dirname \"$0\"`"
 echo "cd-ing to $here"
 cd "$here" || exit 1
@@ -408,12 +408,14 @@ echo "BOOST_LIBS:        $BOOST_LIBS"
 echo "BOOST_SRC:         $BOOST_SRC"
 echo "IOSBUILDDIR:       $IOSBUILDDIR"
 echo "PREFIXDIR:         $PREFIXDIR"
-echo "IOSFRAMEWORKDIR:   $IOSFRAMEWORKDIR"
-echo "OSXFRAMEWORKDIR:   $OSXFRAMEWORKDIR"
 echo "IPHONE_SDKVERSION: $IPHONE_SDKVERSION"
 echo "XCODE_ROOT:        $XCODE_ROOT"
 echo "COMPILER:          $COMPILER"
-echo
+if [ -z ${BITCODE} ]; then
+    echo "BITCODE EMBEDDED: NO $BITCODE"
+else 
+    echo "BITCODE EMBEDDED: YES with: $BITCODE"
+fi
 
 downloadBoost
 unpackBoost
