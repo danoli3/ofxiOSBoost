@@ -1,4 +1,4 @@
-#ofxiOSBoost for Boost 1.59.0  ![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)
+#ofxiOSBoost for Boost 1.59.0  [![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)](https://travis-ci.org/danoli3/ofxiOSBoost?branch=master)
 --------------------
 
 
