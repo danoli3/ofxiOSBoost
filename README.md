@@ -1,5 +1,5 @@
 #ofxiOSBoost for Boost 1.59.0  ![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)
-=====================================
+--------------------
 
 
 ### Boost C++ Libraries 1.59.0 Pre-compiled for iOS
@@ -69,15 +69,19 @@ Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty
 
 
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Double click and run ```scripts/build-libc++.command``` (this will download the 1.59.0 version of boost and begin compiling the library).
+- Double click and run ```scripts/build-libc++``` (this will download the 1.59.0 version of boost and begin compiling the library).
 - Once completed in the terminal continue with the next steps.
 - Add the ofxiOSBoost to your project (src and libs for your chosen architecture)`
 
+#### Build with Bitcode Embedded:
+- Build with embedded bitcode by running the ```scripts/build-libc++withBitcode```
+
+
 #### Alternative Build Script:
-- Build using libstdc++ by running the ```scripts/build-libstdc++.command```
+- Build using libstdc++ by running the ```scripts/build-libstdc++```
 
 #### Clean script
-- Run the clean script from ```scripts/cleanAll.command``` to remove pre-compiled code and the final built library
+- Run the clean script from ```scripts/cleanAll``` to remove pre-compiled code and the final built library
 
 
 ============
