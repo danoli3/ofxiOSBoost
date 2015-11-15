@@ -4,10 +4,10 @@ env:
     matrix:
         - NAME="libc++" \
             SCRIPT_PATH="scripts" \
-            SCRIPT="$SCRIPT_PATH/build-$NAME.sh"
+            SCRIPT="$SCRIPT_PATH/build-$NAME"
         - NAME="libstdc++" \
             SCRIPT_PATH="scripts" \
-            SCRIPT="$SCRIPT_PATH/build-$NAME.sh"
+            SCRIPT="$SCRIPT_PATH/build-$NAME"
 script:
     "$SCRIPT"
 git:
