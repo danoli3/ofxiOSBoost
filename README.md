@@ -1,11 +1,11 @@
-#ofxiOSBoost for Boost 1.59.0  [![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)](https://travis-ci.org/danoli3/ofxiOSBoost?branch=master)
+#ofxiOSBoost for Boost 1.60.0  [![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)](https://travis-ci.org/danoli3/ofxiOSBoost?branch=master)
 --------------------
 
 
-### Boost C++ Libraries 1.59.0 Pre-compiled for iOS
+### Boost C++ Libraries 1.60.0 Pre-compiled for iOS
 ![image](https://github.com/danoli3/ofxiOSBoost/blob/master/ofxaddons_thumbnail.png)
 
-- Addon with Boost 1.59.0 for iOS / Xcode 
+- Addon with Boost 1.60.0 for iOS / Xcode 
 - Precompiled library and Command to build yourself
 - Master is currently a Fat Lib of All Standard Architectures
 - Check Branches for others or to be specific 
@@ -57,6 +57,12 @@ Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty
 
 ============
 
+
+### For tvOS - Checkout the ofxtvOSBoost repo:
+- https://github.com/danoli3/ofxtvOSBoost
+
+============
+
 ### How to Build?
 
 1. You don't need to. This has the pre-compiled versions of BOOST for you to use
@@ -69,7 +75,7 @@ Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty
 
 
 - Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Double click and run ```scripts/build-libc++``` (this will download the 1.59.0 version of boost and begin compiling the library).
+- Double click and run ```scripts/build-libc++``` (this will download the 1.60.0 version of boost and begin compiling the library).
 - Once completed in the terminal continue with the next steps.
 - Add the ofxiOSBoost to your project (src and libs for your chosen architecture)`
 
@@ -86,13 +92,13 @@ Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty
 
 ============
 
-#### Documentation on Boost 1.59.0
+#### Documentation on Boost 1.60.0
 
 
-See: http://www.boost.org/users/history/version_1_59_0.html
+See: http://www.boost.org/users/history/version_1_60_0.html
 
 
-### Version 1.59.0 (Date): August 13th, 2015
+### Version 1.60.0 (Date): December 17th, 2015 15:52 GMT
 
 ============
 
