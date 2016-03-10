@@ -190,7 +190,7 @@ unpackBoost()
 
 restoreBoost()
 {
-    cp $BOOST_SRC/tools/build/example/user-config.jam-bk $BOOST_SRC/tools/build/example/user-config.jam
+    mv $BOOST_SRC/tools/build/example/user-config.jam.bk $BOOST_SRC/tools/build/example/user-config.jam
 }
 
 #===============================================================================
