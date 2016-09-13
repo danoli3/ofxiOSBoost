@@ -239,9 +239,38 @@ bootstrapBoost()
 {
     cd $BOOST_SRC
 
-    BOOST_LIBS_COMMA=$(echo $BOOST_LIBS | sed -e "s/ /,/g")
-    echo "Bootstrapping (with libs $BOOST_LIBS_COMMA)"
-    ./bootstrap.sh --with-libraries=$BOOST_LIBS_COMMA
+    echo "Bootstrapping (sans libs)"
+    ./bootstrap.sh
+
+    doneSection
+}
+
+#===============================================================================
+
+customizeBoost()
+{
+    cd $BOOST_SRC
+
+    echo "Customizing with BCP..."
+
+    ./b2 tools/bcp
+
+    mkdir customboost
+    ./dist/bin/bcp boost/date_time.hpp ./customboost
+    ./dist/bin/bcp boost/regex.hpp ./customboost
+    ./dist/bin/bcp boost/format.hpp ./customboost
+    ./dist/bin/bcp boost/filesystem ./customboost
+    ./dist/bin/bcp boost/thread/mutex.hpp ./customboost
+    ./dist/bin/bcp boost/date_time/local_time_adjustor.hpp ./customboost
+    ./dist/bin/bcp boost/date_time/c_local_time_adjustor.hpp ./customboost
+    ./dist/bin/bcp boost/algorithm/string.hpp ./customboost
+    ./dist/bin/bcp libs/config/checks/architecture ./customboost
+
+    rm -rf boost
+    rm -rf libs
+
+    ln -s customboost/boost
+    ln -s customboost/libs
 
     doneSection
 }
@@ -421,6 +450,7 @@ unpackBoost
 inventMissingHeaders
 prepare
 bootstrapBoost
+customizeBoost
 updateBoost
 buildBoostForIPhoneOS
 scrunchAllLibsTogetherInOneLibPerPlatform
