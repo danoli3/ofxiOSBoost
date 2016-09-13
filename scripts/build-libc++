@@ -422,6 +422,17 @@ buildIncludes()
     doneSection
 }
 
+createTarball()
+{
+    cd $OUTPUT_DIR
+
+    echo "Creating tarball of custom boost library"
+
+    tar -cvzf boost_${BOOST_VERSION2}_ios.tar.gz boost
+
+    doneSection
+}
+
 #===============================================================================
 # Execution starts here
 #===============================================================================
@@ -455,6 +466,7 @@ updateBoost
 buildBoostForIPhoneOS
 scrunchAllLibsTogetherInOneLibPerPlatform
 buildIncludes
+createTarball
 
 restoreBoost
 
