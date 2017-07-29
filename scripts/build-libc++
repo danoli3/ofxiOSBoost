@@ -187,10 +187,10 @@ unpackBoost()
     echo Fixing utf8_codecvt_facet.cpp duplicates...
 
     [ -f "$BOOST_SRC/libs/filesystem/src/utf8_codecvt_facet.cpp" ] && (mv "$BOOST_SRC/libs/filesystem/src/utf8_codecvt_facet.cpp" "$BOOST_SRC/libs/filesystem/src/filesystem_utf8_codecvt_facet.cpp" )
-    sed -i .bak 's/utf8_codecvt_facet/filesystem_utf8_codecvt_facet/' "$BOOST_SRC/libs/filesystem/build/Jamfile.v2"
+    /usr/bin/sed -i .bak 's/utf8_codecvt_facet/filesystem_utf8_codecvt_facet/' "$BOOST_SRC/libs/filesystem/build/Jamfile.v2"
 
     [ -f "$BOOST_SRC/libs/program_options/src/utf8_codecvt_facet.cpp" ] && (mv "$BOOST_SRC/libs/program_options/src/utf8_codecvt_facet.cpp" "$BOOST_SRC/libs/program_options/src/program_options_utf8_codecvt_facet.cpp" )
-    sed -i .bak 's/utf8_codecvt_facet/program_options_utf8_codecvt_facet/' "$BOOST_SRC/libs/program_options/build/Jamfile.v2"
+    /usr/bin/sed -i .bak 's/utf8_codecvt_facet/program_options_utf8_codecvt_facet/' "$BOOST_SRC/libs/program_options/build/Jamfile.v2"
 
     for lib in $BOOST_LIBS; do
       rm -rf $BOOST_SRC/libs/$lib/*.doc $BOOST_SRC/libs/$lib/src/*.doc $BOOST_SRC/libs/$lib/test
@@ -220,7 +220,7 @@ updateBoost()
     local CROSS_SDK_SIM="iPhoneSimulator${SDKVERSION}.sdk"
     local BUILD_TOOLS="${DEVELOPER}"
 
-    sed -ie 's/-arch arm/-arch armv7 -arch arm64/g' "${BOOST_SRC}/tools/build/src/tools/darwin.jam"
+    /usr/bin/sed -ie 's/-arch arm/-arch armv7 -arch arm64/g' "${BOOST_SRC}/tools/build/src/tools/darwin.jam"
     cp $BOOST_SRC/tools/build/example/user-config.jam $BOOST_SRC/tools/build/example/user-config.jam.bk
 
     cat >> $BOOST_SRC/tools/build/example/user-config.jam <<EOF
@@ -255,7 +255,7 @@ bootstrapBoost()
 {
     cd $BOOST_SRC
 
-    BOOST_LIBS_COMMA=$(echo $BOOST_LIBS | sed -e "s/ /,/g")
+    BOOST_LIBS_COMMA=$(echo $BOOST_LIBS | /usr/bin/sed -e "s/ /,/g")
     echo "Bootstrapping (with libs $BOOST_LIBS_COMMA)"
     ./bootstrap.sh --with-libraries=$BOOST_LIBS_COMMA
 
@@ -333,7 +333,7 @@ scrunchAllLibsTogetherInOneLibPerPlatform()
     mkdir -p $IOSBUILDDIR/i386/obj
 	mkdir -p $IOSBUILDDIR/x86_64/obj
 
-    ALL_LIBS=$(find iphone-build/stage/lib -name "libboost_*.a" | sed -n 's/.*\(libboost_.*.a\)/\1/p' | paste -sd " " -)
+    ALL_LIBS=$(find iphone-build/stage/lib -name "libboost_*.a" | /usr/bin/sed -n 's/.*\(libboost_.*.a\)/\1/p' | paste -sd " " -)
 
     echo Splitting all existing fat binaries...
 
