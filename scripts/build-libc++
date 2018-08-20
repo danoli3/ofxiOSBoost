@@ -27,7 +27,7 @@ cd "$here" || exit 1
 CPPSTD=c++11    #c++89, c++99, c++14
 STDLIB=libc++   # libstdc++
 COMPILER=clang++
-PARALLEL_MAKE=16   # how many threads to make boost with
+PARALLEL_MAKE=`sysctl -n hw.ncpu` # how many threads to make boost with
 
 BOOST_V1=1.60.0
 BOOST_V2=1_60_0
