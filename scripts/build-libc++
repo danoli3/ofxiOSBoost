@@ -3,11 +3,10 @@
 #===============================================================================
 # Filename:  build-libc++.sh
 # Author:    Pete Goodliffe, Daniel Rosser
-# Copyright: (c) Copyright 2009 Pete Goodliffe, 2013-2015 Daniel Rosser
+# Copyright: (c) Copyright 2009 Pete Goodliffe, 2013-2019 Daniel Rosser
 # Licence:   Please feel free to use this, with attribution
 # Modified version ## for ofxiOSBoost
 #===============================================================================
-#
 # Builds a Boost framework for the iPhone.
 # Creates a set of universal libraries that can be used on an iPhone and in the
 # iPhone simulator. Then creates a pseudo-framework to make using boost in Xcode
@@ -15,60 +14,84 @@
 #
 # To configure the script, define:
 #    BOOST_LIBS:        which libraries to build
-#    IPHONE_SDKVERSION: iPhone SDK version (e.g. 8.0)
+#    Other settings in the build script below 
 #
 # Then go get the source tar.bz of the boost you want to build, shove it in the
 # same directory as this script, and run "./boost.sh". Grab a cuppa. And voila.
 #===============================================================================
-here="`dirname \"$0\"`"
-echo "cd-ing to $here"
-cd "$here" || exit 1
-
-CPPSTD=c++11    #c++89, c++99, c++14
-STDLIB=libc++   # libstdc++
-COMPILER=clang++
-PARALLEL_MAKE=`sysctl -n hw.ncpu` # how many threads to make boost with
-
-BOOST_V1=1.60.0
-BOOST_V2=1_60_0
-
+DIRNAME="`dirname \"$0\"`";cd "$DIRNAME"||exit 1; # echo "Boost Build Script Changing Active Directory of bash to Script Location [cd to $DIRNAME]"
+#=================================================
+# IOS SETTINGS
+IOS_MIN_VERSION=9.0
+BITCODE=""
 #BITCODE="-fembed-bitcode"  # Uncomment this line for Bitcode generation
 
-CURRENTPATH=`pwd`
-LOGDIR="$CURRENTPATH/build/logs/"
-IOS_MIN_VERSION=7.0
+#=================================================
+# Boost Version to Target
+MAJOR=1
+MINOR=69
+PATCH=0
+#=================================================
+BUILD_LIBRARIES="random regex graph random chrono thread filesystem system date_time locale"
+ALL_LIBRARIES=""
+#ORIGNAL_LIBRARIES="random regex graph random chrono thread signals filesystem system date_time locale"
+#=================================================
+# PARAMS
+CPPSTD=c++11    #c++89, c++99, c++14, c++17
+STDLIB=libc++   # libstdc++
+COMPILER=clang++
+
+echo "================================================="
+echo "Boost Build Script - ${MAJOR}.${MINOR}.${PATCH}" 
+echo "================================================="
+#=================================================
+# XCODE DEVELOPER COMMANDS
 SDKVERSION=`xcrun -sdk iphoneos --show-sdk-version`
 OSX_SDKVERSION=`xcrun -sdk macosx --show-sdk-version`
 DEVELOPER=`xcode-select -print-path`
 XCODE_ROOT=`xcode-select -print-path`
+XCODE_SHOW_PATH=`xcrun -k --sdk iphoneos --show-sdk-path`
 
-if [ ! -d "$DEVELOPER" ]; then
-  echo "xcode path is not set correctly $DEVELOPER does not exist (most likely because of xcode > 4.3)"
-  echo "run"
-  echo "sudo xcode-select -switch <xcode path>"
-  echo "for default installation:"
-  echo "sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer"
-  exit 1
-fi
+#=================================================
+# OTHER
+WEB_SOURCE="https://sourceforge.net/projects/boost/"
+BOOST_V1="${MAJOR}.${MINOR}.${PATCH}"
+BOOST_V2="${MAJOR}_${MINOR}_${PATCH}"
+CURRENTPATH=`pwd`
+LOGDIR="$CURRENTPATH/build/logs/"
+PARALLEL_MAKE=`sysctl -n hw.ncpu` # how many threads to make boost with
+CONFIG_ERROR="Developer Configuration Error. The Xcode path is not set correctly. '$DEVELOPER' does not exist (most likely because of xcode > 4.3)\nRun the following command from Terminal/shell to fix: 'sudo xcode-select -switch /Applications/Xcode.app' \n Swap path if needed for Beta Version i.e 'sudo xcode-select -switch <xcode path>'"
 
+#=================================================
+# Developer Console Checks and Alerts if script fails to run anything when building
+#=================================================
+
+# Check Xcode is correctly linked - Will Stop and Give Developer Error
+{ if [ ! -d $XCODE_SHOW_PATH ];then echo "ofxiOSBoost Error #1 - ${CONFIG_ERROR}";fi;}||{ echo "ofxiOSBoost Error #1.1 - ${CONFIG_ERROR}";}
+# Check if Xcode Developer Set and Working
+if [ ! -d "$DEVELOPER" ];then "ofxiOSBoost Error #2 - ${CONFIG_ERROR}" exit 1;fi
+# Check for Whitepaces
 case $DEVELOPER in  
      *\ * )
-           echo "Your Xcode path contains whitespaces, which is not supported."
+           echo "ofxiOSBoost Error #3 - The current Xcode path contains whitespaces, which is not supported. Currentpath: ${$DEVELOPER}"
            exit 1
           ;;
 esac
-
 case $CURRENTPATH in  
      *\ * )
-           echo "Your path contains whitespaces, which is not supported by 'make install'."
+           echo "ofxiOSBoost Error #4 - The current script path contains whitespaces, which is not supported by 'make install'. Please move the script to a folder hierarchy without whitespaces. Path ${DIRNAME}"
            exit 1
           ;;
 esac
-
-: ${BOOST_LIBS:="random regex graph random chrono thread signals filesystem system date_time locale"}
+#===============================================================================
+echo "================================================="
+echo "Developer configuration completed. Build Script Starting"
+#===============================================================================
+if [ -n "$BOOST_LIBS" ];then ${BOOST_LIBS}="${BUILD_LIBRARIES}";fi
+echo "Boost Libraries Compiling with: [${BOOST_LIBS}]"
+: ${BOOST_LIBS:="{${BOOST_LIBS}"}
 : ${IPHONE_SDKVERSION:=`xcodebuild -showsdks | grep iphoneos | egrep "[[:digit:]]+\.[[:digit:]]+" -o | tail -1`}
 : ${EXTRA_CPPFLAGS:="-fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=$STDLIB -miphoneos-version-min=$IOS_MIN_VERSION $BITCODE -fvisibility=hidden -fvisibility-inlines-hidden"}
-
 : ${TARBALLDIR:=`pwd`/..}
 : ${SRCDIR:=`pwd`/../build/src}
 : ${IOSBUILDDIR:=`pwd`/../build/libs/boost/lib}
@@ -78,23 +101,18 @@ esac
 : ${OUTPUT_DIR:=`pwd`/../libs/boost/}
 : ${OUTPUT_DIR_LIB:=`pwd`/../libs/boost/ios/}
 : ${OUTPUT_DIR_SRC:=`pwd`/../libs/boost/include/boost}
-
 : ${BOOST_VERSION:=$BOOST_V1}
 : ${BOOST_VERSION2:=$BOOST_V2}
+#===============================================================================
 
 BOOST_TARBALL=$TARBALLDIR/boost_$BOOST_VERSION2.tar.bz2
 BOOST_SRC=$SRCDIR/boost_${BOOST_VERSION2}
 BOOST_INCLUDE=$BOOST_SRC/boost
 
-
-
 #===============================================================================
 ARM_DEV_CMD="xcrun --sdk iphoneos"
 SIM_DEV_CMD="xcrun --sdk iphonesimulator"
 OSX_DEV_CMD="xcrun --sdk macosx"
-
-#===============================================================================
-
 
 #===============================================================================
 # Functions
@@ -103,6 +121,7 @@ OSX_DEV_CMD="xcrun --sdk macosx"
 abort()
 {
     echo
+    echo "================================================================="
     echo "Aborted: $@"
     exit 1
 }
@@ -119,8 +138,9 @@ doneSection()
 
 cleanEverythingReadyToStart()
 {
-    echo Cleaning everything before we start to build...
-
+    echo "================================================================="
+   
+    echo "Cleaning everything before we start to build..."
     rm -rf iphone-build iphonesim-build osx-build
     rm -rf $IOSBUILDDIR
     rm -rf $PREFIXDIR
@@ -128,13 +148,16 @@ cleanEverythingReadyToStart()
     rm -rf $TARBALLDIR/build
     rm -rf $LOGDIR
 
+    echo "-----------------------------------------------------------------"
+
     doneSection
 }
 
 postcleanEverything()
 {
-	echo Cleaning everything after the build...
-
+    echo "================================================================="
+    
+    echo "Cleaning everything after the build..."
 	rm -rf iphone-build iphonesim-build osx-build
 	rm -rf $PREFIXDIR
 	rm -rf $IOSBUILDDIR/armv6/obj
@@ -145,6 +168,9 @@ postcleanEverything()
 	rm -rf $IOSBUILDDIR/x86_64/obj
     rm -rf $TARBALLDIR/build
     rm -rf $LOGDIR
+
+    echo "-----------------------------------------------------------------"
+    
 	doneSection
 }
 
@@ -163,8 +189,13 @@ prepare()
 downloadBoost()
 {
     if [ ! -s $TARBALLDIR/boost_${BOOST_VERSION2}.tar.bz2 ]; then
-        echo "Downloading boost ${BOOST_VERSION}"
-        curl -L -o $TARBALLDIR/boost_${BOOST_VERSION2}.tar.bz2 http://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION2}.tar.bz2/download
+        
+        echo "================================================================="
+    
+        echo "Downloading Boost Source [${BOOST_VERSION}] from [${WEB_SOURCE}]"
+        curl -L -o $TARBALLDIR/boost_${BOOST_VERSION2}.tar.bz2 ${WEB_SOURCE}files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION2}.tar.bz2/download
+        
+        echo "-----------------------------------------------------------------"
     fi
 
     doneSection
@@ -244,7 +275,7 @@ inventMissingHeaders()
     # These files are missing in the ARM iPhoneOS SDK, but they are in the simulator.
     # They are supported on the device, so we copy them from x86 SDK to a staging area
     # to use them on ARM, too.
-    echo Invent missing headers
+    echo "Invent missing headers"
 
     cp $XCODE_ROOT/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator${IPHONE_SDKVERSION}.sdk/usr/include/{crt_externs,bzlib}.h $BOOST_SRC
 }
