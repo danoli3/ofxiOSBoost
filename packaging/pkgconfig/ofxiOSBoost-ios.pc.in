@@ -1,0 +1,10 @@
+prefix=${pcfiledir}/..
+xcframework=${prefix}/boost.xcframework
+libdir=${xcframework}/ios-arm64
+includedir=${libdir}/Headers
+
+Name: ofxiOSBoost
+Description: Boost @BOOST_VERSION@ static libraries for arm64 iOS devices
+Version: @BOOST_VERSION@
+Cflags: -I${includedir} -std=@CPPSTD@
+Libs: ${libdir}/libboost-device-arm64.a

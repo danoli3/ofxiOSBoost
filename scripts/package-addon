@@ -30,6 +30,7 @@ BINARY_ROOT="$WORK_DIR/binary/ofxiOSBoost-${BOOST_VERSION}"
 rm -rf "$ADDON_ROOT/libs/boost/include" "$ADDON_ROOT/libs/boost/ios"
 mkdir -p "$ADDON_ROOT/libs/boost"
 cp -R "$BINARY_ROOT/boost.xcframework" "$ADDON_ROOT/libs/boost/"
+cp -R "$BINARY_ROOT/cmake" "$BINARY_ROOT/pkgconfig" "$ADDON_ROOT/libs/boost/"
 cp "$BINARY_ROOT/BUILD-INFO.txt" "$ADDON_ROOT/"
 
 mkdir -p "$DIST_DIR"

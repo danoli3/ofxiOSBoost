@@ -44,6 +44,15 @@ DEVICE_LIBRARY="$DEVICE_DIR/libboost-device-arm64.a"
 DEVICE_HEADERS="$DEVICE_DIR/Headers"
 
 plutil -lint "$XCFRAMEWORK/Info.plist" >/dev/null
+for metadata in \
+    "$XCFRAMEWORK/ios-arm64/boost.pkl" \
+    "$XCFRAMEWORK/ios-arm64_x86_64-simulator/boost.pkl" \
+    "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfig.cmake" \
+    "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfigVersion.cmake" \
+    "$PACKAGE_DIR/pkgconfig/ofxiOSBoost-ios.pc" \
+    "$PACKAGE_DIR/pkgconfig/ofxiOSBoost-ios-simulator.pc"; do
+    [[ -s "$metadata" ]] || { echo "Missing package metadata: $metadata" >&2; exit 1; }
+done
 [[ "$(xcrun lipo -archs "$LIBRARY")" == "x86_64 arm64" ]] || {
     echo "Unexpected Simulator architectures in $LIBRARY" >&2
     exit 1

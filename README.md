@@ -41,6 +41,16 @@ Each GitHub Release also provides two kinds of download:
   openFrameworks addon, with that release's XCFramework already installed at
   `libs/boost/boost.xcframework`.
 
+Release packages include metadata for additional build systems:
+
+- `boost.pkl` beside each XCFramework library follows the openFrameworks
+  Apothecary metadata convention and records the exact slice checksum.
+- `cmake/ofxiOSBoost` provides the imported target `ofxiOSBoost::boost` and
+  selects the device or Simulator slice from `CMAKE_OSX_SYSROOT`.
+- `pkgconfig/ofxiOSBoost-ios.pc` and
+  `pkgconfig/ofxiOSBoost-ios-simulator.pc` expose device and Simulator metadata
+  separately because pkg-config cannot select XCFramework slices dynamically.
+
 ### C++ standard by Boost version
 
 The release build selects a C++ language standard appropriate for each Boost

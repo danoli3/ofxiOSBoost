@@ -138,11 +138,59 @@ xcodebuild -create-xcframework \
     -library "$BUILD_DIR/libboost-simulator.a" -headers "$PACKAGE_DIR/include" \
     -output "$PACKAGE_DIR/boost.xcframework"
 
+SOURCE_SHA="$(shasum -a 256 "$SOURCE_ARCHIVE" | awk '{ print $1 }')"
+BUILD_TIME="$(date -u '+%Y-%m-%d T%H:%M:%SZ')"
+BUILD_NUMBER="${GITHUB_RUN_NUMBER:-1}"
+write_pkl() {
+    local slice_dir="$1"
+    local binary="$2"
+    local binary_sha
+    binary_sha="$(shasum -a 256 "$slice_dir/$binary" | awk '{ print $1 }')"
+    cat > "$slice_dir/boost.pkl" <<EOF
+name = "boost"
+version = "$BOOST_VERSION"
+buildTime = "$BUILD_TIME"
+buildNumber = "$BUILD_NUMBER"
+type = "ios"
+gitUrl = "https://github.com/boostorg/boost"
+cppStandard = "${CPPSTD#c++}"
+cStandard = ""
+linkerFlags = ""
+dependencies = ""
+binary = "$binary"
+binarySha = "$binary_sha"
+shaType = "sha256sum"
+sourceSHA = "$SOURCE_SHA"
+defines = "BOOST_SP_USE_SPINLOCK"
+frameworks = ""
+EOF
+}
+
+write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64" "libboost-device-arm64.a"
+write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64_x86_64-simulator" "libboost-simulator.a"
+
+mkdir -p "$PACKAGE_DIR/cmake/ofxiOSBoost" "$PACKAGE_DIR/pkgconfig"
+CMAKE_COMPILE_FEATURE="cxx_std_${CPPSTD#c++}"
+sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
+    -e "s|@CMAKE_COMPILE_FEATURE@|$CMAKE_COMPILE_FEATURE|g" \
+    "$REPO_ROOT/packaging/cmake/ofxiOSBoostConfig.cmake.in" \
+    > "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfig.cmake"
+sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
+    "$REPO_ROOT/packaging/cmake/ofxiOSBoostConfigVersion.cmake.in" \
+    > "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfigVersion.cmake"
+for pc_template in "$REPO_ROOT"/packaging/pkgconfig/*.pc.in; do
+    pc_name="$(basename "$pc_template" .in)"
+    sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
+        -e "s|@CPPSTD@|$CPPSTD|g" "$pc_template" \
+        > "$PACKAGE_DIR/pkgconfig/$pc_name"
+done
+
 cat > "$PACKAGE_DIR/BUILD-INFO.txt" <<EOF
 Boost: $BOOST_VERSION
 iOS deployment target: $IOS_MIN_VERSION
 Architectures: arm64 (device), arm64 and x86_64 (simulator)
 Packaging: XCFramework
+Metadata: Apothecary PKL, CMake package, pkg-config
 C++ standard library: libc++
 C++ language standard: $CPPSTD
 Libraries: $BOOST_LIBS

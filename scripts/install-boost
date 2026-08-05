@@ -52,5 +52,8 @@ if [[ -e "$TARGET" ]]; then
     rm -rf "$TARGET"
 fi
 cp -R "$SOURCE" "$TARGET"
+rm -rf "$INSTALL_ROOT/cmake" "$INSTALL_ROOT/pkgconfig"
+cp -R "$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/cmake" "$INSTALL_ROOT/"
+cp -R "$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/pkgconfig" "$INSTALL_ROOT/"
 
 echo "Installed Boost $BOOST_VERSION at $TARGET"
