@@ -13,6 +13,14 @@ void ofApp::setup(){
     {
         ofLog(OF_LOG_NOTICE, ofToString(i));
     }
+
+    // These calls require the compiled Boost.Filesystem, Boost.System, and
+    // Boost.Regex libraries. A successful link proves the XCFramework is used.
+    const boost::filesystem::path path("/tmp/ofxiOSBoost/example.txt");
+    const boost::regex expected("example\\.txt");
+    const bool linked = boost::regex_match(path.filename().string(), expected);
+    boostLinkStatus = linked ? "Boost XCFramework linked" : "Boost link test failed";
+    ofLogNotice() << boostLinkStatus;
 }
 
 //--------------------------------------------------------------
@@ -22,7 +30,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	
+	ofDrawBitmapStringHighlight(boostLinkStatus, 20, 40);
 }
 
 //--------------------------------------------------------------

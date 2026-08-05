@@ -15,6 +15,32 @@ libc++. Current release builds contain:
 Current releases do not contain `armv7` or `i386` slices. Download the
 versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 
+Install the pinned release expected by this checkout:
+
+```sh
+./scripts/install-boost
+```
+
+To explicitly follow the newest published release instead:
+
+```sh
+./scripts/install-boost latest
+```
+
+The pinned form is recommended for reproducible openFrameworks projects. The
+installer verifies the published checksum and places the ignored dependency at
+`libs/boost/boost.xcframework`. openFrameworks has no universal addon dependency
+package manager; an addon setup script combined with `addon_config.mk` is the
+usual repository-level approach.
+
+Each GitHub Release also provides two kinds of download:
+
+- `ofxiOSBoost-VERSION.tar.gz` contains the XCFramework, headers, and build
+  metadata for general iOS use.
+- `ofxiOSBoost-addon-VERSION.tar.gz` contains the complete ready-to-drop
+  openFrameworks addon, with that release's XCFramework already installed at
+  `libs/boost/boost.xcframework`.
+
 ### C++ standard by Boost version
 
 The release build selects a C++ language standard appropriate for each Boost
@@ -56,6 +82,10 @@ artifacts use the table above.
 
 ### How To Link to an Xcode Project?
 
+Run `./scripts/install-boost` before generating or opening the project. New
+projects should link `libs/boost/boost.xcframework`; Xcode then selects the
+correct device or Simulator library automatically.
+
 In Xcode **Build Settings** for your project:
 
 - Add to **Library Search Paths** ( ```LIBRARY_SEARCH_PATHS``` ) ```$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/lib/ios ```
@@ -88,6 +118,25 @@ BOOST_VERSION=1.61.0 ./scripts/build-boost-ios
 
 The generated files are placed in `dist/`, which is intentionally ignored by
 Git.
+
+### XCFramework example
+
+`example-xcframework` verifies a release independently of openFrameworks. It
+checks the XCFramework metadata and Simulator slices, then compiles and links a
+small program using the compiled Boost.Filesystem, Boost.System, and Boost.Regex
+libraries for arm64 iOS device and both arm64 and x86_64 iOS Simulator.
+
+Test the published Boost 1.61.0 release:
+
+```sh
+./example-xcframework/build.sh
+```
+
+Or test a locally built archive without downloading it:
+
+```sh
+./example-xcframework/build.sh dist/ofxiOSBoost-1.61.0.tar.gz
+```
 
 
 

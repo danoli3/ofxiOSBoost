@@ -5,12 +5,15 @@
 #include "ofxiOSExtras.h"
 
 #include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 
 
 
 class ofApp : public ofxiOSApp {
 	
     public:
+		std::string boostLinkStatus;
         void setup();
         void update();
         void draw();
@@ -28,5 +31,4 @@ class ofApp : public ofxiOSApp {
         void deviceOrientationChanged(int newOrientation);
 
 };
-
 

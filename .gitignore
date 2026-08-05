@@ -22,6 +22,7 @@
 libs/boost/lib/.DS_Store
 build
 dist/
+libs/boost/boost.xcframework/
 
 *.pbxuser
 *.perspective

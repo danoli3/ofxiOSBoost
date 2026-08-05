@@ -52,6 +52,12 @@ jobs:
           test "$(xcrun lipo -archs "$device_lib")" = "arm64"
           test "$(xcrun lipo -archs "$simulator_lib")" = "x86_64 arm64"
 
+      - name: Build XCFramework example
+        run: ./example-xcframework/build.sh "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
+
+      - name: Package ready-to-use openFrameworks addon
+        run: ./scripts/package-addon
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
@@ -59,6 +65,8 @@ jobs:
           path: |
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz.sha256
+            dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz
+            dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz.sha256
           if-no-files-found: error
 
       - name: Create or update GitHub Release
@@ -75,4 +83,6 @@ jobs:
           gh release upload "$RELEASE_TAG" \
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
+            "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz" \
+            "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz.sha256" \
             --clobber

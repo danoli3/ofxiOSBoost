@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+BOOST_VERSION="${BOOST_VERSION:-1.61.0}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+DIST_DIR="${DIST_DIR:-$REPO_ROOT/dist}"
+BINARY_ARCHIVE="$DIST_DIR/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
+ADDON_ARCHIVE="ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz"
+WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ofxiosboost-addon.XXXXXX")"
+
+cleanup() { rm -rf "$WORK_DIR"; }
+trap cleanup EXIT
+
+[[ -s "$BINARY_ARCHIVE" ]] || {
+    echo "Build the binary archive first: $BINARY_ARCHIVE" >&2
+    exit 1
+}
+
+mkdir -p "$WORK_DIR/source" "$WORK_DIR/binary"
+git -C "$REPO_ROOT" archive --prefix=ofxiOSBoost/ HEAD | tar -xf - -C "$WORK_DIR/source"
+tar -xzf "$BINARY_ARCHIVE" -C "$WORK_DIR/binary"
+
+ADDON_ROOT="$WORK_DIR/source/ofxiOSBoost"
+BINARY_ROOT="$WORK_DIR/binary/ofxiOSBoost-${BOOST_VERSION}"
+
+# Release bundles use only the matching XCFramework headers, not the historical
+# headers retained on the source branch for the original Boost 1.60.0 release.
+rm -rf "$ADDON_ROOT/libs/boost/include" "$ADDON_ROOT/libs/boost/ios"
+mkdir -p "$ADDON_ROOT/libs/boost"
+cp -R "$BINARY_ROOT/boost.xcframework" "$ADDON_ROOT/libs/boost/"
+cp "$BINARY_ROOT/BUILD-INFO.txt" "$ADDON_ROOT/"
+
+mkdir -p "$DIST_DIR"
+tar -czf "$DIST_DIR/$ADDON_ARCHIVE" -C "$WORK_DIR/source" ofxiOSBoost
+(
+    cd "$DIST_DIR"
+    shasum -a 256 "$ADDON_ARCHIVE" > "$ADDON_ARCHIVE.sha256"
+)
+
+echo "Created $DIST_DIR/$ADDON_ARCHIVE"

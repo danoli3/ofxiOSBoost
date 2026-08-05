@@ -149,6 +149,9 @@ Libraries: $BOOST_LIBS
 EOF
 
 tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$WORK_DIR" "$ARCHIVE_NAME"
-shasum -a 256 "$DIST_DIR/$ARCHIVE_NAME.tar.gz" > "$DIST_DIR/$ARCHIVE_NAME.tar.gz.sha256"
+(
+    cd "$DIST_DIR"
+    shasum -a 256 "$ARCHIVE_NAME.tar.gz" > "$ARCHIVE_NAME.tar.gz.sha256"
+)
 
 echo "Created $DIST_DIR/$ARCHIVE_NAME.tar.gz"
