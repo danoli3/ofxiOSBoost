@@ -28,6 +28,21 @@ command -v curl >/dev/null || { echo "curl is required." >&2; exit 1; }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+COMPONENT_MANIFEST="$REPO_ROOT/packaging/versions/$BOOST_VERSION-components.tsv"
+[[ -s "$COMPONENT_MANIFEST" ]] || { echo "Missing component manifest: $COMPONENT_MANIFEST" >&2; exit 1; }
+AVAILABLE_LIBS="$(awk -F '\t' '$1 == "included" || $1 == "excluded" { print $2 }' "$COMPONENT_MANIFEST" | paste -sd ' ' -)"
+for library in $BOOST_LIBS; do
+    [[ " $AVAILABLE_LIBS " == *" $library "* ]] || {
+        echo "Unknown compiled library '$library' for Boost $BOOST_VERSION." >&2
+        exit 2
+    }
+done
+EXCLUDED_LIBS=""
+for library in $AVAILABLE_LIBS; do
+    if [[ " $BOOST_LIBS " != *" $library "* ]]; then
+        EXCLUDED_LIBS="${EXCLUDED_LIBS:+$EXCLUDED_LIBS }$library"
+    fi
+done
 VERSION_UNDERSCORED="${BOOST_VERSION//./_}"
 ARCHIVE_NAME="ofxiOSBoost-${BOOST_VERSION}"
 DIST_DIR="${DIST_DIR:-$REPO_ROOT/dist}"
@@ -163,11 +178,53 @@ shaType = "sha256sum"
 sourceSHA = "$SOURCE_SHA"
 defines = "BOOST_SP_USE_SPINLOCK"
 frameworks = ""
+includedLibraries = "$BOOST_LIBS"
+excludedLibraries = "$EXCLUDED_LIBS"
 EOF
 }
 
 write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64" "libboost-device-arm64.a"
 write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64_x86_64-simulator" "libboost-simulator.a"
+
+write_component_text() {
+    local destination="$1"
+    {
+        echo "Boost $BOOST_VERSION compiled component inventory"
+        echo
+        echo "Included in this binary:"
+        for library in $BOOST_LIBS; do echo "- $library"; done
+        echo
+        echo "Not included in this binary:"
+        while IFS=$'\t' read -r status library note; do
+            [[ "$status" == "included" || "$status" == "excluded" ]] || continue
+            if [[ " $BOOST_LIBS " != *" $library "* ]]; then
+                echo "- $library: $note"
+            fi
+        done < "$COMPONENT_MANIFEST"
+        echo
+        echo "All Boost headers are packaged. 'Not included' means that the compiled"
+        echo "library is absent from the combined static binary; header-only facilities"
+        echo "remain available. See COMPONENTS.md for the release-level inventory."
+    } > "$destination"
+}
+
+write_component_text "$PACKAGE_DIR/boost.xcframework/ios-arm64/boost-components.txt"
+write_component_text "$PACKAGE_DIR/boost.xcframework/ios-arm64_x86_64-simulator/boost-components.txt"
+
+{
+    echo "# Boost $BOOST_VERSION component inventory"
+    echo
+    echo "The XCFramework contains all Boost headers. This inventory describes which"
+    echo "libraries contribute compiled objects to the combined static binaries."
+    echo
+    echo "| Component | Binary status | Notes |"
+    echo "| --- | --- | --- |"
+    while IFS=$'\t' read -r manifest_status library note; do
+        [[ "$manifest_status" == "included" || "$manifest_status" == "excluded" ]] || continue
+        if [[ " $BOOST_LIBS " == *" $library "* ]]; then status="Included"; else status="Not included"; fi
+        echo "| \`$library\` | $status | $note |"
+    done < "$COMPONENT_MANIFEST"
+} > "$PACKAGE_DIR/COMPONENTS.md"
 
 mkdir -p "$PACKAGE_DIR/cmake/ofxiOSBoost" "$PACKAGE_DIR/pkgconfig"
 CMAKE_COMPILE_FEATURE="cxx_std_${CPPSTD#c++}"
@@ -194,6 +251,8 @@ Metadata: Apothecary PKL, CMake package, pkg-config
 C++ standard library: libc++
 C++ language standard: $CPPSTD
 Libraries: $BOOST_LIBS
+Excluded compiled libraries: $EXCLUDED_LIBS
+Component inventory: COMPONENTS.md and slice-local boost-components.txt
 EOF
 
 tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$WORK_DIR" "$ARCHIVE_NAME"

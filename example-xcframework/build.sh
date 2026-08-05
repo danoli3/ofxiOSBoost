@@ -46,7 +46,10 @@ DEVICE_HEADERS="$DEVICE_DIR/Headers"
 plutil -lint "$XCFRAMEWORK/Info.plist" >/dev/null
 for metadata in \
     "$XCFRAMEWORK/ios-arm64/boost.pkl" \
+    "$XCFRAMEWORK/ios-arm64/boost-components.txt" \
     "$XCFRAMEWORK/ios-arm64_x86_64-simulator/boost.pkl" \
+    "$XCFRAMEWORK/ios-arm64_x86_64-simulator/boost-components.txt" \
+    "$PACKAGE_DIR/COMPONENTS.md" \
     "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfig.cmake" \
     "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfigVersion.cmake" \
     "$PACKAGE_DIR/pkgconfig/ofxiOSBoost-ios.pc" \

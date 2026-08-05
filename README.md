@@ -44,7 +44,12 @@ Each GitHub Release also provides two kinds of download:
 Release packages include metadata for additional build systems:
 
 - `boost.pkl` beside each XCFramework library follows the openFrameworks
-  Apothecary metadata convention and records the exact slice checksum.
+  Apothecary metadata convention and records the exact slice checksum plus the
+  included and excluded compiled-library lists.
+- `boost-components.txt` beside each slice binary provides a plain-text
+  inventory, while the package-level `COMPONENTS.md` explains every included
+  and omitted compiled component. All Boost headers remain present, including
+  those belonging to header-only libraries.
 - `cmake/ofxiOSBoost` provides the imported target `ofxiOSBoost::boost` and
   selects the device or Simulator slice from `CMAKE_OSX_SYSROOT`.
 - `pkgconfig/ofxiOSBoost-ios.pc` and
