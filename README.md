@@ -120,15 +120,15 @@ to the repository. The first automated release is Boost 1.61.0. Its archive
 contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
-Maintainers can create or refresh the release by running the **Build and release
-Boost for iOS** workflow with version `1.61.0`. Pushing the tag
-`boost-1.61.0` runs the same workflow. The workflow publishes both the archive
-and its SHA-256 checksum to the `boost-1.61.0` GitHub Release.
+Maintainers can create or refresh the current release by running the **Build and
+release Boost for iOS** workflow with version `1.62.0`. Pushing the tag
+`boost-1.62.0` runs the same workflow. The workflow publishes both the archive
+and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.61.0 ./scripts/build-boost-ios
+BOOST_VERSION=1.62.0 ./scripts/build-boost-ios
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -141,7 +141,7 @@ checks the XCFramework metadata and Simulator slices, then compiles and links a
 small program using the compiled Boost.Filesystem, Boost.System, and Boost.Regex
 libraries for arm64 iOS device and both arm64 and x86_64 iOS Simulator.
 
-Test the published Boost 1.61.0 release:
+Test the published Boost 1.62.0 release:
 
 ```sh
 ./example-xcframework/build.sh
@@ -150,7 +150,7 @@ Test the published Boost 1.61.0 release:
 Or test a locally built archive without downloading it:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.61.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.62.0.tar.gz
 ```
 
 

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.61.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.62.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DIST_DIR="${DIST_DIR:-$REPO_ROOT/dist}"
@@ -32,6 +32,10 @@ mkdir -p "$ADDON_ROOT/libs/boost"
 cp -R "$BINARY_ROOT/boost.xcframework" "$ADDON_ROOT/libs/boost/"
 cp -R "$BINARY_ROOT/cmake" "$BINARY_ROOT/pkgconfig" "$ADDON_ROOT/libs/boost/"
 cp "$BINARY_ROOT/BUILD-INFO.txt" "$ADDON_ROOT/"
+cp "$BINARY_ROOT/COMPONENTS.md" "$ADDON_ROOT/"
+if [[ -s "$BINARY_ROOT/RELEASE-NOTES.md" ]]; then
+    cp "$BINARY_ROOT/RELEASE-NOTES.md" "$ADDON_ROOT/"
+fi
 
 mkdir -p "$DIST_DIR"
 tar -czf "$DIST_DIR/$ADDON_ARCHIVE" -C "$WORK_DIR/source" ofxiOSBoost

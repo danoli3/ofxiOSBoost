@@ -2,12 +2,12 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.61.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.62.0}"
 BOOST_LIBS="${BOOST_LIBS:-chrono date_time filesystem graph locale random regex signals system thread}"
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0) ;;
+    1.61.0|1.62.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -79,6 +79,8 @@ cp "$CACHED_ARCHIVE" "$SOURCE_ARCHIVE"
 tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
 echo "Applying Boost $BOOST_VERSION compatibility patches"
+# Boost 1.61 and 1.62 contain the same affected Boost.Build engine code. The
+# compatibility patch has been dry-run against both pristine source archives.
 patch -d "$SOURCE_DIR" -p1 < "$REPO_ROOT/patches/boost-1.61.0-build-engine.patch"
 
 LIBS_CSV="${BOOST_LIBS// /,}"
@@ -226,6 +228,11 @@ write_component_text "$PACKAGE_DIR/boost.xcframework/ios-arm64_x86_64-simulator/
     done < "$COMPONENT_MANIFEST"
 } > "$PACKAGE_DIR/COMPONENTS.md"
 
+RELEASE_NOTES="$REPO_ROOT/packaging/versions/$BOOST_VERSION-release.md"
+if [[ -s "$RELEASE_NOTES" ]]; then
+    cp "$RELEASE_NOTES" "$PACKAGE_DIR/RELEASE-NOTES.md"
+fi
+
 mkdir -p "$PACKAGE_DIR/cmake/ofxiOSBoost" "$PACKAGE_DIR/pkgconfig"
 CMAKE_COMPILE_FEATURE="cxx_std_${CPPSTD#c++}"
 sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
@@ -253,6 +260,7 @@ C++ language standard: $CPPSTD
 Libraries: $BOOST_LIBS
 Excluded compiled libraries: $EXCLUDED_LIBS
 Component inventory: COMPONENTS.md and slice-local boost-components.txt
+Release notes: RELEASE-NOTES.md (when supplied for this Boost revision)
 EOF
 
 tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$WORK_DIR" "$ARCHIVE_NAME"

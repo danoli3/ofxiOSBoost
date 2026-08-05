@@ -6,7 +6,7 @@ on:
       boost_version:
         description: Boost version to build
         required: true
-        default: 1.61.0
+        default: 1.62.0
         type: string
   push:
     tags:
@@ -35,7 +35,7 @@ jobs:
         run: echo "BOOST_VERSION=${GITHUB_REF_NAME#boost-}" >> "$GITHUB_ENV"
 
       - name: Validate supported release
-        run: test "$BOOST_VERSION" = "1.61.0"
+        run: case "$BOOST_VERSION" in 1.61.0|1.62.0) ;; *) exit 1 ;; esac
 
       - name: Build release archive
         run: ./scripts/build-boost-ios
@@ -78,7 +78,7 @@ jobs:
             gh release create "$RELEASE_TAG" \
               --target "$GITHUB_SHA" \
               --title "Boost ${BOOST_VERSION} for iOS" \
-              --notes "Precompiled Boost ${BOOST_VERSION} XCFramework for arm64 iOS devices and arm64/x86_64 iOS Simulator, with headers."
+              --notes "Precompiled Boost ${BOOST_VERSION} XCFramework for arm64 iOS devices and arm64/x86_64 iOS Simulator. Includes all headers, compiled-component inventories, CMake and pkg-config metadata."
           fi
           gh release upload "$RELEASE_TAG" \
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
