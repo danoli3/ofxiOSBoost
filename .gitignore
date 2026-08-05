@@ -21,6 +21,7 @@
 
 libs/boost/lib/.DS_Store
 build
+dist/
 
 *.pbxuser
 *.perspective

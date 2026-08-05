@@ -1,0 +1,78 @@
+name: Build and release Boost for iOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      boost_version:
+        description: Boost version to build
+        required: true
+        default: 1.61.0
+        type: string
+  push:
+    tags:
+      - "boost-*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: boost-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Intel is required for the x86_64 Simulator slice in these legacy releases.
+    runs-on: macos-15-intel
+    env:
+      BOOST_VERSION: ${{ inputs.boost_version || github.ref_name }}
+      IOS_MIN_VERSION: "12.0"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve tag version
+        if: startsWith(github.ref, 'refs/tags/boost-')
+        run: echo "BOOST_VERSION=${GITHUB_REF_NAME#boost-}" >> "$GITHUB_ENV"
+
+      - name: Validate supported release
+        run: test "$BOOST_VERSION" = "1.61.0"
+
+      - name: Build release archive
+        run: ./scripts/build-boost-ios
+
+      - name: Inspect binary
+        run: |
+          package="dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
+          work="$(mktemp -d)"
+          tar -xzf "$package" -C "$work"
+          framework="$work/ofxiOSBoost-${BOOST_VERSION}/boost.xcframework"
+          plutil -lint "$framework/Info.plist"
+          device_lib="$(find "$framework" -path '*ios-arm64/libboost-device-arm64.a' -print -quit)"
+          simulator_lib="$(find "$framework" -path '*ios-arm64_x86_64-simulator/libboost-simulator.a' -print -quit)"
+          test "$(xcrun lipo -archs "$device_lib")" = "arm64"
+          test "$(xcrun lipo -archs "$simulator_lib")" = "x86_64 arm64"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ofxiOSBoost-${{ env.BOOST_VERSION }}
+          path: |
+            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz
+            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz.sha256
+          if-no-files-found: error
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: boost-${{ env.BOOST_VERSION }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" \
+              --target "$GITHUB_SHA" \
+              --title "Boost ${BOOST_VERSION} for iOS" \
+              --notes "Precompiled Boost ${BOOST_VERSION} XCFramework for arm64 iOS devices and arm64/x86_64 iOS Simulator, with headers."
+          fi
+          gh release upload "$RELEASE_TAG" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
+            --clobber

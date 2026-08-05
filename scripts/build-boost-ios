@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+BOOST_VERSION="${BOOST_VERSION:-1.61.0}"
+BOOST_LIBS="${BOOST_LIBS:-chrono date_time filesystem graph locale random regex signals system thread}"
+IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
+
+case "$BOOST_VERSION" in
+    1.61.0) ;;
+    *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
+esac
+
+BOOST_MINOR="$(printf '%s' "$BOOST_VERSION" | cut -d. -f2)"
+if (( BOOST_MINOR <= 64 )); then
+    DEFAULT_CPPSTD=c++11
+elif (( BOOST_MINOR <= 66 )); then
+    DEFAULT_CPPSTD=c++14
+elif (( BOOST_MINOR <= 79 )); then
+    DEFAULT_CPPSTD=c++17
+else
+    DEFAULT_CPPSTD=c++20
+fi
+CPPSTD="${CPPSTD:-$DEFAULT_CPPSTD}"
+
+command -v xcrun >/dev/null || { echo "Xcode command line tools are required." >&2; exit 1; }
+command -v curl >/dev/null || { echo "curl is required." >&2; exit 1; }
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+VERSION_UNDERSCORED="${BOOST_VERSION//./_}"
+ARCHIVE_NAME="ofxiOSBoost-${BOOST_VERSION}"
+DIST_DIR="${DIST_DIR:-$REPO_ROOT/dist}"
+DOWNLOAD_CACHE="${BOOST_DOWNLOAD_CACHE:-${TMPDIR:-/tmp}/ofxiOSBoost-downloads}"
+WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ofxiosboost.XXXXXX")"
+SOURCE_ARCHIVE="$WORK_DIR/boost_${VERSION_UNDERSCORED}.tar.bz2"
+SOURCE_DIR="$WORK_DIR/boost_${VERSION_UNDERSCORED}"
+BUILD_DIR="$WORK_DIR/build"
+PACKAGE_DIR="$WORK_DIR/$ARCHIVE_NAME"
+
+cleanup() {
+    local status=$?
+    rm -rf "$WORK_DIR"
+    return "$status"
+}
+trap cleanup EXIT
+
+JOBS="${JOBS:-$(sysctl -n hw.logicalcpu 2>/dev/null || echo 4)}"
+IPHONEOS_SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+SIMULATOR_SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+MACOS_SDK="$(xcrun --sdk macosx --show-sdk-path)"
+CLANGXX="$(xcrun --find clang++)"
+
+echo "Downloading Boost $BOOST_VERSION"
+mkdir -p "$DOWNLOAD_CACHE"
+CACHED_ARCHIVE="$DOWNLOAD_CACHE/boost_${VERSION_UNDERSCORED}.tar.bz2"
+if [[ ! -s "$CACHED_ARCHIVE" ]]; then
+    curl --fail --location --retry 3 \
+        "https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${VERSION_UNDERSCORED}.tar.bz2" \
+        --output "$CACHED_ARCHIVE.part"
+    mv "$CACHED_ARCHIVE.part" "$CACHED_ARCHIVE"
+fi
+cp "$CACHED_ARCHIVE" "$SOURCE_ARCHIVE"
+tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
+
+echo "Applying Boost $BOOST_VERSION compatibility patches"
+patch -d "$SOURCE_DIR" -p1 < "$REPO_ROOT/patches/boost-1.61.0-build-engine.patch"
+
+LIBS_CSV="${BOOST_LIBS// /,}"
+WITH_LIBRARIES=()
+for library in $BOOST_LIBS; do
+    WITH_LIBRARIES+=("--with-$library")
+done
+(
+    cd "$SOURCE_DIR"
+    # The host engine needs an explicit SDK with current Xcode command-line tools.
+    if ! CC="$(xcrun --find clang)" \
+        CFLAGS="${CFLAGS:-} -isysroot $MACOS_SDK" \
+        ./bootstrap.sh --with-toolset=cc --with-libraries="$LIBS_CSV"; then
+        tail -n 200 bootstrap.log >&2
+        exit 1
+    fi
+    # The temporary host-only "cc" toolset is only needed to compile b2.
+    # It is not a valid Boost.Build library toolset in this Boost release.
+    rm -f project-config.jam
+)
+
+USER_CONFIG="$WORK_DIR/user-config.jam"
+cat > "$USER_CONFIG" <<EOF
+using darwin : iosdevice
+    : $CLANGXX
+    : <compileflags>"-isysroot $IPHONEOS_SDK -miphoneos-version-min=$IOS_MIN_VERSION -fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=libc++ -fvisibility=hidden -fvisibility-inlines-hidden -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option"
+      <linkflags>"-isysroot $IPHONEOS_SDK -miphoneos-version-min=$IOS_MIN_VERSION -stdlib=libc++"
+    ;
+using darwin : iossimulator
+    : $CLANGXX
+    : <compileflags>"-isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=libc++ -fvisibility=hidden -fvisibility-inlines-hidden -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option"
+      <linkflags>"-isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -stdlib=libc++"
+    ;
+EOF
+
+build_platform() {
+    local name="$1"
+    local toolset="$2"
+    local architecture="$3"
+    local address_model="$4"
+
+    echo "Building $name"
+    (
+        cd "$SOURCE_DIR"
+        ./b2 -j"$JOBS" \
+            "${WITH_LIBRARIES[@]}" \
+            --user-config="$USER_CONFIG" \
+            --build-dir="$BUILD_DIR/$name" \
+            --stagedir="$BUILD_DIR/$name/stage" \
+            toolset="$toolset" architecture="$architecture" address-model="$address_model" \
+            target-os=iphone variant=release link=static runtime-link=static threading=multi \
+            stage
+    )
+
+    local libraries=("$BUILD_DIR/$name/stage/lib"/libboost_*.a)
+    test -e "${libraries[0]}" || { echo "No libraries were produced for $name." >&2; exit 1; }
+    xcrun libtool -static -o "$BUILD_DIR/libboost-$name.a" "${libraries[@]}"
+}
+
+build_platform device-arm64 darwin-iosdevice arm 64
+build_platform simulator-arm64 darwin-iossimulator arm 64
+build_platform simulator-x86_64 darwin-iossimulator x86 64
+
+mkdir -p "$PACKAGE_DIR/include" "$DIST_DIR"
+cp -R "$SOURCE_DIR/boost" "$PACKAGE_DIR/include/"
+xcrun lipo -create \
+    "$BUILD_DIR/libboost-simulator-arm64.a" \
+    "$BUILD_DIR/libboost-simulator-x86_64.a" \
+    -output "$BUILD_DIR/libboost-simulator.a"
+xcodebuild -create-xcframework \
+    -library "$BUILD_DIR/libboost-device-arm64.a" -headers "$PACKAGE_DIR/include" \
+    -library "$BUILD_DIR/libboost-simulator.a" -headers "$PACKAGE_DIR/include" \
+    -output "$PACKAGE_DIR/boost.xcframework"
+
+cat > "$PACKAGE_DIR/BUILD-INFO.txt" <<EOF
+Boost: $BOOST_VERSION
+iOS deployment target: $IOS_MIN_VERSION
+Architectures: arm64 (device), arm64 and x86_64 (simulator)
+Packaging: XCFramework
+C++ standard library: libc++
+C++ language standard: $CPPSTD
+Libraries: $BOOST_LIBS
+EOF
+
+tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$WORK_DIR" "$ARCHIVE_NAME"
+shasum -a 256 "$DIST_DIR/$ARCHIVE_NAME.tar.gz" > "$DIST_DIR/$ARCHIVE_NAME.tar.gz.sha256"
+
+echo "Created $DIST_DIR/$ARCHIVE_NAME.tar.gz"

@@ -1,16 +1,45 @@
-# ofxiOSBoost for Boost 1.60.0  [![image](https://travis-ci.org/danoli3/ofxiOSBoost.svg?branch=master)](https://travis-ci.org/danoli3/ofxiOSBoost?branch=master)
+# ofxiOSBoost
 --------------------
 
-
-### Boost C++ Libraries 1.60.0 Pre-compiled for iOS
 ![image](https://github.com/danoli3/ofxiOSBoost/blob/master/ofxaddons_thumbnail.png)
 
-- Addon with Boost 1.60.0 for iOS / Xcode 
-- Precompiled library and Command to build yourself
-- Master is currently a Fat Lib of All Standard Architectures
-- Check Branches for others or to be specific 
+### Current release targets
+
+Starting with Boost 1.61.0, releases are packaged as static XCFrameworks using
+libc++. Current release builds contain:
+
+- `arm64`: iOS devices
+- `arm64`: iOS Simulator on Apple Silicon
+- `x86_64`: iOS Simulator on Intel Macs
+
+Current releases do not contain `armv7` or `i386` slices. Download the
+versioned XCFramework and its SHA-256 checksum from GitHub Releases.
+
+### C++ standard by Boost version
+
+The release build selects a C++ language standard appropriate for each Boost
+generation. This policy applies to both device and Simulator libraries:
+
+| Boost versions | Build standard | Rationale |
+| --- | --- | --- |
+| 1.61.0–1.64.x | C++11 | Conservative baseline for these older releases |
+| 1.65.0–1.66.x | C++14 | Uses the newer standard while retaining broad compatibility |
+| 1.67.0–1.79.x | C++17 | Boost libraries increasingly added and tested C++17 support |
+| 1.80.0 and newer | C++20 | Later releases include broader C++20 compatibility fixes |
+
+There is no C++21 language standard; C++20 is followed by C++23. We retain
+C++20 for the newest Boost packages until the selected compiled libraries and
+their public headers are verified together under C++23. The selected default
+can be overridden locally with `CPPSTD`, for example `CPPSTD=c++17`, but release
+artifacts use the table above.
+
+
+### About
+
+- Boost C++ libraries precompiled for iOS and Xcode
+- Precompiled releases and a command to build them yourself
 - Designed for use as an open frameworks addon, however should definitely work for other iOS projects
-- Built with clang++ and using libc++ and std=c++11
+- Built with clang++ and libc++, using the versioned C++ standard policy above
 - License: See Boost License [LICENSE.MD](https://github.com/danoli3/ofxiOSBoost/blob/master/LICENSE.md)
 
 ============
@@ -39,21 +68,44 @@ In Xcode for a **Build Target** select the **Target under Build Phases**
 
 If not openFrameworks just add the ``` libs/boost/include ``` to Header Search Paths and the  ``` libs/boost/ios ``` to Library Search Paths
 
+### Versioned binary releases
+
+New Boost builds are distributed as GitHub Release assets instead of being added
+to the repository. The first automated release is Boost 1.61.0. Its archive
+contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
+and arm64/x86_64 iOS Simulator.
+
+Maintainers can create or refresh the release by running the **Build and release
+Boost for iOS** workflow with version `1.61.0`. Pushing the tag
+`boost-1.61.0` runs the same workflow. The workflow publishes both the archive
+and its SHA-256 checksum to the `boost-1.61.0` GitHub Release.
+
+To build the same package locally with a current Xcode installation:
+
+```sh
+BOOST_VERSION=1.61.0 ./scripts/build-boost-ios
+```
+
+The generated files are placed in `dist/`, which is intentionally ignored by
+Git.
+
 
 
 ============
 
-### Architectures in Pre-Build Library (Fat Lib)
-See the other branches on this repository (All libc++ std=c11)
+### Legacy Boost 1.60.0 fat-library architectures
+
+The original checked-in Boost 1.60.0 release used a fat static library rather
+than an XCFramework. These slices are retained only as documentation for that
+legacy release and are not targets of the current release workflow. See the
+historical branches for the original libc++/C++11 variants.
 
 - ```arm64``` : (iOS 7, 8, 9 64bit only) [iPhone 5S, iPhone 6/6S, iPhone 6/6S Plus, iPad Air /2, iPad Mini Retina 1/2/3/4,  iPad Pro]
 - ```armv7``` : (iOS 5, 6, 7, 8, 9) [All devices]
 - ```i386``` : (iOS Simulator iPad 2, 3, 4, iPhone 4S, 5, 5C)
 - ```x86_64```: (iOS Simulator iPad Air, iPhone 5S, iPhone 6/6S, iPhone 6/6S Plus)
 
-Check Apple's Hardware sheet if you need to verify: [Apple's Device compatibilty Matrix](https://developer.apple.com/library/ios/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html)
-
-** Armv7s has been removed due to Apple phasing our the requirement from the STANDARD_ARCHITECTURES.
+The legacy release did not include armv7s.
 
 ============
 
@@ -129,5 +181,3 @@ If you happen to include `<boost/type_traits.hpp>` header file, you may see comp
 To fix this problem, include the following line in your porject `***-Prefix.pch` file.
 
     #define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0
-
-
