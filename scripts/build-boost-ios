@@ -146,13 +146,18 @@ build_platform simulator-x86_64 darwin-iossimulator x86 64
 
 mkdir -p "$PACKAGE_DIR/include" "$DIST_DIR"
 cp -R "$SOURCE_DIR/boost" "$PACKAGE_DIR/include/"
+cp "$REPO_ROOT/packaging/swiftpm/module.modulemap" "$PACKAGE_DIR/include/"
+cp "$SOURCE_DIR/LICENSE_1_0.txt" "$PACKAGE_DIR/"
 xcrun lipo -create \
     "$BUILD_DIR/libboost-simulator-arm64.a" \
     "$BUILD_DIR/libboost-simulator-x86_64.a" \
     -output "$BUILD_DIR/libboost-simulator.a"
+mkdir -p "$BUILD_DIR/xcframework-device" "$BUILD_DIR/xcframework-simulator"
+cp "$BUILD_DIR/libboost-device-arm64.a" "$BUILD_DIR/xcframework-device/libboost.a"
+cp "$BUILD_DIR/libboost-simulator.a" "$BUILD_DIR/xcframework-simulator/libboost.a"
 xcodebuild -create-xcframework \
-    -library "$BUILD_DIR/libboost-device-arm64.a" -headers "$PACKAGE_DIR/include" \
-    -library "$BUILD_DIR/libboost-simulator.a" -headers "$PACKAGE_DIR/include" \
+    -library "$BUILD_DIR/xcframework-device/libboost.a" -headers "$PACKAGE_DIR/include" \
+    -library "$BUILD_DIR/xcframework-simulator/libboost.a" -headers "$PACKAGE_DIR/include" \
     -output "$PACKAGE_DIR/boost.xcframework"
 
 SOURCE_SHA="$(shasum -a 256 "$SOURCE_ARCHIVE" | awk '{ print $1 }')"
@@ -185,8 +190,8 @@ excludedLibraries = "$EXCLUDED_LIBS"
 EOF
 }
 
-write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64" "libboost-device-arm64.a"
-write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64_x86_64-simulator" "libboost-simulator.a"
+write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64" "libboost.a"
+write_pkl "$PACKAGE_DIR/boost.xcframework/ios-arm64_x86_64-simulator" "libboost.a"
 
 write_component_text() {
     local destination="$1"
@@ -265,8 +270,22 @@ EOF
 
 tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$WORK_DIR" "$ARCHIVE_NAME"
 (
+    cd "$PACKAGE_DIR"
+    ditto -c -k --sequesterRsrc --keepParent boost.xcframework \
+        "$DIST_DIR/$ARCHIVE_NAME-xcframework.zip"
+)
+ARCHIVE_SHA="$(shasum -a 256 "$DIST_DIR/$ARCHIVE_NAME.tar.gz" | awk '{ print $1 }')"
+sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
+    -e "s|@IOS_MIN_VERSION@|$IOS_MIN_VERSION|g" \
+    -e "s|@ARCHIVE_SHA@|$ARCHIVE_SHA|g" \
+    "$REPO_ROOT/packaging/cocoapods/ofxiOSBoost.podspec.in" \
+    > "$DIST_DIR/ofxiOSBoost-$BOOST_VERSION.podspec"
+(
     cd "$DIST_DIR"
     shasum -a 256 "$ARCHIVE_NAME.tar.gz" > "$ARCHIVE_NAME.tar.gz.sha256"
+    shasum -a 256 "$ARCHIVE_NAME-xcframework.zip" > "$ARCHIVE_NAME-xcframework.zip.sha256"
 )
 
 echo "Created $DIST_DIR/$ARCHIVE_NAME.tar.gz"
+echo "Created $DIST_DIR/ofxiOSBoost-$BOOST_VERSION.podspec"
+echo "Created $DIST_DIR/$ARCHIVE_NAME-xcframework.zip"

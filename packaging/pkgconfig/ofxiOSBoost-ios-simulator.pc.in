@@ -7,4 +7,4 @@ Name: ofxiOSBoost-simulator
 Description: Boost @BOOST_VERSION@ static libraries for arm64/x86_64 iOS Simulator
 Version: @BOOST_VERSION@
 Cflags: -I${includedir} -std=@CPPSTD@
-Libs: ${libdir}/libboost-simulator.a
+Libs: ${libdir}/libboost.a

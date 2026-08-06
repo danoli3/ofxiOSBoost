@@ -9,11 +9,10 @@ endif()
 string(TOLOWER "${CMAKE_OSX_SYSROOT}" _OFXIOSBOOST_SYSROOT)
 if(_OFXIOSBOOST_SYSROOT MATCHES "iphonesimulator")
     set(_OFXIOSBOOST_SLICE "ios-arm64_x86_64-simulator")
-    set(_OFXIOSBOOST_LIBRARY "libboost-simulator.a")
 else()
     set(_OFXIOSBOOST_SLICE "ios-arm64")
-    set(_OFXIOSBOOST_LIBRARY "libboost-device-arm64.a")
 endif()
+set(_OFXIOSBOOST_LIBRARY "libboost.a")
 
 set(_OFXIOSBOOST_LIBRARY_PATH
     "${_OFXIOSBOOST_XCFRAMEWORK}/${_OFXIOSBOOST_SLICE}/${_OFXIOSBOOST_LIBRARY}")

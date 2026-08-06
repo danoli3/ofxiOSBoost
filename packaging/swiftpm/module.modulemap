@@ -1,0 +1,4 @@
+module boost {
+    header "boost/version.hpp"
+    export *
+}

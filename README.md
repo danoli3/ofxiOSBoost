@@ -15,6 +15,13 @@ libc++. Current release builds contain:
 Current releases do not contain `armv7` or `i386` slices. Download the
 versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 
+### Release build matrix
+
+| Boost | C++ | GitHub Actions | Release |
+| --- | --- | --- | --- |
+| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=boost-1.61.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3Aboost-1.61.0) | [boost-1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/boost-1.61.0) |
+| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=boost-1.62.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3Aboost-1.62.0) | [boost-1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/boost-1.62.0) |
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -40,6 +47,36 @@ Each GitHub Release also provides two kinds of download:
 - `ofxiOSBoost-addon-VERSION.tar.gz` contains the complete ready-to-drop
   openFrameworks addon, with that release's XCFramework already installed at
   `libs/boost/boost.xcframework`.
+- `ofxiOSBoost-VERSION.podspec` is generated from the same binary archive,
+  validated by the release workflow, and published to CocoaPods Trunk when the
+  repository has a `COCOAPODS_TRUNK_TOKEN` secret configured.
+- `ofxiOSBoost-VERSION-xcframework.zip` places the XCFramework at the archive
+  root for use as a Swift Package Manager binary target. Its checksum is
+  published beside it.
+
+The root-level podspec was removed because it described only the historical
+Boost 1.60.0 directory layout. CocoaPods 1.9 or newer can consume the generated
+release podspec through its vendored-XCFramework support. GitHub Releases remain
+the authoritative binary source; the podspec pins the release archive SHA-256.
+
+`example-swift-package` contains both a minimal C++ executable package and a
+Swift UIKit Xcode app. A small C-compatible C++ bridge lets the Swift app run
+the Boost.Filesystem, Boost.Regex, and version-appropriate header-only tests.
+The build script stages the release XCFramework as a local binary target and
+builds both examples for arm64 and x86_64 iOS Simulator.
+
+Build and verify the example from a local release archive with:
+
+```sh
+BOOST_VERSION=1.62.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.62.0.tar.gz
+```
+
+To use the app interactively, copy `boost.xcframework` from the release archive
+to `example-swift-package/Package/`, then open
+`example-swift-package/BoostSwiftExample.xcodeproj`. The Xcode target consumes
+the local Swift package product `ofxiOSBoostBridge`; Swift does not import the
+C++ Boost headers directly.
 
 Release packages include metadata for additional build systems:
 
@@ -67,12 +104,6 @@ generation. This policy applies to both device and Simulator libraries:
 | 1.65.0–1.66.x | C++14 | Uses the newer standard while retaining broad compatibility |
 | 1.67.0–1.79.x | C++17 | Boost libraries increasingly added and tested C++17 support |
 | 1.80.0 and newer | C++20 | Later releases include broader C++20 compatibility fixes |
-
-There is no C++21 language standard; C++20 is followed by C++23. We retain
-C++20 for the newest Boost packages until the selected compiled libraries and
-their public headers are verified together under C++23. The selected default
-can be overridden locally with `CPPSTD`, for example `CPPSTD=c++17`, but release
-artifacts use the table above.
 
 
 ### About
@@ -194,10 +225,6 @@ The legacy release did not include armv7s.
 - Double click and run ```scripts/build-libc++``` (this will download the 1.60.0 version of boost and begin compiling the library).
 - Once completed in the terminal continue with the next steps.
 - Add the ofxiOSBoost to your project (src and libs for your chosen architecture)`
-
-#### Build with Bitcode Embedded:
-- Build with embedded bitcode by running the ```scripts/build-libc++withBitcode```
-
 
 #### Alternative Build Script:
 - Build using libstdc++ by running the ```scripts/build-libstdc++```

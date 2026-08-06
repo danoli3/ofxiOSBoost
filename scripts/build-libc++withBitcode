@@ -1,8 +1,0 @@
-#! /bin/bash
-#
-here="`dirname \"$0\"`"
-echo "cd-ing to $here"
-cd "$here" || exit 1
-
-export BITCODE="-fembed-bitcode"
-./build-libc++

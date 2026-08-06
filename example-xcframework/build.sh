@@ -37,10 +37,10 @@ tar -xzf "$ARCHIVE" -C "$WORK_DIR"
 PACKAGE_DIR="$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}"
 XCFRAMEWORK="$PACKAGE_DIR/boost.xcframework"
 SIMULATOR_DIR="$XCFRAMEWORK/ios-arm64_x86_64-simulator"
-LIBRARY="$SIMULATOR_DIR/libboost-simulator.a"
+LIBRARY="$SIMULATOR_DIR/libboost.a"
 HEADERS="$SIMULATOR_DIR/Headers"
 DEVICE_DIR="$XCFRAMEWORK/ios-arm64"
-DEVICE_LIBRARY="$DEVICE_DIR/libboost-device-arm64.a"
+DEVICE_LIBRARY="$DEVICE_DIR/libboost.a"
 DEVICE_HEADERS="$DEVICE_DIR/Headers"
 
 plutil -lint "$XCFRAMEWORK/Info.plist" >/dev/null
@@ -50,6 +50,9 @@ for metadata in \
     "$XCFRAMEWORK/ios-arm64_x86_64-simulator/boost.pkl" \
     "$XCFRAMEWORK/ios-arm64_x86_64-simulator/boost-components.txt" \
     "$PACKAGE_DIR/COMPONENTS.md" \
+    "$PACKAGE_DIR/LICENSE_1_0.txt" \
+    "$XCFRAMEWORK/ios-arm64/Headers/module.modulemap" \
+    "$XCFRAMEWORK/ios-arm64_x86_64-simulator/Headers/module.modulemap" \
     "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfig.cmake" \
     "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfigVersion.cmake" \
     "$PACKAGE_DIR/pkgconfig/ofxiOSBoost-ios.pc" \

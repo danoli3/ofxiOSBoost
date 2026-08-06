@@ -1,0 +1,65 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* AppDelegate.swift */; };
+		A10000000000000000000003 /* ofxiOSBoostBridge in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000004 /* ofxiOSBoostBridge */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A10000000000000000000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A10000000000000000000005 /* BoostSwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BoostSwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000006 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000003 /* ofxiOSBoostBridge in Frameworks */,); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000000000000000000007 = {isa = PBXGroup; children = (A10000000000000000000008 /* XcodeExample */, A10000000000000000000009 /* Products */,); sourceTree = "<group>"; };
+		A10000000000000000000008 /* XcodeExample */ = {isa = PBXGroup; children = (A10000000000000000000002 /* AppDelegate.swift */,); path = XcodeExample; sourceTree = "<group>"; };
+		A10000000000000000000009 /* Products */ = {isa = PBXGroup; children = (A10000000000000000000005 /* BoostSwiftExample.app */,); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1000000000000000000000A /* BoostSwiftExample */ = {isa = PBXNativeTarget; buildConfigurationList = A1000000000000000000000B; buildPhases = (A1000000000000000000000C /* Sources */, A10000000000000000000006 /* Frameworks */, A1000000000000000000000D /* Resources */,); buildRules = (); dependencies = (); name = BoostSwiftExample; packageProductDependencies = (A10000000000000000000004 /* ofxiOSBoostBridge */,); productName = BoostSwiftExample; productReference = A10000000000000000000005 /* BoostSwiftExample.app */; productType = "com.apple.product-type.application"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1000000000000000000000E /* Project object */ = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2660; LastUpgradeCheck = 2660; TargetAttributes = {A1000000000000000000000A = {CreatedOnToolsVersion = 26.6; };};}; buildConfigurationList = A1000000000000000000000F; compatibilityVersion = "Xcode 15.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base,); mainGroup = A10000000000000000000007; packageReferences = (A10000000000000000000010 /* XCLocalSwiftPackageReference "." */,); productRefGroup = A10000000000000000000009; projectDirPath = ""; projectRoot = ""; targets = (A1000000000000000000000A /* BoostSwiftExample */,); };
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1000000000000000000000D /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1000000000000000000000C /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001 /* AppDelegate.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A10000000000000000000011 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_CXX_LANGUAGE_STANDARD = "c++11"; CLANG_CXX_LIBRARY = "libc++"; CLANG_ENABLE_MODULES = YES; IPHONEOS_DEPLOYMENT_TARGET = 12.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0;}; name = Debug; };
+		A10000000000000000000012 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_CXX_LANGUAGE_STANDARD = "c++11"; CLANG_CXX_LIBRARY = "libc++"; CLANG_ENABLE_MODULES = YES; IPHONEOS_DEPLOYMENT_TARGET = 12.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0;}; name = Release; };
+		A10000000000000000000013 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = BoostSwiftExample; INFOPLIST_KEY_UILaunchScreen_Generation = YES; IPHONEOS_DEPLOYMENT_TARGET = 12.0; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.danoli3.ofxiOSBoost.example; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";}; name = Debug; };
+		A10000000000000000000014 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = BoostSwiftExample; INFOPLIST_KEY_UILaunchScreen_Generation = YES; IPHONEOS_DEPLOYMENT_TARGET = 12.0; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.danoli3.ofxiOSBoost.example; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1000000000000000000000B = {isa = XCConfigurationList; buildConfigurations = (A10000000000000000000013 /* Debug */, A10000000000000000000014 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A1000000000000000000000F = {isa = XCConfigurationList; buildConfigurations = (A10000000000000000000011 /* Debug */, A10000000000000000000012 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A10000000000000000000010 /* XCLocalSwiftPackageReference "Package" */ = {isa = XCLocalSwiftPackageReference; relativePath = Package; };
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A10000000000000000000004 /* ofxiOSBoostBridge */ = {isa = XCSwiftPackageProductDependency; package = A10000000000000000000010 /* XCLocalSwiftPackageReference "." */; productName = ofxiOSBoostBridge; };
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A1000000000000000000000E /* Project object */;
+}

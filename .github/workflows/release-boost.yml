@@ -47,13 +47,28 @@ jobs:
           tar -xzf "$package" -C "$work"
           framework="$work/ofxiOSBoost-${BOOST_VERSION}/boost.xcframework"
           plutil -lint "$framework/Info.plist"
-          device_lib="$(find "$framework" -path '*ios-arm64/libboost-device-arm64.a' -print -quit)"
-          simulator_lib="$(find "$framework" -path '*ios-arm64_x86_64-simulator/libboost-simulator.a' -print -quit)"
+          device_lib="$(find "$framework" -path '*ios-arm64/libboost.a' -print -quit)"
+          simulator_lib="$(find "$framework" -path '*ios-arm64_x86_64-simulator/libboost.a' -print -quit)"
           test "$(xcrun lipo -archs "$device_lib")" = "arm64"
           test "$(xcrun lipo -archs "$simulator_lib")" = "x86_64 arm64"
 
       - name: Build XCFramework example
         run: ./example-xcframework/build.sh "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
+
+      - name: Build Swift package example
+        run: ./example-swift-package/build.sh "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
+
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods --no-document
+
+      - name: Validate CocoaPods package
+        run: |
+          work="$(mktemp -d)"
+          tar -xzf "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" -C "$work"
+          package="$work/ofxiOSBoost-${BOOST_VERSION}"
+          cp "dist/ofxiOSBoost-${BOOST_VERSION}.podspec" "$package/ofxiOSBoost.podspec"
+          cd "$package"
+          pod lib lint ofxiOSBoost.podspec --platforms=ios --verbose
 
       - name: Package ready-to-use openFrameworks addon
         run: ./scripts/package-addon
@@ -67,6 +82,9 @@ jobs:
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz.sha256
             dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz
             dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz.sha256
+            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.podspec
+            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip
+            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip.sha256
           if-no-files-found: error
 
       - name: Create or update GitHub Release
@@ -85,4 +103,24 @@ jobs:
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
             "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz" \
             "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz.sha256" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}.podspec" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256" \
             --clobber
+
+      - name: Validate published CocoaPods source
+        run: pod spec lint "dist/ofxiOSBoost-${BOOST_VERSION}.podspec" --platforms=ios
+
+      - name: Publish CocoaPods release
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          if [[ -z "$COCOAPODS_TRUNK_TOKEN" ]]; then
+            echo "COCOAPODS_TRUNK_TOKEN is not configured; skipping CocoaPods Trunk publication."
+            exit 0
+          fi
+          if pod trunk info ofxiOSBoost 2>/dev/null | grep -Fq -- "- ${BOOST_VERSION} ("; then
+            echo "ofxiOSBoost ${BOOST_VERSION} is already published to CocoaPods Trunk."
+            exit 0
+          fi
+          pod trunk push "dist/ofxiOSBoost-${BOOST_VERSION}.podspec"

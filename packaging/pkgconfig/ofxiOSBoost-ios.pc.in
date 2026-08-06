@@ -7,4 +7,4 @@ Name: ofxiOSBoost
 Description: Boost @BOOST_VERSION@ static libraries for arm64 iOS devices
 Version: @BOOST_VERSION@
 Cflags: -I${includedir} -std=@CPPSTD@
-Libs: ${libdir}/libboost-device-arm64.a
+Libs: ${libdir}/libboost.a
