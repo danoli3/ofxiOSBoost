@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.62.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.63.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARCHIVE="${1:-}"
@@ -14,7 +14,7 @@ trap cleanup EXIT
 if [[ -z "$ARCHIVE" ]]; then
     ARCHIVE="$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
     CHECKSUM="$ARCHIVE.sha256"
-    RELEASE_URL="https://github.com/danoli3/ofxiOSBoost/releases/download/boost-${BOOST_VERSION}"
+    RELEASE_URL="https://github.com/danoli3/ofxiOSBoost/releases/download/${BOOST_VERSION}"
 
     echo "Downloading published Boost $BOOST_VERSION release"
     curl --fail --location --retry 3 \

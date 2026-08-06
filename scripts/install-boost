@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-REQUESTED_VERSION="${1:-1.62.0}"
+REQUESTED_VERSION="${1:-1.63.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INSTALL_ROOT="$REPO_ROOT/libs/boost"
@@ -18,14 +18,14 @@ if [[ "$REQUESTED_VERSION" == "latest" ]]; then
         --output /dev/null --write-out '%{url_effective}' \
         https://github.com/danoli3/ofxiOSBoost/releases/latest)"
     release_tag="${release_url##*/}"
-    BOOST_VERSION="${release_tag#boost-}"
-    [[ "$release_tag" == boost-* && "$BOOST_VERSION" != "$release_tag" ]] || {
+    BOOST_VERSION="$release_tag"
+    [[ "$release_tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
         echo "Could not determine the latest Boost release tag." >&2
         exit 1
     }
 else
     BOOST_VERSION="$REQUESTED_VERSION"
-    release_tag="boost-$BOOST_VERSION"
+    release_tag="$BOOST_VERSION"
 fi
 
 ASSET="ofxiOSBoost-${BOOST_VERSION}.tar.gz"

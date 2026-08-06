@@ -8,6 +8,22 @@
 #include <boost/qvm/vec.hpp>
 #endif
 
+#if BOOST_VERSION >= 106300
+#include <boost/atomic.hpp>
+#include <boost/type_index/runtime_cast.hpp>
+
+namespace {
+struct RuntimeBase {
+    BOOST_TYPE_INDEX_REGISTER_RUNTIME_CLASS()
+    virtual ~RuntimeBase() {}
+};
+
+struct RuntimeDerived : RuntimeBase {
+    BOOST_TYPE_INDEX_REGISTER_RUNTIME_CLASS((RuntimeBase))
+};
+} // namespace
+#endif
+
 const char *ofxiOSBoostVersion(void)
 {
     return BOOST_LIB_VERSION;
@@ -24,6 +40,17 @@ bool ofxiOSBoostRunLinkTest(void)
 #if BOOST_VERSION >= 106200
     const boost::qvm::vec<int, 3> vector = {{1, 2, 3}};
     if (vector.a[0] + vector.a[1] + vector.a[2] != 6) {
+        return false;
+    }
+#endif
+
+#if BOOST_VERSION >= 106300
+    RuntimeDerived derived;
+    RuntimeBase *base = &derived;
+    if (boost::typeindex::runtime_cast<RuntimeDerived *>(base) != &derived) {
+        return false;
+    }
+    if (boost::atomic<int>::is_always_lock_free != boost::atomic<int>().is_lock_free()) {
         return false;
     }
 #endif

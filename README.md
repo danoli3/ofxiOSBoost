@@ -21,6 +21,7 @@ versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 | --- | --- | --- | --- |
 | 1.61.0 | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.61.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
 | 1.62.0 | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.62.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
+| 1.63.0 | C++11 | [![Boost 1.63.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.63.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
 
 Install the pinned release expected by this checkout:
 
@@ -79,8 +80,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.62.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.62.0.tar.gz
+BOOST_VERSION=1.63.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.63.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -163,14 +164,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.62.0`. Pushing the tag
-`1.62.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.63.0`. Pushing the tag
+`1.63.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.62.0 ./scripts/build-boost-ios
+BOOST_VERSION=1.63.0 ./scripts/build-boost-ios
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -183,7 +184,7 @@ checks the XCFramework metadata and Simulator slices, then compiles and links a
 small program using the compiled Boost.Filesystem, Boost.System, and Boost.Regex
 libraries for arm64 iOS device and both arm64 and x86_64 iOS Simulator.
 
-Test the published Boost 1.62.0 release:
+Test the published Boost 1.63.0 release:
 
 ```sh
 ./example-xcframework/build.sh
@@ -192,7 +193,7 @@ Test the published Boost 1.62.0 release:
 Or test a locally built archive without downloading it:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.62.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.63.0.tar.gz
 ```
 
 
