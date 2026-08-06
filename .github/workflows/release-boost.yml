@@ -66,7 +66,7 @@ jobs:
           work="$(mktemp -d)"
           tar -xzf "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" -C "$work"
           package="$work/ofxiOSBoost-${BOOST_VERSION}"
-          cp "dist/ofxiOSBoost-${BOOST_VERSION}.podspec" "$package/ofxiOSBoost.podspec"
+          cp "dist/ofxiOSBoost.podspec" "$package/ofxiOSBoost.podspec"
           cd "$package"
           pod lib lint ofxiOSBoost.podspec --platforms=ios --verbose
 
@@ -82,7 +82,7 @@ jobs:
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz.sha256
             dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz
             dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz.sha256
-            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.podspec
+            dist/ofxiOSBoost.podspec
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip.sha256
           if-no-files-found: error
@@ -103,13 +103,13 @@ jobs:
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
             "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz" \
             "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz.sha256" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}.podspec" \
+            "dist/ofxiOSBoost.podspec" \
             "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" \
             "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256" \
             --clobber
 
       - name: Validate published CocoaPods source
-        run: pod spec lint "dist/ofxiOSBoost-${BOOST_VERSION}.podspec" --platforms=ios
+        run: pod spec lint "dist/ofxiOSBoost.podspec" --platforms=ios
 
       - name: Publish CocoaPods release
         env:
@@ -123,4 +123,4 @@ jobs:
             echo "ofxiOSBoost ${BOOST_VERSION} is already published to CocoaPods Trunk."
             exit 0
           fi
-          pod trunk push "dist/ofxiOSBoost-${BOOST_VERSION}.podspec"
+          pod trunk push "dist/ofxiOSBoost.podspec"

@@ -279,7 +279,7 @@ sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
     -e "s|@IOS_MIN_VERSION@|$IOS_MIN_VERSION|g" \
     -e "s|@ARCHIVE_SHA@|$ARCHIVE_SHA|g" \
     "$REPO_ROOT/packaging/cocoapods/ofxiOSBoost.podspec.in" \
-    > "$DIST_DIR/ofxiOSBoost-$BOOST_VERSION.podspec"
+    > "$DIST_DIR/ofxiOSBoost.podspec"
 (
     cd "$DIST_DIR"
     shasum -a 256 "$ARCHIVE_NAME.tar.gz" > "$ARCHIVE_NAME.tar.gz.sha256"
@@ -287,5 +287,5 @@ sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
 )
 
 echo "Created $DIST_DIR/$ARCHIVE_NAME.tar.gz"
-echo "Created $DIST_DIR/ofxiOSBoost-$BOOST_VERSION.podspec"
+echo "Created $DIST_DIR/ofxiOSBoost.podspec"
 echo "Created $DIST_DIR/$ARCHIVE_NAME-xcframework.zip"

@@ -47,7 +47,7 @@ Each GitHub Release also provides two kinds of download:
 - `ofxiOSBoost-addon-VERSION.tar.gz` contains the complete ready-to-drop
   openFrameworks addon, with that release's XCFramework already installed at
   `libs/boost/boost.xcframework`.
-- `ofxiOSBoost-VERSION.podspec` is generated from the same binary archive,
+- `ofxiOSBoost.podspec` is generated from the same binary archive,
   validated by the release workflow, and published to CocoaPods Trunk when the
   repository has a `COCOAPODS_TRUNK_TOKEN` secret configured.
 - `ofxiOSBoost-VERSION-xcframework.zip` places the XCFramework at the archive
