@@ -19,8 +19,8 @@ versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=boost-1.61.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3Aboost-1.61.0) | [boost-1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/boost-1.61.0) |
-| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=boost-1.62.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3Aboost-1.62.0) | [boost-1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/boost-1.62.0) |
+| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.61.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
+| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.62.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
 
 Install the pinned release expected by this checkout:
 
@@ -64,6 +64,17 @@ Swift UIKit Xcode app. A small C-compatible C++ bridge lets the Swift app run
 the Boost.Filesystem, Boost.Regex, and version-appropriate header-only tests.
 The build script stages the release XCFramework as a local binary target and
 builds both examples for arm64 and x86_64 iOS Simulator.
+
+The repository root is also an Apple Swift package. After the matching semantic
+release tag is published, add the following package URL in Xcode:
+
+```text
+https://github.com/danoli3/ofxiOSBoost.git
+```
+
+Swift applications should depend on the `ofxiOSBoost` product, which uses a
+C-compatible bridge and does not require Swift C++ interoperability. C++ Swift
+package targets may depend on the lower-level `boost` product directly.
 
 Build and verify the example from a local release archive with:
 
@@ -153,7 +164,7 @@ and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
 release Boost for iOS** workflow with version `1.62.0`. Pushing the tag
-`boost-1.62.0` runs the same workflow. The workflow publishes both the archive
+`1.62.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:

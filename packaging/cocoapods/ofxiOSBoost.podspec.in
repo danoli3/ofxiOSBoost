@@ -8,7 +8,7 @@ and arm64/x86_64 iOS Simulators. The package contains the complete Boost header
 tree and a documented selection of compiled Boost libraries.
                             DESC
   s.homepage              = "https://github.com/danoli3/ofxiOSBoost"
-  s.documentation_url     = "https://github.com/danoli3/ofxiOSBoost/releases/tag/boost-@BOOST_VERSION@"
+  s.documentation_url     = "https://github.com/danoli3/ofxiOSBoost/releases/tag/@BOOST_VERSION@"
   s.license               = { :type => "BSL-1.0", :file => "LICENSE_1_0.txt" }
   s.author                = { "Danoli3" => "danoli3@gmail.com" }
 
@@ -16,7 +16,7 @@ tree and a documented selection of compiled Boost libraries.
   s.cocoapods_version     = ">= 1.9"
   s.requires_arc          = false
   s.source                = {
-    :http => "https://github.com/danoli3/ofxiOSBoost/releases/download/boost-@BOOST_VERSION@/ofxiOSBoost-@BOOST_VERSION@.tar.gz",
+    :http => "https://github.com/danoli3/ofxiOSBoost/releases/download/@BOOST_VERSION@/ofxiOSBoost-@BOOST_VERSION@.tar.gz",
     :sha256 => "@ARCHIVE_SHA@"
   }
 
