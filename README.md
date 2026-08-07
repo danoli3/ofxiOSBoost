@@ -25,10 +25,10 @@ release or the workflow page; GitHub Actions tags are not branches, so a
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| 1.61.0 | C++11 | [Workflow runs](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
-| 1.62.0 | C++11 | [Workflow runs](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
-| 1.63.0 | C++11 | [Workflow runs](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
-| 1.64.0 | C++11 | Planned | Pending release |
+| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
+| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
+| 1.63.0 | C++11 | [![Boost 1.63.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
+| 1.64.0 | C++11 | [![Boost 1.64.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
 
 Install the pinned release expected by this checkout:
 
