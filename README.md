@@ -17,18 +17,15 @@ versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 
 ### Release build matrix
 
-[![Build and release Boost for iOS](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml)
-
-The status badge tracks the workflow on `master`. Version rows link to their
-release or the workflow page; GitHub Actions tags are not branches, so a
-`?branch=1.61.0` badge does not resolve to a run.
+Badges below query the check status attached to each release tag. They do not
+fall back to the latest `master` or manually dispatched workflow run.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
-| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
-| 1.63.0 | C++11 | [![Boost 1.63.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
-| 1.64.0 | C++11 | [![Boost 1.64.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
+| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.61.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
+| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.62.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
+| 1.63.0 | C++11 | [![Boost 1.63.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.63.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
+| 1.64.0 | C++11 | [![Boost 1.64.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.64.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
 
 Install the pinned release expected by this checkout:
 
