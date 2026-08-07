@@ -17,11 +17,18 @@ versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 
 ### Release build matrix
 
+[![Build and release Boost for iOS](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=master)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml)
+
+The status badge tracks the workflow on `master`. Version rows link to their
+release or the workflow page; GitHub Actions tags are not branches, so a
+`?branch=1.61.0` badge does not resolve to a run.
+
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.61.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
-| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.62.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
-| 1.63.0 | C++11 | [![Boost 1.63.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg?branch=1.63.0)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=branch%3A1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
+| 1.61.0 | C++11 | [Workflow runs](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
+| 1.62.0 | C++11 | [Workflow runs](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
+| 1.63.0 | C++11 | [Workflow runs](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
+| 1.64.0 | C++11 | Planned | Pending release |
 
 Install the pinned release expected by this checkout:
 
@@ -146,15 +153,18 @@ correct device or Simulator library automatically.
 
 In Xcode **Build Settings** for your project:
 
-- Add to **Library Search Paths** ( ```LIBRARY_SEARCH_PATHS``` ) ```$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/lib/ios ```
-- Add to **Header Search Paths** ( ```HEADER_SEARCH_PATHS``` )  
-```$(SRCROOT)/../../../addons/ofxiOSBoost/libs/boost/include ```
+- Link `libs/boost/boost.xcframework` in **Frameworks, Libraries, and
+  Embedded Content** (or **Link Binary With Libraries** in older Xcode).
+- If a header search path is required by a legacy target, use the matching
+  slice headers at
+  `libs/boost/boost.xcframework/ios-arm64/Headers` (device) or
+  `libs/boost/boost.xcframework/ios-arm64_x86_64-simulator/Headers`
+  (Simulator).
 
 In Xcode for a **Build Target** select the **Target under Build Phases**
 
-- Add to **'Link Binary With Libraries'** the ```libboost.a``` found in the ```ofxiOSBoost/libs/boost/lib/ios``` directory.
-
-If not openFrameworks just add the ``` libs/boost/include ``` to Header Search Paths and the  ``` libs/boost/ios ``` to Library Search Paths
+The old `libs/boost/include` and `libs/boost/lib/ios` paths belonged to the
+pre-XCFramework Boost 1.60 layout and are no longer generated.
 
 ### Versioned binary releases
 
