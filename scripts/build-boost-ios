@@ -7,7 +7,7 @@ BOOST_LIBS="${BOOST_LIBS:-chrono date_time filesystem graph locale random regex 
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
