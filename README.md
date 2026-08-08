@@ -84,8 +84,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.63.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.63.0.tar.gz
+BOOST_VERSION=1.64.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.64.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
