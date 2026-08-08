@@ -26,6 +26,7 @@ fall back to the latest `master` or manually dispatched workflow run.
 | 1.62.0 | C++11 | [![Boost 1.62.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.62.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
 | 1.63.0 | C++11 | [![Boost 1.63.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.63.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
 | 1.64.0 | C++11 | [![Boost 1.64.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.64.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
+| 1.65.0 | C++14 | [![Boost 1.65.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.65.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.65.0) | [1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
 
 Install the pinned release expected by this checkout:
 
@@ -171,14 +172,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.63.0`. Pushing the tag
-`1.63.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.64.0`. Pushing the tag
+`1.64.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.63.0 ./scripts/build-boost-ios
+BOOST_VERSION=1.64.0 ./scripts/build-boost-ios
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -191,7 +192,7 @@ checks the XCFramework metadata and Simulator slices, then compiles and links a
 small program using the compiled Boost.Filesystem, Boost.System, and Boost.Regex
 libraries for arm64 iOS device and both arm64 and x86_64 iOS Simulator.
 
-Test the published Boost 1.63.0 release:
+Test the published Boost 1.64.0 release:
 
 ```sh
 ./example-xcframework/build.sh
@@ -200,7 +201,7 @@ Test the published Boost 1.63.0 release:
 Or test a locally built archive without downloading it:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.63.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.64.0.tar.gz
 ```
 
 
