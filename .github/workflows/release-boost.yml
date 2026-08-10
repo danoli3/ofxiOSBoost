@@ -161,7 +161,7 @@ jobs:
               --title "Boost ${BOOST_VERSION} for iOS" \
               --notes "Boost is a large, peer-reviewed collection of portable C++ libraries that both fills gaps in the standard library and serves as a proving ground for features—many of which (like smart pointers, regex, and filesystem) later get adopted into the C++ standard itself.
 
-Precompiled Boost ${BOOST_VERSION} XCFramework for arm64 iOS devices and arm64/x86_64 iOS Simulator. Includes all headers, compiled-component inventories, CMake and pkg-config metadata."
+              Precompiled Boost ${BOOST_VERSION} XCFramework for arm64 iOS devices and arm64/x86_64 iOS Simulator. Includes all headers, compiled-component inventories, CMake and pkg-config metadata."
           fi
           gh release upload "$RELEASE_TAG" \
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
