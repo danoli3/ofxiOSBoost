@@ -1,10 +1,13 @@
 #include "BoostTests.hpp"
 
+#include <boost/version.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/atomic.hpp>
 #include <boost/chrono.hpp>
+#if BOOST_VERSION >= 106500
 #include <boost/context/detail/fcontext.hpp>
 #include <boost/coroutine2/coroutine.hpp>
+#endif
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -14,15 +17,22 @@
 #include <boost/signal.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/thread.hpp>
-#include <boost/version.hpp>
+
+#if BOOST_VERSION >= 106600
+#include <boost/beast/http.hpp>
+#include <boost/callable_traits.hpp>
+#include <boost/mp11.hpp>
+#endif
 
 #include <cstdint>
 #include <exception>
 #include <sstream>
+#include <type_traits>
 #include <vector>
 
 namespace {
 
+#if BOOST_VERSION >= 106500
 using boost::context::detail::fcontext_t;
 using boost::context::detail::jump_fcontext;
 using boost::context::detail::make_fcontext;
@@ -101,6 +111,7 @@ bool testCoroutine2(std::string &detail)
     detail = "Coroutine2 yielded 21, 42";
     return values.size() == 2 && values[0] == 21 && values[1] == 42;
 }
+#endif
 
 bool testPackagedLibraries(std::string &detail)
 {
@@ -194,6 +205,29 @@ bool testAsio(std::string &detail)
     return callbacks == 2 && handled == 2;
 }
 
+#if BOOST_VERSION >= 106600
+bool testBoost166Headers(std::string &detail)
+{
+    namespace http = boost::beast::http;
+    http::request<http::string_body> request;
+    request.method(http::verb::get);
+    request.target("/status");
+    request.version(11);
+    request.set(http::field::host, "localhost");
+
+    using Function = int (*)(double);
+    using Return = boost::callable_traits::return_type_t<Function>;
+    using Types = boost::mp11::mp_list<int, double, char>;
+
+    detail = "Beast HTTP, CallableTraits, and Mp11";
+    return request.method() == http::verb::get &&
+           request.target() == "/status" &&
+           request[http::field::host] == "localhost" &&
+           std::is_same<Return, int>::value &&
+           boost::mp11::mp_size<Types>::value == 3;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -227,8 +261,13 @@ BoostTestResult runBoostTests()
     run("Graph", testGraph);
     run("Locale", testLocale);
     run("Asio", testAsio);
+#if BOOST_VERSION >= 106600
+    run("Boost 1.66 headers", testBoost166Headers);
+#endif
+#if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
     run("Boost.Coroutine2", testCoroutine2);
+#endif
     report << "\n" << (passed ? "ALL TESTS PASSED" : "TESTS FAILED");
     return {passed, report.str()};
 }

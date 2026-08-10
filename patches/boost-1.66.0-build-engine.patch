@@ -1,0 +1,46 @@
+diff --git a/tools/build/src/engine/filesys.h b/tools/build/src/engine/filesys.h
+--- a/tools/build/src/engine/filesys.h
++++ b/tools/build/src/engine/filesys.h
+@@ -102,6 +102,7 @@ FILELISTITER filelist_end( FILELIST * list );
+ 
+ 
+ /* Internal utility worker functions. */
++int file_collect_archive_content_( file_archive_info_t * const archive );
+ void file_query_posix_( file_info_t * const );
+ 
+ void file_done();
+diff --git a/tools/build/src/tools/darwin.jam b/tools/build/src/tools/darwin.jam
+--- a/tools/build/src/tools/darwin.jam
++++ b/tools/build/src/tools/darwin.jam
+@@ -140,5 +140,5 @@ rule init ( version ? : command * : options * : requirement * )
+     # - GCC 4.0 and higher in Darwin does not have -fcoalesce-templates.
+     if $(real-version) < "4.0.0"
+     {
+-        flags darwin.compile.c++ OPTIONS $(condition) : -fcoalesce-templates ;
++        # Disabled for modern Apple Clang, whose compatibility version is 4.2.1.
+     }
+@@ -503,9 +503,11 @@ rule setup-address-model ( targets * : sources * : properties * )
+         
+         case arm :
+         {
+-            if $(instruction-set) {
++            if $(address-model) = 64 {
++                options = -arch arm64 ;
++            } else if $(instruction-set) {
+                 options = -arch$(_)$(instruction-set) ;
+             } else {
+                 options = -arch arm ;
+             }
+         }
+diff --git a/tools/build/src/engine/build.jam b/tools/build/src/engine/build.jam
+--- a/tools/build/src/engine/build.jam
++++ b/tools/build/src/engine/build.jam
+@@ -186,7 +186,7 @@ toolset gcc : -o : -D
+ if ! $(CC) { CC = cc ; }
+ toolset cc $(CC) : "-o " : -D
+     : $(CFLAGS)
+-    [ opt --release : -s -O ]
++    [ opt --release : -O ]
+     [ opt --debug : -g ]
+     -I$(--python-include) -I$(--extra-include)
+     : $(LIBS) -L$(--python-lib[1]) -l$(--python-lib[2]) ;

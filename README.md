@@ -19,6 +19,11 @@ versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 
 Badges below query the check status attached to each release tag. They do not
 fall back to the latest `master` or manually dispatched workflow run.
+The tagged workflow builds the XCFramework, installs the consolidated example
+on an iOS Simulator, runs its smoke suite, and requires `ALL TESTS PASSED`
+before publishing release assets. The captured report is included in the
+GitHub Actions job summary. For tags created with this workflow, rerunning the
+tag's existing workflow updates the same tag check and badge.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
@@ -27,6 +32,7 @@ fall back to the latest `master` or manually dispatched workflow run.
 | 1.63.0 | C++11 | [![Boost 1.63.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.63.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
 | 1.64.0 | C++11 | [![Boost 1.64.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.64.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
 | 1.65.0 | C++14 | [![Boost 1.65.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.65.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.65.0) | [1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
+| 1.66.0 | C++14 | [![Boost 1.66.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.66.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.66.0) | [1.66.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.66.0) |
 
 Boost 1.65.0 adds compiled Boost.Context. Its arm64 AAPCS Mach-O device
 implementation and Simulator implementations were runtime-tested with real
@@ -38,6 +44,12 @@ Simulator and a physical arm64 iOS device.
 Boost.Fiber and the deprecated compiled Boost.Coroutine library are not part of
 the 1.65.0 binary. They are separate compiled dependents of Boost.Context and
 require their own runtime coverage before inclusion.
+
+Boost 1.66.0 carries forward the same compiled Context configuration and adds
+the new header-only Boost.Beast, Boost.CallableTraits, and Boost.Mp11 headers.
+The consolidated app smoke-tests those libraries without network access. A
+The full consolidated suite passed on an arm64 Simulator and a physical arm64
+iOS device.
 
 Install the pinned release expected by this checkout:
 
@@ -96,8 +108,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.65.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.65.0.tar.gz
+BOOST_VERSION=1.66.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.66.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive

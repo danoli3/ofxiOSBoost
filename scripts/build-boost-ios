@@ -4,14 +4,14 @@ set -euo pipefail
 
 BOOST_VERSION="${BOOST_VERSION:-1.63.0}"
 DEFAULT_BOOST_LIBS="chrono date_time filesystem graph locale random regex signals system thread"
-if [[ "$BOOST_VERSION" == "1.65.0" ]]; then
+if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS context"
 fi
 BOOST_LIBS="${BOOST_LIBS:-$DEFAULT_BOOST_LIBS}"
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -84,6 +84,9 @@ tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
 echo "Applying Boost $BOOST_VERSION compatibility patches"
 case "$BOOST_VERSION" in
+    1.66.0)
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.66.0-build-engine.patch"
+        ;;
     1.65.0)
         COMPAT_PATCH="$REPO_ROOT/patches/boost-1.65.0-build-engine.patch"
         ;;
@@ -120,13 +123,18 @@ USER_CONFIG="$WORK_DIR/user-config.jam"
 cat > "$USER_CONFIG" <<EOF
 using darwin : iosdevice
     : $CLANGXX
-    : <compileflags>"-isysroot $IPHONEOS_SDK -miphoneos-version-min=$IOS_MIN_VERSION -fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=libc++ -fvisibility=hidden -fvisibility-inlines-hidden -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option"
-      <linkflags>"-isysroot $IPHONEOS_SDK -miphoneos-version-min=$IOS_MIN_VERSION -stdlib=libc++"
+    : <compileflags>"-arch arm64 -isysroot $IPHONEOS_SDK -miphoneos-version-min=$IOS_MIN_VERSION -fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=libc++ -fvisibility=hidden -fvisibility-inlines-hidden -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option"
+      <linkflags>"-arch arm64 -isysroot $IPHONEOS_SDK -miphoneos-version-min=$IOS_MIN_VERSION -stdlib=libc++"
     ;
-using darwin : iossimulator
+using darwin : iossimulatorarm64
     : $CLANGXX
-    : <compileflags>"-isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=libc++ -fvisibility=hidden -fvisibility-inlines-hidden -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option"
-      <linkflags>"-isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -stdlib=libc++"
+    : <compileflags>"-arch arm64 -isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=libc++ -fvisibility=hidden -fvisibility-inlines-hidden -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option"
+      <linkflags>"-arch arm64 -isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -stdlib=libc++"
+    ;
+using darwin : iossimulatorx86_64
+    : $CLANGXX
+    : <compileflags>"-arch x86_64 -isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -fPIC -DBOOST_SP_USE_SPINLOCK -std=$CPPSTD -stdlib=libc++ -fvisibility=hidden -fvisibility-inlines-hidden -Wno-deprecated-declarations -Wno-deprecated-builtins -Wno-unknown-warning-option"
+      <linkflags>"-arch x86_64 -isysroot $SIMULATOR_SDK -mios-simulator-version-min=$IOS_MIN_VERSION -stdlib=libc++"
     ;
 EOF
 
@@ -137,7 +145,7 @@ build_platform() {
     local address_model="$4"
     local context_properties=()
 
-    if [[ "$BOOST_VERSION" == "1.65.0" ]]; then
+    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" ]]; then
         local abi=sysv
         if [[ "$architecture" == arm ]]; then
             abi=aapcs
@@ -165,8 +173,8 @@ build_platform() {
 }
 
 build_platform device-arm64 darwin-iosdevice arm 64
-build_platform simulator-arm64 darwin-iossimulator arm 64
-build_platform simulator-x86_64 darwin-iossimulator x86 64
+build_platform simulator-arm64 darwin-iossimulatorarm64 arm 64
+build_platform simulator-x86_64 darwin-iossimulatorx86_64 x86 64
 
 mkdir -p "$PACKAGE_DIR/include" "$DIST_DIR"
 cp -R "$SOURCE_DIR/boost" "$PACKAGE_DIR/include/"

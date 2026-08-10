@@ -2,6 +2,9 @@
 
 #include "BoostTests.hpp"
 
+#include <cstdio>
+#include <cstdlib>
+
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 @property(nonatomic, strong) UIWindow *window;
 @end
@@ -17,6 +20,12 @@
     BoostTestResult result = runBoostTests();
     NSString *report = [NSString stringWithUTF8String:result.report.c_str()];
     NSLog(@"\n%@", report);
+
+    if (std::getenv("OFXIOSBOOST_CI") != nullptr) {
+        std::fprintf(stdout, "%s\n", result.report.c_str());
+        std::fflush(stdout);
+        std::_Exit(result.passed ? EXIT_SUCCESS : EXIT_FAILURE);
+    }
 
     UIViewController *controller = [[UIViewController alloc] init];
     controller.view.backgroundColor = result.passed

@@ -8,12 +8,14 @@ included	random	Compiled random_device implementation.
 included	regex	Regular-expression engine with the 1.66 maintenance fixes.
 included	signals	Legacy Boost.Signals compatibility for existing projects.
 included	system	Error-code support required by several compiled libraries.
-included	thread	Portablole threading primitives with the 1.66 maintenance fixes.
-excluded	atomic	The new is_always_lock_free API is tested header-only for native arm64/x86_64 operations; the fallback compiled library remains excluded.
+included	thread	Portable threading primitives with the 1.66 maintenance fixes.
+included	context	Architecture-specific fcontext implementation; the 1.66 suite passed on arm64 Simulator and physical arm64 iOS device.
+excluded	atomic	Header-only native atomic operations are covered by the smoke suite; the fallback compiled library remains excluded.
+excluded	beast	New in 1.66; header-only HTTP and WebSocket support built on Boost.Asio, with its offline HTTP smoke test passing on arm64 Simulator and device.
+excluded	callable_traits	New in 1.66; header-only callable type inspection passed on arm64 Simulator and device.
 excluded	container	Not selected; useful for iOS, but requires an explicit size and API expansion decision.
-excluded	context	Requires architecture-specific assembly and dedicated device and Simulaton.
 excluded	coroutine	Deprecated in favour of Coroutine2 and depends on Boost.Context.
-excluded	coroutine2	Depends on Boost.Context and requires the same architecture-specific testing.
+excluded	coroutine2	Header-only; the 1.66 yield/resume test passed on arm64 Simulator and physical arm64 iOS device.
 excluded	exception	Predominantly header-based; no compiled binary selected.
 excluded	fiber	Depends on Boost.Context and needs device and Simulator runtime tests before inclusion.
 excluded	graph_parallel	Depends on MPI and is not appropriate for a normal iOS application.
@@ -21,8 +23,8 @@ excluded	iostreams	Not yet packaged; compression filters also require explicit z
 excluded	log	Large dependency surface and desktop-oriented backends require an iOS-specific configuration and tests.
 excluded	math	Not selected initially; useful scientific compiled components may be added after size and link testing.
 excluded	metaparse	Predominantly header-based; no compiled binary selected.
+excluded	mp11	New in 1.66; header-only metaprogramming utilities passed on arm64 Simulator and device.
 excluded	mpi	Requires an MPI runtime, which is not appropriate for a normal iOS application.
-excluded	package_manager	Requires Boost.Package integration; not selected initially.
 excluded	process	Requires iOS spawn/fork and filesystem integration audit; excluded initially.
 excluded	program_options	Command-line parsing is of limited use in a normal iOS application.
 excluded	python	Requires a separately packaged Python runtime.
@@ -33,4 +35,3 @@ excluded	test	Intended for test executables rather than the shipped application 
 excluded	timer	Not selected initially; a small candidate for an expanded build.
 excluded	type_erasure	Predominantly header-based; no compiled binary selected.
 excluded	wave	Large C/C++ preprocessing toolchain not normally needed at iOS application runtime.
-excluded	ut	Header-only unit testing framework; not a compiled library.
