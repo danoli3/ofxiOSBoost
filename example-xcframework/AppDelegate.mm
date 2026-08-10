@@ -27,6 +27,7 @@
     textView.translatesAutoresizingMaskIntoConstraints = NO;
     textView.editable = NO;
     textView.backgroundColor = UIColor.clearColor;
+    textView.textColor = UIColor.blackColor;
     textView.font = [UIFont monospacedSystemFontOfSize:16.0
                                               weight:UIFontWeightRegular];
     textView.text = report;

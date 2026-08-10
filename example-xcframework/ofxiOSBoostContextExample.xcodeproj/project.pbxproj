@@ -9,9 +9,10 @@
 /* Begin PBXBuildFile section */
 		A10000000000000000000001 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* AppDelegate.mm */; };
 		A10000000000000000000002 /* BoostTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* BoostTests.cpp */; };
-		BF5B2E223029909A00DA7BF7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E213029909A00DA7BF7 /* UIKit.framework */; };
 		BF5B2E24302990E500DA7BF7 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E23302990E500DA7BF7 /* CoreGraphics.framework */; };
-		BF5B2E263029D7B700DA7BF7 /* boost.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E253029D7B700DA7BF7 /* boost.xcframework */; };
+		BF5B2E283029EF2300DA7BF7 /* boost.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E273029EF2300DA7BF7 /* boost.xcframework */; };
+		BF5B2E2A3029EF9700DA7BF7 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E293029EF9700DA7BF7 /* libiconv.tbd */; };
+		BF5B2E2C3029F1A800DA7BF7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E2B3029F1A800DA7BF7 /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,9 +21,10 @@
 		A20000000000000000000003 /* BoostTests.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BoostTests.hpp; sourceTree = "<group>"; };
 		A20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A20000000000000000000006 /* ofxiOSBoostContextExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ofxiOSBoostContextExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		BF5B2E213029909A00DA7BF7 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		BF5B2E23302990E500DA7BF7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
-		BF5B2E253029D7B700DA7BF7 /* boost.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = boost.xcframework; path = ../libs/boost.xcframework; sourceTree = SOURCE_ROOT; };
+		BF5B2E23302990E500DA7BF7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		BF5B2E273029EF2300DA7BF7 /* boost.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = boost.xcframework; path = ../libs/boost/boost.xcframework; sourceTree = SOURCE_ROOT; };
+		BF5B2E293029EF9700DA7BF7 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		BF5B2E2B3029F1A800DA7BF7 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -30,9 +32,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF5B2E2C3029F1A800DA7BF7 /* UIKit.framework in Frameworks */,
+				BF5B2E2A3029EF9700DA7BF7 /* libiconv.tbd in Frameworks */,
 				BF5B2E24302990E500DA7BF7 /* CoreGraphics.framework in Frameworks */,
-				BF5B2E263029D7B700DA7BF7 /* boost.xcframework in Frameworks */,
-				BF5B2E223029909A00DA7BF7 /* UIKit.framework in Frameworks */,
+				BF5B2E283029EF2300DA7BF7 /* boost.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,9 +65,10 @@
 		BF5B2E203029909900DA7BF7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BF5B2E253029D7B700DA7BF7 /* boost.xcframework */,
+				BF5B2E2B3029F1A800DA7BF7 /* UIKit.framework */,
+				BF5B2E293029EF9700DA7BF7 /* libiconv.tbd */,
 				BF5B2E23302990E500DA7BF7 /* CoreGraphics.framework */,
-				BF5B2E213029909A00DA7BF7 /* UIKit.framework */,
+				BF5B2E273029EF2300DA7BF7 /* boost.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -175,6 +179,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-liconv",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.openframeworks.ofxiOSBoostContextExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -195,6 +203,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-liconv",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.openframeworks.ofxiOSBoostContextExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";

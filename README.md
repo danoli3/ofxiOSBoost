@@ -29,10 +29,11 @@ fall back to the latest `master` or manually dispatched workflow run.
 | 1.65.0 | C++14 | [![Boost 1.65.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.65.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.65.0) | [1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
 
 Boost 1.65.0 adds compiled Boost.Context. Its arm64 AAPCS Mach-O device
-implementation and Simulator implementations were runtime-tested with two real
-`fcontext` stack round-trips. The header-only Boost.Coroutine2 API was tested
-on top of the same binary by yielding and resuming values. Both tests passed on
-an arm64 iOS Simulator and a physical arm64 iOS device.
+implementation and Simulator implementations were runtime-tested with real
+`jump_fcontext` transfers and direct `ontop_fcontext` execution. The header-only
+Boost.Coroutine2 API was tested on top of the same binary by yielding and
+resuming values. The full packaged-library smoke suite passed on an arm64 iOS
+Simulator and a physical arm64 iOS device.
 
 Boost.Fiber and the deprecated compiled Boost.Coroutine library are not part of
 the 1.65.0 binary. They are separate compiled dependents of Boost.Context and

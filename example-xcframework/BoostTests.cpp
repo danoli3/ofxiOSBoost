@@ -81,8 +81,8 @@ bool testContext(std::string &detail)
     child = transfer.fctx;
     (void)child;
 
-    detail = "two stack round-trips plus ontop_fcontext";
-    return state.visits == 2 && state.ontopVisited;
+    detail = "two jumps, ontop_fcontext, then resumed child";
+    return state.visits == 3 && state.ontopVisited;
 }
 
 bool testCoroutine2(std::string &detail)
