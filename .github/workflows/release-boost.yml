@@ -56,10 +56,13 @@ jobs:
           test "$(xcrun lipo -archs "$device_lib")" = "arm64"
           test "$(xcrun lipo -archs "$simulator_lib")" = "x86_64 arm64"
           if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" ]]; then
+            xcrun nm -arch arm64 -gU "$device_lib" > "$work/device-arm64.nm"
+            xcrun nm -arch arm64 -gU "$simulator_lib" > "$work/simulator-arm64.nm"
+            xcrun nm -arch x86_64 -gU "$simulator_lib" > "$work/simulator-x86_64.nm"
             for symbol in _make_fcontext _jump_fcontext _ontop_fcontext; do
-              xcrun nm -arch arm64 -gU "$device_lib" | grep -Fq "$symbol"
-              xcrun nm -arch arm64 -gU "$simulator_lib" | grep -Fq "$symbol"
-              xcrun nm -arch x86_64 -gU "$simulator_lib" | grep -Fq "$symbol"
+              grep -Fq "$symbol" "$work/device-arm64.nm"
+              grep -Fq "$symbol" "$work/simulator-arm64.nm"
+              grep -Fq "$symbol" "$work/simulator-x86_64.nm"
             done
           fi
 

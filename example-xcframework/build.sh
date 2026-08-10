@@ -63,10 +63,10 @@ for metadata in \
     "$PACKAGE_DIR/LICENSE_1_0.txt" \
     "$XCFRAMEWORK/ios-arm64/Headers/module.modulemap" \
     "$XCFRAMEWORK/ios-arm64_x86_64-simulator/Headers/module.modulemap" \
-    "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfig.cmake" \
-    "$PACKAGE_DIR/cmake/ofxiOSBoost/ofxiOSBoostConfigVersion.cmake" \
-    "$PACKAGE_DIR/pkgconfig/ofxiOSBoost-ios.pc" \
-    "$PACKAGE_DIR/pkgconfig/ofxiOSBoost-ios-simulator.pc"; do
+    "$PACKAGE_DIR/libs/boost/cmake/ofxiOSBoost/ofxiOSBoostConfig.cmake" \
+    "$PACKAGE_DIR/libs/boost/cmake/ofxiOSBoost/ofxiOSBoostConfigVersion.cmake" \
+    "$PACKAGE_DIR/libs/boost/pkgconfig/ofxiOSBoost-ios.pc" \
+    "$PACKAGE_DIR/libs/boost/pkgconfig/ofxiOSBoost-ios-simulator.pc"; do
     [[ -s "$metadata" ]] || { echo "Missing package metadata: $metadata" >&2; exit 1; }
 done
 [[ "$(xcrun lipo -archs "$LIBRARY")" == "x86_64 arm64" ]] || {
