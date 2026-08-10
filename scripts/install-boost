@@ -6,7 +6,7 @@ REQUESTED_VERSION="${1:-1.66.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INSTALL_ROOT="$REPO_ROOT/libs/boost"
-TARGET="$INSTALL_ROOT/boost.xcframework"
+TARGET="$INSTALL_ROOT/ios/boost.xcframework"
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ofxiosboost-install.XXXXXX")"
 
 cleanup() { rm -rf "$WORK_DIR"; }
@@ -43,17 +43,17 @@ actual_hash="$(shasum -a 256 "$WORK_DIR/$ASSET" | awk '{ print $1 }')"
 }
 
 tar -xzf "$WORK_DIR/$ASSET" -C "$WORK_DIR"
-SOURCE="$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/boost.xcframework"
+SOURCE="$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/libs/boost/ios/boost.xcframework"
 plutil -lint "$SOURCE/Info.plist" >/dev/null
 
-mkdir -p "$INSTALL_ROOT"
+mkdir -p "$INSTALL_ROOT/ios"
 if [[ -e "$TARGET" ]]; then
-    [[ "$TARGET" == "$REPO_ROOT/libs/boost/boost.xcframework" ]] || exit 1
+    [[ "$TARGET" == "$REPO_ROOT/libs/boost/ios/boost.xcframework" ]] || exit 1
     rm -rf "$TARGET"
 fi
 cp -R "$SOURCE" "$TARGET"
 rm -rf "$INSTALL_ROOT/cmake" "$INSTALL_ROOT/pkgconfig"
-cp -R "$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/cmake" "$INSTALL_ROOT/"
-cp -R "$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/pkgconfig" "$INSTALL_ROOT/"
+cp -R "$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/libs/boost/cmake" "$INSTALL_ROOT/"
+cp -R "$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}/libs/boost/pkgconfig" "$INSTALL_ROOT/"
 
 echo "Installed Boost $BOOST_VERSION at $TARGET"

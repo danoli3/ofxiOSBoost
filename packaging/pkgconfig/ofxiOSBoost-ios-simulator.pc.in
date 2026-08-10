@@ -1,5 +1,5 @@
 prefix=${pcfiledir}/..
-xcframework=${prefix}/boost.xcframework
+xcframework=${prefix}/ios/boost.xcframework
 libdir=${xcframework}/ios-arm64_x86_64-simulator
 includedir=${libdir}/Headers
 

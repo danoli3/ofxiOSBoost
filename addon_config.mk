@@ -29,7 +29,7 @@ common:
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
 	# specified here separated by spaces or one per line using +=
-	ADDON_INCLUDES = "libs/boost/boost.xcframework/ios-arm64/Headers"
+	ADDON_INCLUDES = "libs/boost/ios/boost.xcframework/ios-arm64/Headers"
 	
 	# any special flag that should be passed to the compiler when using this
 	# addon

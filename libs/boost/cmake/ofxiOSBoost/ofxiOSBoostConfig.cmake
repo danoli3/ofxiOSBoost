@@ -1,6 +1,6 @@
 # Relocatable CMake package for the ofxiOSBoost XCFramework.
 get_filename_component(_OFXIOSBOOST_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
-set(_OFXIOSBOOST_XCFRAMEWORK "${_OFXIOSBOOST_PREFIX}/boost.xcframework")
+set(_OFXIOSBOOST_XCFRAMEWORK "${_OFXIOSBOOST_PREFIX}/ios/boost.xcframework")
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
     message(FATAL_ERROR "ofxiOSBoost 1.66.0 supports iOS targets only")

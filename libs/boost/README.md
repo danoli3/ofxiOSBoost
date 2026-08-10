@@ -23,13 +23,13 @@ To install the newest published semantic release:
 
 The installer downloads and verifies the release archive, then installs:
 
-- `boost.xcframework`, including the matching `Headers` for every slice;
+- `ios/boost.xcframework`, including the matching `Headers` for every slice;
 - CMake package metadata under `cmake/`;
 - pkg-config metadata under `pkgconfig/`.
 
 For a local build instead of a published release, run
 `BOOST_VERSION=<version> ./scripts/build-boost-ios`. Build output is written to
-the ignored `dist/` directory and installed here as `boost.xcframework`,
+the ignored `dist/` directory and installed here as `ios/boost.xcframework`,
 `cmake/`, and `pkgconfig/`. The same version-specific headers are included in
 the generated archive and XCFramework.
 
@@ -37,6 +37,6 @@ Boost 1.65.0 includes compiled Boost.Context. Its low-level stack switching and
 the header-only Boost.Coroutine2 API passed runtime tests on an arm64 Simulator
 and a physical arm64 iOS device.
 
-Do not add generated headers or binaries back to this directory. Addon releases
-are assembled by `scripts/package-addon`, and include the matching XCFramework
-and headers automatically.
+Do not add generated headers or binaries back to this directory. The main
+versioned release tarball is assembled as a complete addon and includes the
+matching XCFramework and headers automatically.

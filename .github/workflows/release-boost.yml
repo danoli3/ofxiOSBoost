@@ -49,7 +49,7 @@ jobs:
           package="dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
           work="$(mktemp -d)"
           tar -xzf "$package" -C "$work"
-          framework="$work/ofxiOSBoost-${BOOST_VERSION}/boost.xcframework"
+          framework="$work/ofxiOSBoost-${BOOST_VERSION}/libs/boost/ios/boost.xcframework"
           plutil -lint "$framework/Info.plist"
           device_lib="$(find "$framework" -path '*ios-arm64/libboost.a' -print -quit)"
           simulator_lib="$(find "$framework" -path '*ios-arm64_x86_64-simulator/libboost.a' -print -quit)"
@@ -71,10 +71,11 @@ jobs:
           package_dir="$RUNNER_TEMP/ofxiOSBoost-${BOOST_VERSION}"
           app_dir="$RUNNER_TEMP/ofxiOSBoost-smoke-app"
           report="$RUNNER_TEMP/ofxiOSBoost-smoke-report.txt"
-          mkdir -p "$package_dir" "libs/boost" "$app_dir"
+          mkdir -p "$package_dir" "libs/boost/ios" "$app_dir"
           tar -xzf "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
             -C "$package_dir" --strip-components=1
-          ditto "$package_dir/boost.xcframework" "libs/boost/boost.xcframework"
+          ditto "$package_dir/libs/boost/ios/boost.xcframework" \
+            "libs/boost/ios/boost.xcframework"
 
           udid="$(xcrun simctl list devices available -j | jq -r \
             '[.devices[][] | select(.isAvailable == true and (.name | startswith("iPhone")))] | first | .udid // empty')"
@@ -136,9 +137,6 @@ jobs:
           cd "$package"
           pod lib lint ofxiOSBoost.podspec --platforms=ios --verbose
 
-      - name: Package ready-to-use openFrameworks addon
-        run: ./scripts/package-addon
-
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
@@ -146,8 +144,6 @@ jobs:
           path: |
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz.sha256
-            dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz
-            dist/ofxiOSBoost-addon-${{ env.BOOST_VERSION }}.tar.gz.sha256
             dist/ofxiOSBoost.podspec
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip.sha256
@@ -170,8 +166,6 @@ Precompiled Boost ${BOOST_VERSION} XCFramework for arm64 iOS devices and arm64/x
           gh release upload "$RELEASE_TAG" \
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
-            "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz" \
-            "dist/ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz.sha256" \
             "dist/ofxiOSBoost.podspec" \
             "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" \
             "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256" \

@@ -70,7 +70,7 @@ To explicitly follow the newest published release instead:
 
 The pinned form is recommended for reproducible openFrameworks projects. The
 installer verifies the published checksum and places the ignored dependency at
-`libs/boost/boost.xcframework`. openFrameworks has no universal addon dependency
+`libs/boost/ios/boost.xcframework`. openFrameworks has no universal addon dependency
 package manager; an addon setup script combined with `addon_config.mk` is the
 usual repository-level approach.
 
@@ -109,13 +109,11 @@ In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
 select version `1.66.0`, and add the `ofxiOSBoost` product to the application
 target.
 
-Each GitHub Release also provides two kinds of download:
+Each GitHub Release provides two package archives:
 
-- `ofxiOSBoost-VERSION.tar.gz` contains the XCFramework, headers, and build
-  metadata for general iOS use.
-- `ofxiOSBoost-addon-VERSION.tar.gz` contains the complete ready-to-drop
-  openFrameworks addon, with that release's XCFramework already installed at
-  `libs/boost/boost.xcframework`.
+- `ofxiOSBoost-VERSION.tar.gz` is the complete ready-to-drop openFrameworks
+  addon, with its XCFramework installed at
+  `libs/boost/ios/boost.xcframework` and matching build metadata included.
 - `ofxiOSBoost.podspec` is generated from the same binary archive,
   validated by the release workflow, and published to CocoaPods Trunk when the
   repository has a `COCOAPODS_TRUNK_TOKEN` secret configured.
@@ -200,17 +198,17 @@ generation. This policy applies to both device and Simulator libraries:
 ### How To Link to an Xcode Project?
 
 Run `./scripts/install-boost` before generating or opening the project. New
-projects should link `libs/boost/boost.xcframework`; Xcode then selects the
+projects should link `libs/boost/ios/boost.xcframework`; Xcode then selects the
 correct device or Simulator library automatically.
 
 In Xcode **Build Settings** for your project:
 
-- Link `libs/boost/boost.xcframework` in **Frameworks, Libraries, and
+- Link `libs/boost/ios/boost.xcframework` in **Frameworks, Libraries, and
   Embedded Content** (or **Link Binary With Libraries** in older Xcode).
 - If a header search path is required by a legacy target, use the matching
   slice headers at
-  `libs/boost/boost.xcframework/ios-arm64/Headers` (device) or
-  `libs/boost/boost.xcframework/ios-arm64_x86_64-simulator/Headers`
+  `libs/boost/ios/boost.xcframework/ios-arm64/Headers` (device) or
+  `libs/boost/ios/boost.xcframework/ios-arm64_x86_64-simulator/Headers`
   (Simulator).
 
 In Xcode for a **Build Target** select the **Target under Build Phases**
@@ -260,7 +258,7 @@ To test a locally built archive instead, pass its path explicitly:
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
-that release to `libs/boost/boost.xcframework`, then open
+that release to `libs/boost/ios/boost.xcframework`, then open
 `example-xcframework/ofxiOSBoostContextExample.xcodeproj` in Xcode and run the
 application.
 

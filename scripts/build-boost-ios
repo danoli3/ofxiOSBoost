@@ -305,12 +305,32 @@ Release notes: RELEASE-NOTES.md (when supplied for this Boost revision)
 Validation: VALIDATION.md (when supplied for this Boost revision)
 EOF
 
-tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$WORK_DIR" "$ARCHIVE_NAME"
 (
     cd "$PACKAGE_DIR"
     ditto -c -k --sequesterRsrc --keepParent boost.xcframework \
         "$DIST_DIR/$ARCHIVE_NAME-xcframework.zip"
 )
+
+# The main tarball is a ready-to-use addon. Keep the SwiftPM zip minimal, but
+# place the framework in the conventional openFrameworks addon location.
+ADDON_STAGE="$WORK_DIR/addon-package"
+ADDON_ROOT="$ADDON_STAGE/$ARCHIVE_NAME"
+mkdir -p "$ADDON_STAGE"
+git -C "$REPO_ROOT" archive --prefix="$ARCHIVE_NAME/" HEAD | \
+    tar -xf - -C "$ADDON_STAGE"
+rm -rf "$ADDON_ROOT/libs/boost/include" "$ADDON_ROOT/libs/boost/ios"
+mkdir -p "$ADDON_ROOT/libs/boost/ios"
+cp -R "$PACKAGE_DIR/boost.xcframework" "$ADDON_ROOT/libs/boost/ios/"
+cp -R "$PACKAGE_DIR/cmake" "$PACKAGE_DIR/pkgconfig" "$ADDON_ROOT/libs/boost/"
+cp "$PACKAGE_DIR/LICENSE_1_0.txt" "$PACKAGE_DIR/BUILD-INFO.txt" \
+    "$PACKAGE_DIR/COMPONENTS.md" "$ADDON_ROOT/"
+for metadata in RELEASE-NOTES.md VALIDATION.md; do
+    if [[ -s "$PACKAGE_DIR/$metadata" ]]; then
+        cp "$PACKAGE_DIR/$metadata" "$ADDON_ROOT/"
+    fi
+done
+tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$ADDON_STAGE" "$ARCHIVE_NAME"
+
 ARCHIVE_SHA="$(shasum -a 256 "$DIST_DIR/$ARCHIVE_NAME.tar.gz" | awk '{ print $1 }')"
 sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
     -e "s|@IOS_MIN_VERSION@|$IOS_MIN_VERSION|g" \
@@ -325,11 +345,11 @@ sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
 
 if [[ "${GITHUB_ACTIONS:-false}" != "true" ]]; then
     INSTALL_ROOT="$REPO_ROOT/libs/boost"
-    INSTALL_FRAMEWORK="$INSTALL_ROOT/boost.xcframework"
+    INSTALL_FRAMEWORK="$INSTALL_ROOT/ios/boost.xcframework"
     INSTALL_CMAKE="$INSTALL_ROOT/cmake"
     INSTALL_PKGCONFIG="$INSTALL_ROOT/pkgconfig"
 
-    [[ "$INSTALL_FRAMEWORK" == "$REPO_ROOT/libs/boost/boost.xcframework" ]] || exit 1
+    [[ "$INSTALL_FRAMEWORK" == "$REPO_ROOT/libs/boost/ios/boost.xcframework" ]] || exit 1
     [[ "$INSTALL_CMAKE" == "$REPO_ROOT/libs/boost/cmake" ]] || exit 1
     [[ "$INSTALL_PKGCONFIG" == "$REPO_ROOT/libs/boost/pkgconfig" ]] || exit 1
     for install_target in "$INSTALL_FRAMEWORK" "$INSTALL_CMAKE" "$INSTALL_PKGCONFIG"; do
@@ -339,7 +359,7 @@ if [[ "${GITHUB_ACTIONS:-false}" != "true" ]]; then
         }
     done
 
-    mkdir -p "$INSTALL_ROOT"
+    mkdir -p "$INSTALL_ROOT/ios"
     rm -rf "$INSTALL_FRAMEWORK" "$INSTALL_CMAKE" "$INSTALL_PKGCONFIG"
     cp -R "$PACKAGE_DIR/boost.xcframework" "$INSTALL_FRAMEWORK"
     cp -R "$PACKAGE_DIR/cmake" "$INSTALL_CMAKE"

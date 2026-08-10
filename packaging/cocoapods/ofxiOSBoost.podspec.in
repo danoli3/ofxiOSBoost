@@ -20,8 +20,8 @@ tree and a documented selection of compiled Boost libraries.
     :sha256 => "@ARCHIVE_SHA@"
   }
 
-  s.vendored_frameworks   = "boost.xcframework"
+  s.vendored_frameworks   = "libs/boost/ios/boost.xcframework"
   s.libraries             = "c++"
   s.module_map            = false
-  s.preserve_paths        = "BUILD-INFO.txt", "COMPONENTS.md", "RELEASE-NOTES.md", "cmake/**/*", "pkgconfig/**/*"
+  s.preserve_paths        = "BUILD-INFO.txt", "COMPONENTS.md", "RELEASE-NOTES.md", "VALIDATION.md", "libs/boost/cmake/**/*", "libs/boost/pkgconfig/**/*"
 end

@@ -45,7 +45,7 @@ fi
 
 tar -xzf "$ARCHIVE" -C "$WORK_DIR"
 PACKAGE_DIR="$WORK_DIR/ofxiOSBoost-${BOOST_VERSION}"
-XCFRAMEWORK="$PACKAGE_DIR/boost.xcframework"
+XCFRAMEWORK="$PACKAGE_DIR/libs/boost/ios/boost.xcframework"
 SIMULATOR_DIR="$XCFRAMEWORK/ios-arm64_x86_64-simulator"
 LIBRARY="$SIMULATOR_DIR/libboost.a"
 HEADERS="$SIMULATOR_DIR/Headers"

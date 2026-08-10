@@ -16,7 +16,7 @@ trap cleanup EXIT
 mkdir -p "$WORK_DIR/example-swift-package"
 cp -R "$SCRIPT_DIR/." "$WORK_DIR/example-swift-package/"
 tar -xzf "$ARCHIVE" -C "$WORK_DIR"
-cp -R "$WORK_DIR/ofxiOSBoost-$BOOST_VERSION/boost.xcframework" \
+cp -R "$WORK_DIR/ofxiOSBoost-$BOOST_VERSION/libs/boost/ios/boost.xcframework" \
     "$WORK_DIR/example-swift-package/Package/"
 
 cd "$WORK_DIR/example-swift-package/Package"
