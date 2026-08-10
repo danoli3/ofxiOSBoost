@@ -3,6 +3,10 @@
 
 ![image](https://github.com/danoli3/ofxiOSBoost/blob/master/ofxaddons_thumbnail.png)
 
+Boost is a large, peer-reviewed collection of portable C++ libraries that both
+  fills gaps in the standard library and serves as a proving ground for features—many of which (like smart
+  pointers, regex, and filesystem) later get adopted into the C++ standard itself
+
 ### Current release targets
 
 Starting with Boost 1.61.0, releases are packaged as static XCFrameworks using
@@ -11,9 +15,6 @@ libc++. Current release builds contain:
 - `arm64`: iOS devices
 - `arm64`: iOS Simulator on Apple Silicon
 - `x86_64`: iOS Simulator on Intel Macs
-
-Current releases do not contain `armv7` or `i386` slices. Download the
-versioned XCFramework and its SHA-256 checksum from GitHub Releases.
 
 ### Release build matrix
 
@@ -31,12 +32,12 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| 1.61.0 | C++11 | [![Boost 1.61.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.61.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
-| 1.62.0 | C++11 | [![Boost 1.62.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.62.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
-| 1.63.0 | C++11 | [![Boost 1.63.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.63.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
-| 1.64.0 | C++11 | [![Boost 1.64.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.64.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
-| 1.65.0 | C++14 | [![Boost 1.65.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.65.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.65.0) | [1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
-| 1.66.0 | C++14 | [![Boost 1.66.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.66.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.66.0) | [1.66.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.66.0) |
+| [1.66.0](https://www.boost.org/users/history/version_1_66_0.html) | C++14 | [![Boost 1.66.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.66.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.66.0) | [1.66.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.66.0) |
+| [1.65.0](https://www.boost.org/users/history/version_1_65_0.html) | C++14 | [![Boost 1.65.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.65.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.65.0) | [1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
+| [1.64.0](https://www.boost.org/users/history/version_1_64_0.html) | C++11 | [![Boost 1.64.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.64.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
+| [1.63.0](https://www.boost.org/users/history/version_1_63_0.html) | C++11 | [![Boost 1.63.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.63.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
+| [1.62.0](https://www.boost.org/users/history/version_1_62_0.html) | C++11 | [![Boost 1.62.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.62.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
+| [1.61.0](https://www.boost.org/users/history/version_1_61_0.html) | C++11 | [![Boost 1.61.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.61.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
 
 Boost 1.65.0 adds compiled Boost.Context. Its arm64 AAPCS Mach-O device
 implementation and Simulator implementations were runtime-tested with real
@@ -51,8 +52,8 @@ require their own runtime coverage before inclusion.
 
 Boost 1.66.0 carries forward the same compiled Context configuration and adds
 the new header-only Boost.Beast, Boost.CallableTraits, and Boost.Mp11 headers.
-The consolidated app smoke-tests those libraries without network access. A
-The full consolidated suite passed on an arm64 Simulator and a physical arm64
+The consolidated app smoke-tests those libraries without network access. The
+full consolidated suite passed on an arm64 Simulator and a physical arm64
 iOS device.
 
 Install the pinned release expected by this checkout:
@@ -72,6 +73,41 @@ installer verifies the published checksum and places the ignored dependency at
 `libs/boost/boost.xcframework`. openFrameworks has no universal addon dependency
 package manager; an addon setup script combined with `addon_config.mk` is the
 usual repository-level approach.
+
+#### CocoaPods
+
+Add the versioned pod to your application's `Podfile`:
+
+```ruby
+platform :ios, '12.0'
+
+target 'YourApp' do
+  pod 'ofxiOSBoost', '1.66.0'
+end
+```
+
+Install it and open the generated workspace:
+
+```sh
+pod install
+open YourApp.xcworkspace
+```
+
+#### Swift Package Manager
+
+From an existing Swift package directory, add the exact release and attach its
+`ofxiOSBoost` product to your target:
+
+```sh
+swift package add-dependency \
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.66.0
+swift package add-target-dependency \
+  ofxiOSBoost YourTarget --package ofxiosboost
+```
+
+In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
+select version `1.66.0`, and add the `ofxiOSBoost` product to the application
+target.
 
 Each GitHub Release also provides two kinds of download:
 
@@ -154,18 +190,9 @@ generation. This policy applies to both device and Simulator libraries:
 
 - Boost C++ libraries precompiled for iOS and Xcode
 - Precompiled releases and a command to build them yourself
-- Designed for use as an open frameworks addon, however should definitely work for other iOS projects
+- Designed for use as an [openFrameworks](https://github.com/openframeworks/openFrameworks) addon, while also supporting other iOS projects
 - Built with clang++ and libc++, using the versioned C++ standard policy above
 - License: See Boost License [LICENSE.MD](https://github.com/danoli3/ofxiOSBoost/blob/master/LICENSE.md)
-
-============
-
-
-### Where to checkout?
-
-- For openframeworks: Checkout in the addons folder like so: addons/ofxiOSBoost
-- For others: anywhere you please
-
 
 
 ============
@@ -199,14 +226,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.63.0`. Pushing the tag
-`1.63.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.66.0`. Pushing the tag
+`1.66.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.63.0 ./scripts/build-boost-ios
+BOOST_VERSION=1.66.0 ./scripts/build-boost-ios
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -215,23 +242,123 @@ Git.
 ### XCFramework example
 
 `example-xcframework` verifies a release independently of openFrameworks. It
-checks the XCFramework metadata and Simulator slices, then compiles and links a
-small program using the compiled Boost.Filesystem, Boost.System, and Boost.Regex
-libraries for arm64 iOS device and both arm64 and x86_64 iOS Simulator.
+checks the XCFramework metadata and device/Simulator slices, then compiles and
+links the packaged libraries for arm64 iOS devices and arm64/x86_64 iOS
+Simulator. The Xcode application runs the consolidated Boost smoke suite,
+including version-appropriate Context, Coroutine2, Asio, and header-only tests.
 
-Test the published Boost 1.63.0 release:
+The default command downloads and tests the current supported release:
 
 ```sh
 ./example-xcframework/build.sh
 ```
 
-Or test a locally built archive without downloading it:
+To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.63.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.66.0.tar.gz
 ```
 
+For interactive Simulator or physical-device runtime testing, install or copy
+that release to `libs/boost/boost.xcframework`, then open
+`example-xcframework/ofxiOSBoostContextExample.xcodeproj` in Xcode and run the
+application.
 
+### For tvOS - Checkout the ofxtvOSBoost repo:
+- https://github.com/danoli3/ofxtvOSBoost
+
+============
+
+### How to Build?
+
+1. You don't need to. This has the pre-compiled versions of BOOST for you to use
+2. If you would prefer to build it yourself checkout the script included in the ``` scripts ``` directory.
+
+
+#### Current Boost release documentation
+
+[Boost 1.66.0 upstream release history](https://www.boost.org/users/history/version_1_66_0.html)
+
+### Version 1.66.0 — December 18, 2017
+
+============
+
+### Troubleshooting
+
+#### Undefined UIKit or CoreGraphics symbols
+
+Errors such as these mean the application target is not linking the required
+iOS system frameworks:
+
+```text
+Undefined symbol: _CGRectZero
+Undefined symbol: _OBJC_CLASS_$_UIColor
+Undefined symbol: _OBJC_CLASS_$_UIFont
+Undefined symbol: _OBJC_CLASS_$_UIResponder
+Undefined symbol: _OBJC_CLASS_$_UIScreen
+Undefined symbol: _OBJC_CLASS_$_UITextView
+Undefined symbol: _OBJC_CLASS_$_UIViewController
+Undefined symbol: _OBJC_CLASS_$_UIWindow
+Undefined symbol: _OBJC_METACLASS_$_UIResponder
+Undefined symbol: _UIApplicationMain
+Undefined symbol: _UIFontWeightRegular
+```
+
+In the iOS application target, open **Build Phases → Link Binary With
+Libraries** and add:
+
+- `UIKit.framework`
+- `CoreGraphics.framework`
+
+Make sure these are the iOS SDK frameworks, not macOS frameworks.
+
+#### Undefined iconv symbols
+
+Boost.Locale may produce these errors when the system iconv library is absent:
+
+```text
+Undefined symbol: _iconv
+Undefined symbol: _iconv_close
+Undefined symbol: _iconv_open
+```
+
+In **Build Phases → Link Binary With Libraries**, add `libiconv.tbd` from the
+iOS SDK.
+
+#### Undefined Boost.Context symbols
+
+```text
+Undefined symbol: boost::context::stack_traits::default_size()
+Undefined symbol: _jump_fcontext
+Undefined symbol: _make_fcontext
+Undefined symbol: _ontop_fcontext
+```
+
+Use a Boost 1.65.0 or newer ofxiOSBoost XCFramework, where Context is included,
+and confirm `boost.xcframework` is linked by the application target.
+
+#### C++ standard-library mismatch
+
+Older projects may report unresolved `std::__1` symbols, particularly when
+using compiled libraries such as Serialization:
+
+```text
+Undefined symbols for architecture i386:
+"std::__1::__vector_base_common<true>::__throw_length_error() const"
+```
+
+Set the target's **C++ Standard Library** to `libc++`. Set **C++ Language
+Dialect** to the standard required by the selected release: C++11 through Boost
+1.64, or C++14 for Boost 1.65–1.66.
+
+### Parse errors when including `boost/type_traits.hpp`
+If you happen to include `<boost/type_traits.hpp>` header file, you may see compile errors like this
+
+    Unexpected member name of ';' after declaration specifiers
+
+To fix this problem, include the following line in your porject `***-Prefix.pch` file.
+
+    #define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0
 
 ============
 
@@ -250,72 +377,3 @@ historical branches for the original libc++/C++11 variants.
 The legacy release did not include armv7s.
 
 ============
-
-
-### For tvOS - Checkout the ofxtvOSBoost repo:
-- https://github.com/danoli3/ofxtvOSBoost
-
-============
-
-### How to Build?
-
-1. You don't need to. This has the pre-compiled versions of BOOST for you to use
-2. If you would prefer to build it yourself checkout the script included in the ``` scripts ``` directory.
-
-
-=============
-
-### How to use Build Script
-
-
-- Download files (suggested you download the files to addons/ofxiOSBoost for openFrameworks)
-- Double click and run ```scripts/build-libc++``` (this will download the 1.60.0 version of boost and begin compiling the library).
-- Once completed in the terminal continue with the next steps.
-- Add the ofxiOSBoost to your project (src and libs for your chosen architecture)`
-
-#### Alternative Build Script:
-- Build using libstdc++ by running the ```scripts/build-libstdc++```
-
-#### Clean script
-- Run the clean script from ```scripts/cleanAll``` to remove pre-compiled code and the final built library
-
-
-============
-
-#### Documentation on Boost 1.60.0
-
-
-See: http://www.boost.org/users/history/version_1_60_0.html
-
-
-### Version 1.60.0 (Date): December 17th, 2015 15:52 GMT
-
-============
-
-
-
-### Troubleshooting:
-
-### Undefined symbols link error (For libc++ release)
-If you use libraries like `serialization` you might see link errors in Xcode 6 especially when the framework was built using `--with-c++11` flag.
-```
-    Undefined symbols for architecture i386:
-    "std::__1::__vector_base_common<true>::__throw_length_error() const", referenced from:
-    void std::__1::vector<boost::archive::detail::basic_iarchive_impl::cobject_id, std::__1::allocator<boost::archive::detail::basic_iarchive_impl::cobject_id> >::__push_back_slow_path<boost::archive::detail::basic_iarchive_impl::cobject_id>(boost::archive::detail::basic_iarchive_impl::cobject_id&&) in boost(libboost_serialization_basic_iarchive.o)
-```
-
-You have to change your project or target build settings.
-
-Under *Apple LLVM 6.0 - Language - C++* make the following changes
-
-```C++ Language Dialect``` to ```C++11 [-std=c++11]```
-```C++ Standard Library``` to ```libc++ (LLVM C++ standard library with C++11 support)```
-
-### Parse errors when including `boost/type_traits.hpp`
-If you happen to include `<boost/type_traits.hpp>` header file, you may see compile errors like this
-
-    Unexpected member name of ';' after declaration specifiers
-
-To fix this problem, include the following line in your porject `***-Prefix.pch` file.
-
-    #define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0

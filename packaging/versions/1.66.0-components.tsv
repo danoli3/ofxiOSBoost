@@ -1,4 +1,5 @@
 # status	library	note
+# upstream	https://www.boost.org/users/history/version_1_66_0.html
 included	chrono	Compiled date and time duration support with the 1.66 maintenance fixes.
 included	date_time	Compiled date/time and locale facets.
 included	filesystem	Portable filesystem operations used by the addon examples.

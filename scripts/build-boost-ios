@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.63.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.66.0}"
 DEFAULT_BOOST_LIBS="chrono date_time filesystem graph locale random regex signals system thread"
 if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS context"

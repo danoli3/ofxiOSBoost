@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.63.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.66.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DIST_DIR="${DIST_DIR:-$REPO_ROOT/dist}"
