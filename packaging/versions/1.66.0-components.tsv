@@ -1,19 +1,19 @@
 # status	library	note
-included	chrono	Compiled date and time duration support with the 1.65 maintenance fixes.
+included	chrono	Compiled date and time duration support with the 1.66 maintenance fixes.
 included	date_time	Compiled date/time and locale facets.
 included	filesystem	Portable filesystem operations used by the addon examples.
 included	graph	Compiled Graph library algorithms.
 included	locale	Localization backends available without optional ICU packaging.
 included	random	Compiled random_device implementation.
-included	regex	Regular-expression engine with the 1.65 maintenance fixes.
+included	regex	Regular-expression engine with the 1.66 maintenance fixes.
 included	signals	Legacy Boost.Signals compatibility for existing projects.
 included	system	Error-code support required by several compiled libraries.
-included	thread	Portable threading primitives with the 1.65 maintenance fixes.
+included	thread	Portablole threading primitives with the 1.66 maintenance fixes.
 excluded	atomic	The new is_always_lock_free API is tested header-only for native arm64/x86_64 operations; the fallback compiled library remains excluded.
 excluded	container	Not selected; useful for iOS, but requires an explicit size and API expansion decision.
-included	context	Architecture-specific fcontext assembly for iOS device and Simulator runtime testing.
+excluded	context	Requires architecture-specific assembly and dedicated device and Simulaton.
 excluded	coroutine	Deprecated in favour of Coroutine2 and depends on Boost.Context.
-excluded	coroutine2	Header-only API backed by the included Boost.Context binary; exercised by the iOS test app.
+excluded	coroutine2	Depends on Boost.Context and requires the same architecture-specific testing.
 excluded	exception	Predominantly header-based; no compiled binary selected.
 excluded	fiber	Depends on Boost.Context and needs device and Simulator runtime tests before inclusion.
 excluded	graph_parallel	Depends on MPI and is not appropriate for a normal iOS application.
@@ -22,13 +22,15 @@ excluded	log	Large dependency surface and desktop-oriented backends require an i
 excluded	math	Not selected initially; useful scientific compiled components may be added after size and link testing.
 excluded	metaparse	Predominantly header-based; no compiled binary selected.
 excluded	mpi	Requires an MPI runtime, which is not appropriate for a normal iOS application.
-excluded	process	New in 1.64; compiled Process library requires iOS spawn/fork and filesystem integration audit and is excluded.
+excluded	package_manager	Requires Boost.Package integration; not selected initially.
+excluded	process	Requires iOS spawn/fork and filesystem integration audit; excluded initially.
 excluded	program_options	Command-line parsing is of limited use in a normal iOS application.
 excluded	python	Requires a separately packaged Python runtime.
 excluded	poly_collection	Header-only; polymorphic container support.
 excluded	serialization	Not selected initially; a strong candidate for an expansion build.
-excluded	stacktrace	New in 1.65; compiled Stacktrace library requires iOS device and Simulator runtime tests before inclusion.
+excluded	stacktrace	Requires iOS device and Simulator runtime tests before inclusion.
 excluded	test	Intended for test executables rather than the shipped application library.
 excluded	timer	Not selected initially; a small candidate for an expanded build.
 excluded	type_erasure	Predominantly header-based; no compiled binary selected.
 excluded	wave	Large C/C++ preprocessing toolchain not normally needed at iOS application runtime.
+excluded	ut	Header-only unit testing framework; not a compiled library.

@@ -40,3 +40,5 @@ xcuserdata/
 *.bz2
 republish.sh
 AGENTS.md
+example-xcframework/boost.xcframework/ios-arm64/Headers/boost/accumulators/statistics/covariance.hpp
+/example-xcframework/boost.xcframework

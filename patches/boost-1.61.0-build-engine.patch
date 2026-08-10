@@ -12,14 +12,27 @@ diff --git a/tools/build/src/engine/execcmd.c b/tools/build/src/engine/execcmd.c
 diff --git a/tools/build/src/engine/make.c b/tools/build/src/engine/make.c
 --- a/tools/build/src/engine/make.c
 +++ b/tools/build/src/engine/make.c
-@@ -39,6 +39,7 @@
+@@ -37,7 +37,9 @@
+ #endif
  #include "headers.h"
++#include "execcmd.h"
  #include "lists.h"
  #include "object.h"
 +#include "output.h"
  #include "parse.h"
  #include "rules.h"
  #include "search.h"
+diff --git a/tools/build/src/engine/jam.c b/tools/build/src/engine/jam.c
+--- a/tools/build/src/engine/jam.c
++++ b/tools/build/src/engine/jam.c
+@@ -105,6 +105,7 @@
+ #include "compile.h"
+ #include "constants.h"
+ #include "debugger.h"
++#include "execcmd.h"
+ #include "filesys.h"
+ #include "function.h"
+ #include "hcache.h"
 diff --git a/tools/build/src/engine/filesys.h b/tools/build/src/engine/filesys.h
 --- a/tools/build/src/engine/filesys.h
 +++ b/tools/build/src/engine/filesys.h

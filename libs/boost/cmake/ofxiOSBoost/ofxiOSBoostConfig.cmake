@@ -1,0 +1,45 @@
+# Relocatable CMake package for the ofxiOSBoost XCFramework.
+get_filename_component(_OFXIOSBOOST_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+set(_OFXIOSBOOST_XCFRAMEWORK "${_OFXIOSBOOST_PREFIX}/boost.xcframework")
+
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    message(FATAL_ERROR "ofxiOSBoost 1.64.0 supports iOS targets only")
+endif()
+
+string(TOLOWER "${CMAKE_OSX_SYSROOT}" _OFXIOSBOOST_SYSROOT)
+if(_OFXIOSBOOST_SYSROOT MATCHES "iphonesimulator")
+    set(_OFXIOSBOOST_SLICE "ios-arm64_x86_64-simulator")
+else()
+    set(_OFXIOSBOOST_SLICE "ios-arm64")
+endif()
+set(_OFXIOSBOOST_LIBRARY "libboost.a")
+
+set(_OFXIOSBOOST_LIBRARY_PATH
+    "${_OFXIOSBOOST_XCFRAMEWORK}/${_OFXIOSBOOST_SLICE}/${_OFXIOSBOOST_LIBRARY}")
+set(_OFXIOSBOOST_INCLUDE_PATH
+    "${_OFXIOSBOOST_XCFRAMEWORK}/${_OFXIOSBOOST_SLICE}/Headers")
+if(NOT EXISTS "${_OFXIOSBOOST_LIBRARY_PATH}" OR
+   NOT IS_DIRECTORY "${_OFXIOSBOOST_INCLUDE_PATH}")
+    message(FATAL_ERROR
+        "ofxiOSBoost 1.64.0 is incomplete or has no slice for ${CMAKE_OSX_SYSROOT}")
+endif()
+
+if(NOT TARGET ofxiOSBoost::boost)
+    add_library(ofxiOSBoost::boost STATIC IMPORTED GLOBAL)
+    set_target_properties(ofxiOSBoost::boost PROPERTIES
+        IMPORTED_LOCATION "${_OFXIOSBOOST_LIBRARY_PATH}"
+        INTERFACE_INCLUDE_DIRECTORIES "${_OFXIOSBOOST_INCLUDE_PATH}"
+        INTERFACE_COMPILE_FEATURES "cxx_std_11"
+    )
+endif()
+
+set(ofxiOSBoost_VERSION "1.64.0")
+set(ofxiOSBoost_FOUND TRUE)
+
+unset(_OFXIOSBOOST_LIBRARY)
+unset(_OFXIOSBOOST_LIBRARY_PATH)
+unset(_OFXIOSBOOST_INCLUDE_PATH)
+unset(_OFXIOSBOOST_SLICE)
+unset(_OFXIOSBOOST_SYSROOT)
+unset(_OFXIOSBOOST_XCFRAMEWORK)
+unset(_OFXIOSBOOST_PREFIX)

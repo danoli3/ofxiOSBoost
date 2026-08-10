@@ -1,0 +1,10 @@
+// BoostTest-iOS.xcconfig - Standalone iOS Boost XCFramework Test Project
+// iOS Deployment Target: 12.0
+
+PRODUCT_MODULE_NAME = BoostTest;
+
+// Compiler settings
+CLANG_CXX_LANGUAGE_STANDARD = c++11;
+CLANG_CXX_LIBRARY = "libc++";
+
+#include <TargetPlatforms/iOS/Device/Device.xcconfig>

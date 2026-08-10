@@ -7,7 +7,7 @@ BOOST_LIBS="${BOOST_LIBS:-chrono date_time filesystem graph locale random regex 
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -78,29 +78,33 @@ fi
 cp "$CACHED_ARCHIVE" "$SOURCE_ARCHIVE"
 tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
-echo "Applying Boost $BOOST_VERSION compatibility patches"
-# Boost 1.61 and 1.62 contain the same affected Boost.Build engine code. The
-# compatibility patch has been dry-run against both pristine source archives.
-patch -d "$SOURCE_DIR" -p1 < "$REPO_ROOT/patches/boost-1.61.0-build-engine.patch"
+if [[ "${APPLY_COMPAT_PATCH:-0}" == 1 ]]; then
+    echo "Applying Boost $BOOST_VERSION compatibility patches"
+    patch -d "$SOURCE_DIR" -p1 \
+        < "$REPO_ROOT/patches/boost-1.61.0-build-engine.patch"
+fi
 
 LIBS_CSV="${BOOST_LIBS// /,}"
 WITH_LIBRARIES=()
 for library in $BOOST_LIBS; do
     WITH_LIBRARIES+=("--with-$library")
 done
-(
-    cd "$SOURCE_DIR"
-    # The host engine needs an explicit SDK with current Xcode command-line tools.
-    if ! CC="$(xcrun --find clang)" \
-        CFLAGS="${CFLAGS:-} -isysroot $MACOS_SDK" \
-        ./bootstrap.sh --with-toolset=cc --with-libraries="$LIBS_CSV"; then
-        tail -n 200 bootstrap.log >&2
-        exit 1
-    fi
-    # The temporary host-only "cc" toolset is only needed to compile b2.
-    # It is not a valid Boost.Build library toolset in this Boost release.
-    rm -f project-config.jam
-)
+B2_COMMAND="${B2_COMMAND:-$SOURCE_DIR/b2}"
+if [[ "$B2_COMMAND" == "$SOURCE_DIR/b2" ]]; then
+    (
+        cd "$SOURCE_DIR"
+        # The host engine needs an explicit SDK with current Xcode command-line tools.
+        if ! CC="$(xcrun --find clang)" \
+            CFLAGS="${CFLAGS:-} -isysroot $MACOS_SDK" \
+            ./bootstrap.sh --with-toolset=cc --with-libraries="$LIBS_CSV"; then
+            tail -n 200 bootstrap.log >&2
+            exit 1
+        fi
+        # The temporary host-only "cc" toolset is only needed to compile b2.
+        # It is not a valid Boost.Build library toolset in this Boost release.
+        rm -f project-config.jam
+    )
+fi
 
 USER_CONFIG="$WORK_DIR/user-config.jam"
 cat > "$USER_CONFIG" <<EOF
@@ -121,16 +125,18 @@ build_platform() {
     local toolset="$2"
     local architecture="$3"
     local address_model="$4"
+    local abi="$5"
 
     echo "Building $name"
     (
         cd "$SOURCE_DIR"
-        ./b2 -j"$JOBS" \
+        "$B2_COMMAND" -j"$JOBS" \
             "${WITH_LIBRARIES[@]}" \
             --user-config="$USER_CONFIG" \
             --build-dir="$BUILD_DIR/$name" \
             --stagedir="$BUILD_DIR/$name/stage" \
             toolset="$toolset" architecture="$architecture" address-model="$address_model" \
+            abi="$abi" binary-format=mach-o \
             target-os=iphone variant=release link=static runtime-link=static threading=multi \
             stage
     )
@@ -140,9 +146,9 @@ build_platform() {
     xcrun libtool -static -o "$BUILD_DIR/libboost-$name.a" "${libraries[@]}"
 }
 
-build_platform device-arm64 darwin-iosdevice arm 64
-build_platform simulator-arm64 darwin-iossimulator arm 64
-build_platform simulator-x86_64 darwin-iossimulator x86 64
+build_platform device-arm64 darwin-iosdevice arm 64 aapcs
+build_platform simulator-arm64 darwin-iossimulator arm 64 aapcs
+build_platform simulator-x86_64 darwin-iossimulator x86 64 sysv
 
 mkdir -p "$PACKAGE_DIR/include" "$DIST_DIR"
 cp -R "$SOURCE_DIR/boost" "$PACKAGE_DIR/include/"

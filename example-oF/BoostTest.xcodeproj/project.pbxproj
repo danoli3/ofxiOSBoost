@@ -1,0 +1,221 @@
+// !$*UTF8*$!
+{
+	attributes = {
+		LastUpgradeCheck = 1620;
+		BuildIndependentTargetsInParallel = 1;
+	};
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+				2A000001 /* BoostTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BoostTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+				2A000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				);
+			runOnlyForDeploymentPostprocessing = 0;
+				};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+				2A000010 /* root */ = {
+			isa = PBXGroup;
+			children = (
+						2A000011 /* BoostTest */,
+						2A000012 /* Products */,
+					);
+			sourceTree = "<group>";
+				};
+				2A000011 /* BoostTest */ = {
+			isa = PBXGroup;
+			children = (
+						2A000013 /* main.cpp */,
+					);
+			path = .;
+			sourceTree = "<group>";
+				};
+				2A000012 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+						2A000001 /* BoostTest.app */,
+					);
+			name = Products;
+			sourceTree = "<group>";
+				};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+				2A000030 /* BoostTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A000050 /* Build configuration list for PBXNativeTarget "BoostTest" */;
+			buildPhases = (
+						2A000002 /* Frameworks */,
+						2A000003 /* Sources */,
+					);
+			buildRules = (
+					);
+			dependencies = (
+					);
+			name = BoostTest;
+			packageName = "";
+			productReference = 2A000001 /* BoostTest.app */;
+			productType = "com.apple.product-type.command-line-tool";
+				};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+				2A000040 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1620;
+				BuildIndependentTargetsInParallel = 1;
+					};
+			buildConfigurationList = 2A000060 /* Build configuration list for PBXProject "BoostTest" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			mainGroup = 2A000010;
+			preferredProjectObjectVersion = 56;
+			projectRoot = "";
+			targets = (
+						2A000030 /* BoostTest */,
+					);
+				};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+				2A000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+						2A000004 /* main.cpp in Sources */,
+					);
+			runOnlyForDeploymentPostprocessing = 0;
+				};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXBuildFile section */
+				2A000004 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A000013 /* main.cpp */; };
+				2A000013 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = SOURCE_ROOT; };
+/* End PBXBuildFile section */
+
+/* Begin XCBuildConfiguration section */
+				2A000041 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGNING_REQUIRED = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ofxiosboost.boosttest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 1;
+					};
+			name = Debug;
+				};
+				2A000042 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++11";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGNING_REQUIRED = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ofxiosboost.boosttest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 1;
+					};
+			name = Release;
+				};
+				2A000051 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2A000070 /* BoostTest.xcconfig */;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64/Headers",
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64_x86_64-simulator/Headers",
+						);
+				LIBRARY_SEARCH_PATHS = (
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64",
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64_x86_64-simulator",
+						);
+				OTHER_LDFLAGS = (
+							"-framework",
+							"boost",
+							"-fobjc-arc",
+							"-ObjC",
+							"-lobjc",
+							);
+					};
+			name = Debug;
+				};
+				2A000052 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2A000070 /* BoostTest.xcconfig */;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64/Headers",
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64_x86_64-simulator/Headers",
+						);
+				LIBRARY_SEARCH_PATHS = (
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64",
+							"$(PROJECT_DIR)/libs/boost/boost.xcframework/ios-arm64_x86_64-simulator",
+						);
+				OTHER_LDFLAGS = (
+							"-framework",
+							"boost",
+							"-fobjc-arc",
+							"-ObjC",
+							"-lobjc",
+							);
+					};
+			name = Release;
+				};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+				2A000050 /* Build configuration list for PBXNativeTarget "BoostTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+						2A000051 /* Debug */,
+						2A000052 /* Release */,
+					);
+			defaultConfigurationIsVisible = 0;
+				};
+				2A000060 /* Build configuration list for PBXProject "BoostTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+						2A000051 /* Debug */,
+						2A000052 /* Release */,
+					);
+			defaultConfigurationIsVisible = 0;
+				};
+/* End XCConfigurationList section */
+
+			};
+	rootObject = 2A000040 /* Project object */;
+}
