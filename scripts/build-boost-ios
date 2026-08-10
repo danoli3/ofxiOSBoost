@@ -3,11 +3,15 @@
 set -euo pipefail
 
 BOOST_VERSION="${BOOST_VERSION:-1.63.0}"
-BOOST_LIBS="${BOOST_LIBS:-chrono date_time filesystem graph locale random regex signals system thread}"
+DEFAULT_BOOST_LIBS="chrono date_time filesystem graph locale random regex signals system thread"
+if [[ "$BOOST_VERSION" == "1.65.0" ]]; then
+    DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS context"
+fi
+BOOST_LIBS="${BOOST_LIBS:-$DEFAULT_BOOST_LIBS}"
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -79,9 +83,19 @@ cp "$CACHED_ARCHIVE" "$SOURCE_ARCHIVE"
 tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
 echo "Applying Boost $BOOST_VERSION compatibility patches"
-# Boost 1.61 and 1.62 contain the same affected Boost.Build engine code. The
-# compatibility patch has been dry-run against both pristine source archives.
-patch -d "$SOURCE_DIR" -p1 < "$REPO_ROOT/patches/boost-1.61.0-build-engine.patch"
+case "$BOOST_VERSION" in
+    1.65.0)
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.65.0-build-engine.patch"
+        ;;
+    1.64.0)
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.64.0-build-engine.patch"
+        ;;
+    *)
+        # Boost 1.61 through 1.63 share the original engine patch.
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.61.0-build-engine.patch"
+        ;;
+esac
+patch -d "$SOURCE_DIR" -p1 < "$COMPAT_PATCH"
 
 LIBS_CSV="${BOOST_LIBS// /,}"
 WITH_LIBRARIES=()
@@ -121,6 +135,15 @@ build_platform() {
     local toolset="$2"
     local architecture="$3"
     local address_model="$4"
+    local context_properties=()
+
+    if [[ "$BOOST_VERSION" == "1.65.0" ]]; then
+        local abi=sysv
+        if [[ "$architecture" == arm ]]; then
+            abi=aapcs
+        fi
+        context_properties=(abi="$abi" binary-format=mach-o)
+    fi
 
     echo "Building $name"
     (
@@ -131,6 +154,7 @@ build_platform() {
             --build-dir="$BUILD_DIR/$name" \
             --stagedir="$BUILD_DIR/$name/stage" \
             toolset="$toolset" architecture="$architecture" address-model="$address_model" \
+            "${context_properties[@]}" \
             target-os=iphone variant=release link=static runtime-link=static threading=multi \
             stage
     )
@@ -237,6 +261,10 @@ RELEASE_NOTES="$REPO_ROOT/packaging/versions/$BOOST_VERSION-release.md"
 if [[ -s "$RELEASE_NOTES" ]]; then
     cp "$RELEASE_NOTES" "$PACKAGE_DIR/RELEASE-NOTES.md"
 fi
+VALIDATION_NOTES="$REPO_ROOT/packaging/versions/$BOOST_VERSION-validation.md"
+if [[ -s "$VALIDATION_NOTES" ]]; then
+    cp "$VALIDATION_NOTES" "$PACKAGE_DIR/VALIDATION.md"
+fi
 
 mkdir -p "$PACKAGE_DIR/cmake/ofxiOSBoost" "$PACKAGE_DIR/pkgconfig"
 CMAKE_COMPILE_FEATURE="cxx_std_${CPPSTD#c++}"
@@ -266,6 +294,7 @@ Libraries: $BOOST_LIBS
 Excluded compiled libraries: $EXCLUDED_LIBS
 Component inventory: COMPONENTS.md and slice-local boost-components.txt
 Release notes: RELEASE-NOTES.md (when supplied for this Boost revision)
+Validation: VALIDATION.md (when supplied for this Boost revision)
 EOF
 
 tar -czf "$DIST_DIR/$ARCHIVE_NAME.tar.gz" -C "$WORK_DIR" "$ARCHIVE_NAME"
@@ -285,6 +314,30 @@ sed -e "s|@BOOST_VERSION@|$BOOST_VERSION|g" \
     shasum -a 256 "$ARCHIVE_NAME.tar.gz" > "$ARCHIVE_NAME.tar.gz.sha256"
     shasum -a 256 "$ARCHIVE_NAME-xcframework.zip" > "$ARCHIVE_NAME-xcframework.zip.sha256"
 )
+
+if [[ "${GITHUB_ACTIONS:-false}" != "true" ]]; then
+    INSTALL_ROOT="$REPO_ROOT/libs/boost"
+    INSTALL_FRAMEWORK="$INSTALL_ROOT/boost.xcframework"
+    INSTALL_CMAKE="$INSTALL_ROOT/cmake"
+    INSTALL_PKGCONFIG="$INSTALL_ROOT/pkgconfig"
+
+    [[ "$INSTALL_FRAMEWORK" == "$REPO_ROOT/libs/boost/boost.xcframework" ]] || exit 1
+    [[ "$INSTALL_CMAKE" == "$REPO_ROOT/libs/boost/cmake" ]] || exit 1
+    [[ "$INSTALL_PKGCONFIG" == "$REPO_ROOT/libs/boost/pkgconfig" ]] || exit 1
+    for install_target in "$INSTALL_FRAMEWORK" "$INSTALL_CMAKE" "$INSTALL_PKGCONFIG"; do
+        [[ ! -L "$install_target" ]] || {
+            echo "Refusing to replace symbolic link: $install_target" >&2
+            exit 1
+        }
+    done
+
+    mkdir -p "$INSTALL_ROOT"
+    rm -rf "$INSTALL_FRAMEWORK" "$INSTALL_CMAKE" "$INSTALL_PKGCONFIG"
+    cp -R "$PACKAGE_DIR/boost.xcframework" "$INSTALL_FRAMEWORK"
+    cp -R "$PACKAGE_DIR/cmake" "$INSTALL_CMAKE"
+    cp -R "$PACKAGE_DIR/pkgconfig" "$INSTALL_PKGCONFIG"
+    echo "Installed Boost $BOOST_VERSION at $INSTALL_FRAMEWORK"
+fi
 
 echo "Created $DIST_DIR/$ARCHIVE_NAME.tar.gz"
 echo "Created $DIST_DIR/ofxiOSBoost.podspec"

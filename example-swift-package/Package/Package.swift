@@ -23,5 +23,5 @@ let package = Package(
             path: "Sources/BoostPackageExample"
         )
     ],
-    cxxLanguageStandard: .cxx11
+    cxxLanguageStandard: .cxx14
 )

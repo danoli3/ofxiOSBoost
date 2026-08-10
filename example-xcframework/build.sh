@@ -3,6 +3,16 @@
 set -euo pipefail
 
 BOOST_VERSION="${BOOST_VERSION:-1.63.0}"
+BOOST_MINOR="$(printf '%s' "$BOOST_VERSION" | cut -d. -f2)"
+if (( BOOST_MINOR <= 64 )); then
+    CPPSTD=c++11
+elif (( BOOST_MINOR <= 66 )); then
+    CPPSTD=c++14
+elif (( BOOST_MINOR <= 79 )); then
+    CPPSTD=c++17
+else
+    CPPSTD=c++20
+fi
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARCHIVE="${1:-}"
@@ -72,7 +82,7 @@ for architecture in arm64 x86_64; do
         -arch "$architecture" \
         -isysroot "$SDK_PATH" \
         -mios-simulator-version-min=12.0 \
-        -std=c++11 -stdlib=libc++ \
+        -std="$CPPSTD" -stdlib=libc++ \
         -Wno-deprecated-declarations -Wno-deprecated-builtins \
         -I"$HEADERS" \
         "$SCRIPT_DIR/main.cpp" "$LIBRARY" \
@@ -86,7 +96,7 @@ xcrun --sdk iphoneos clang++ \
     -arch arm64 \
     -isysroot "$DEVICE_SDK_PATH" \
     -miphoneos-version-min=12.0 \
-    -std=c++11 -stdlib=libc++ \
+    -std="$CPPSTD" -stdlib=libc++ \
     -Wno-deprecated-declarations -Wno-deprecated-builtins \
     -I"$DEVICE_HEADERS" \
     "$SCRIPT_DIR/main.cpp" "$DEVICE_LIBRARY" \

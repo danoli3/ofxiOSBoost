@@ -1,0 +1,87 @@
+diff --git a/tools/build/src/engine/execcmd.c b/tools/build/src/engine/execcmd.c
+--- a/tools/build/src/engine/execcmd.c
++++ b/tools/build/src/engine/execcmd.c
+@@ -10,6 +10,7 @@
+ 
+ #include "jam.h"
+ #include "execcmd.h"
++#include "output.h"
+ 
+ #include <assert.h>
+ #include <stdio.h>
+diff --git a/tools/build/src/engine/make.c b/tools/build/src/engine/make.c
+--- a/tools/build/src/engine/make.c
++++ b/tools/build/src/engine/make.c
+@@ -39,6 +39,8 @@
+ #include "headers.h"
++#include "execcmd.h"
+ #include "lists.h"
+ #include "object.h"
++#include "output.h"
+ #include "parse.h"
+ #include "rules.h"
+ #include "search.h"
+diff --git a/tools/build/src/engine/jam.c b/tools/build/src/engine/jam.c
+--- a/tools/build/src/engine/jam.c
++++ b/tools/build/src/engine/jam.c
+@@ -105,5 +105,6 @@
+ #include "compile.h"
+ #include "constants.h"
++#include "execcmd.h"
+ #include "filesys.h"
+ #include "function.h"
+ #include "hcache.h"
+diff --git a/tools/build/src/engine/filesys.h b/tools/build/src/engine/filesys.h
+--- a/tools/build/src/engine/filesys.h
++++ b/tools/build/src/engine/filesys.h
+@@ -87,6 +87,7 @@
+ FILELIST * filelist_push_front( FILELIST * list, OBJECT * path );
+ FILELIST * filelist_pop_front( FILELIST * list );
+ int filelist_length( FILELIST * list );
++int filelist_empty( FILELIST * list );
+ void filelist_free( FILELIST * list );
+ 
+ FILELISTITER filelist_begin( FILELIST * list );
+@@ -101,6 +102,7 @@
+ 
+ 
+ /* Internal utility worker functions. */
++int file_collect_archive_content_( file_archive_info_t * const archive );
+ void file_query_posix_( file_info_t * const );
+ 
+ void file_done();
+diff --git a/tools/build/src/engine/modules/path.c b/tools/build/src/engine/modules/path.c
+--- a/tools/build/src/engine/modules/path.c
++++ b/tools/build/src/engine/modules/path.c
+@@ -5,6 +5,7 @@
+ */
+ 
+ #include "../constants.h"
++#include "../filesys.h"
+ #include "../frames.h"
+ #include "../lists.h"
+ #include "../native.h"
+diff --git a/tools/build/src/tools/darwin.jam b/tools/build/src/tools/darwin.jam
+--- a/tools/build/src/tools/darwin.jam
++++ b/tools/build/src/tools/darwin.jam
+@@ -140,5 +140,5 @@ rule init ( version ? : command * : options * : requirement * )
+     # - GCC 4.0 and higher in Darwin does not have -fcoalesce-templates.
+     if $(real-version) < "4.0.0"
+     {
+-        flags darwin.compile.c++ OPTIONS $(condition) : -fcoalesce-templates ;
++        # Disabled for modern Apple Clang, whose compatibility version is 4.2.1.
+     }
+@@ -466,10 +466,12 @@ rule setup-address-model ( targets * : sources * : properties * )
+         
+         case arm :
+         {
+-            if $(instruction-set) {
++            if $(address-model) = 64 {
++                options = -arch arm64 ;
++            } else if $(instruction-set) {
+                 options = -arch$(_)$(instruction-set) ;
+             } else {
+                 options = -arch arm ;
+             }
+         }
+     }

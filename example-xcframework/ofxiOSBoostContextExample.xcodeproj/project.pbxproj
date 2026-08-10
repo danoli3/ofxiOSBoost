@@ -9,20 +9,20 @@
 /* Begin PBXBuildFile section */
 		A10000000000000000000001 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* AppDelegate.mm */; };
 		A10000000000000000000002 /* BoostTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* BoostTests.cpp */; };
-		A10000000000000000000003 /* boost.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* boost.xcframework */; };
 		BF5B2E223029909A00DA7BF7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E213029909A00DA7BF7 /* UIKit.framework */; };
 		BF5B2E24302990E500DA7BF7 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E23302990E500DA7BF7 /* CoreGraphics.framework */; };
+		BF5B2E263029D7B700DA7BF7 /* boost.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF5B2E253029D7B700DA7BF7 /* boost.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A20000000000000000000001 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		A20000000000000000000002 /* BoostTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BoostTests.cpp; sourceTree = "<group>"; };
 		A20000000000000000000003 /* BoostTests.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BoostTests.hpp; sourceTree = "<group>"; };
-		A20000000000000000000004 /* boost.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = boost.xcframework; path = ../libs/boost/boost.xcframework; sourceTree = "<group>"; };
 		A20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A20000000000000000000006 /* ofxiOSBoostContextExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ofxiOSBoostContextExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF5B2E213029909A00DA7BF7 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		BF5B2E23302990E500DA7BF7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
+		BF5B2E253029D7B700DA7BF7 /* boost.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = boost.xcframework; path = ../libs/boost.xcframework; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,8 +31,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				BF5B2E24302990E500DA7BF7 /* CoreGraphics.framework in Frameworks */,
+				BF5B2E263029D7B700DA7BF7 /* boost.xcframework in Frameworks */,
 				BF5B2E223029909A00DA7BF7 /* UIKit.framework in Frameworks */,
-				A10000000000000000000003 /* boost.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,7 +46,6 @@
 				A20000000000000000000002 /* BoostTests.cpp */,
 				A20000000000000000000003 /* BoostTests.hpp */,
 				A20000000000000000000005 /* Info.plist */,
-				A20000000000000000000004 /* boost.xcframework */,
 				BF5B2E203029909900DA7BF7 /* Frameworks */,
 				A30000000000000000000002 /* Products */,
 			);
@@ -63,6 +62,7 @@
 		BF5B2E203029909900DA7BF7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BF5B2E253029D7B700DA7BF7 /* boost.xcframework */,
 				BF5B2E23302990E500DA7BF7 /* CoreGraphics.framework */,
 				BF5B2E213029909A00DA7BF7 /* UIKit.framework */,
 			);
@@ -165,6 +165,7 @@
 		A80000000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
@@ -176,6 +177,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.openframeworks.ofxiOSBoostContextExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				TARGETED_DEVICE_FAMILY = "1,2";

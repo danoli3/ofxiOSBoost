@@ -11,11 +11,11 @@ included	system	Error-code support required by several compiled libraries.
 included	thread	Portable threading primitives with the 1.65 maintenance fixes.
 excluded	atomic	The new is_always_lock_free API is tested header-only for native arm64/x86_64 operations; the fallback compiled library remains excluded.
 excluded	container	Not selected; useful for iOS, but requires an explicit size and API expansion decision.
-included	context	Architecture-specific fcontext assembly for iOS device and Simulator runtime testing.
-excluded	coroutine	Deprecated in favour of Coroutine2 and depends on Boost.Context.
-excluded	coroutine2	Header-only API backed by the included Boost.Context binary; exercised by the iOS test app.
+included	context	Compiled fcontext assembly; stack round-trips passed on arm64 Simulator and physical arm64 iOS device.
+excluded	coroutine	Deprecated compiled library; depends on Context but has not received separate runtime coverage.
+excluded	coroutine2	Header-only API backed by included Context; yield/resume passed on arm64 Simulator and physical arm64 iOS device.
 excluded	exception	Predominantly header-based; no compiled binary selected.
-excluded	fiber	Depends on Boost.Context and needs device and Simulator runtime tests before inclusion.
+excluded	fiber	Separate compiled Context dependent; scheduler and threading paths still need device and Simulator runtime tests.
 excluded	graph_parallel	Depends on MPI and is not appropriate for a normal iOS application.
 excluded	iostreams	Not yet packaged; compression filters also require explicit zlib/bzip2 dependency handling.
 excluded	log	Large dependency surface and desktop-oriented backends require an iOS-specific configuration and tests.
