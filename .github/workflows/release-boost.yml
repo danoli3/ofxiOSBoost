@@ -9,6 +9,8 @@ on:
         default: 1.66.0
         type: string
   push:
+    branches:
+      - master
     tags:
       - "[0-9]*.[0-9]*.[0-9]*"
 
@@ -24,7 +26,9 @@ jobs:
     # Intel is required for the x86_64 Simulator slice in these legacy releases.
     runs-on: macos-15-intel
     env:
-      BOOST_VERSION: ${{ inputs.boost_version || github.ref_name }}
+      # Master validates the newest supported version. Tag pushes are replaced
+      # with the exact tag by the Resolve tag version step below.
+      BOOST_VERSION: ${{ inputs.boost_version || '1.66.0' }}
       IOS_MIN_VERSION: "12.0"
     steps:
       - name: Check out repository
@@ -150,6 +154,7 @@ jobs:
           if-no-files-found: error
 
       - name: Create or update GitHub Release
+        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ env.BOOST_VERSION }}
@@ -171,9 +176,11 @@ jobs:
             --clobber
 
       - name: Validate published CocoaPods source
+        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
         run: pod spec lint "dist/ofxiOSBoost.podspec" --platforms=ios
 
       - name: Publish CocoaPods release
+        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |

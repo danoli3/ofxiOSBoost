@@ -25,6 +25,10 @@ before publishing release assets. The captured report is included in the
 GitHub Actions job summary. For tags created with this workflow, rerunning the
 tag's existing workflow updates the same tag check and badge.
 
+The same build and Simulator smoke suite runs on every push to `master` using
+the newest supported Boost version. Master runs upload workflow artifacts but
+do not create or modify GitHub Releases.
+
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
 | 1.61.0 | C++11 | [![Boost 1.61.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.61.0?label=build)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml?query=1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
