@@ -14,7 +14,11 @@
 #include <boost/locale.hpp>
 #include <boost/random/random_device.hpp>
 #include <boost/regex.hpp>
+#if BOOST_VERSION < 106900
 #include <boost/signal.hpp>
+#else
+#include <boost/signals2.hpp>
+#endif
 #include <boost/system/error_code.hpp>
 #include <boost/thread.hpp>
 
@@ -172,12 +176,22 @@ bool testThreadAndAtomic(std::string &detail)
 
 bool testSignals(std::string &detail)
 {
+#if BOOST_VERSION < 106900
     boost::signal<int(int)> signal;
+#else
+    boost::signals2::signal<int(int)> signal;
+#endif
     signal.connect([](int value) { return value + 1; });
     signal.connect([](int value) { return value * 2; });
+#if BOOST_VERSION < 106900
     const int result = signal(21);
-    detail = "two connected slots emitted";
+    detail = "two connected Signals slots emitted";
     return result == 42;
+#else
+    const boost::optional<int> result = signal(21);
+    detail = "two connected Signals2 slots emitted";
+    return result && *result == 42;
+#endif
 }
 
 bool testGraph(std::string &detail)
