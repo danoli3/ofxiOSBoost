@@ -52,7 +52,7 @@ jobs:
       - name: Update description and remove redundant addon assets
         run: |
           notes="$RUNNER_TEMP/release-notes.md"
-          bash ./scripts/generate-release-notes "$BOOST_VERSION" "$notes"
+          bash ./scripts/generate-release-notes.sh "$BOOST_VERSION" "$notes"
           gh release view "$BOOST_VERSION" >/dev/null
           gh release edit "$BOOST_VERSION" \
             --title "Boost ${BOOST_VERSION} for iOS" \

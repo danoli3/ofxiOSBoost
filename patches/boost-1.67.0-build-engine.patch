@@ -1,0 +1,78 @@
+diff --git a/tools/build/src/tools/darwin.jam b/tools/build/src/tools/darwin.jam
+--- a/tools/build/src/tools/darwin.jam
++++ b/tools/build/src/tools/darwin.jam
+@@ -140,5 +140,5 @@ rule init ( version ? : command * : options * : requirement * )
+     # - GCC 4.0 and higher in Darwin does not have -fcoalesce-templates.
+     if $(real-version) < "4.0.0"
+     {
+-        flags darwin.compile.c++ OPTIONS $(condition) : -fcoalesce-templates ;
++        # Disabled for modern Apple Clang, whose compatibility version is 4.2.1.
+     }
+@@ -500,7 +500,9 @@ rule setup-address-model ( targets * : sources * : properties * )
+         
+         case arm :
+         {
+-            if $(instruction-set) {
++            if $(address-model) = 64 {
++                options = -arch arm64 ;
++            } else if $(instruction-set) {
+                 options = -arch$(_)$(instruction-set) ;
+             } else {
+                 options = -arch arm ;
+diff --git a/tools/build/src/engine/build.jam b/tools/build/src/engine/build.jam
+--- a/tools/build/src/engine/build.jam
++++ b/tools/build/src/engine/build.jam
+@@ -186,7 +186,7 @@ toolset gcc : -o : -D
+ if ! $(CC) { CC = cc ; }
+ toolset cc $(CC) : "-o " : -D
+     : $(CFLAGS)
+-    [ opt --release : -s -O ]
++    [ opt --release : -O ]
+     [ opt --debug : -g ]
+     -I$(--python-include) -I$(--extra-include)
+     : $(LIBS) -L$(--python-lib[1]) -l$(--python-lib[2]) ;
+diff --git a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+--- a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
++++ b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum udt_builtin_mixture_enum
+   {
+-     builtin_to_builtin
++     udt_builtin_mixture_min = -1
++    ,builtin_to_builtin
+     ,builtin_to_udt
+     ,udt_to_builtin
+     ,udt_to_udt
++    ,udt_builtin_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric
+diff --git a/boost/numeric/conversion/int_float_mixture_enum.hpp b/boost/numeric/conversion/int_float_mixture_enum.hpp
+--- a/boost/numeric/conversion/int_float_mixture_enum.hpp
++++ b/boost/numeric/conversion/int_float_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum int_float_mixture_enum
+   {
+-     integral_to_integral
++     int_float_mixture_min = -1
++    ,integral_to_integral
+     ,integral_to_float
+     ,float_to_integral
+     ,float_to_float
++    ,int_float_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric
+diff --git a/boost/atomic/detail/ops_gcc_x86_dcas.hpp b/boost/atomic/detail/ops_gcc_x86_dcas.hpp
+--- a/boost/atomic/detail/ops_gcc_x86_dcas.hpp
++++ b/boost/atomic/detail/ops_gcc_x86_dcas.hpp
+@@ -405,6 +405,6 @@ struct gcc_dcas_x86_64
+         // Clang cannot allocate rax:rdx register pairs but it has sync intrinsics
+         storage_type value = storage_type();
+-        return __sync_val_compare_and_swap(&storage, value, value);
++        return __sync_val_compare_and_swap(const_cast< storage_type volatile* >(&storage), value, value);
+ 
+ #elif defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+ 

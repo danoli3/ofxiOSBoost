@@ -32,6 +32,7 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
+| [1.67.0](https://www.boost.org/users/history/version_1_67_0.html) | C++14 | [![Boost 1.67.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.67.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.67.0) | [1.67.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.67.0) |
 | [1.66.0](https://www.boost.org/users/history/version_1_66_0.html) | C++14 | [![Boost 1.66.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.66.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.66.0) | [1.66.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.66.0) |
 | [1.65.0](https://www.boost.org/users/history/version_1_65_0.html) | C++14 | [![Boost 1.65.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.65.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.65.0) | [1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
 | [1.64.0](https://www.boost.org/users/history/version_1_64_0.html) | C++11 | [![Boost 1.64.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.64.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
@@ -56,16 +57,21 @@ The consolidated app smoke-tests those libraries without network access. The
 full consolidated suite passed on an arm64 Simulator and a physical arm64
 iOS device.
 
+Boost 1.67.0 remains on C++14, carries forward the validated compiled Context
+configuration, and adds smoke coverage for the new Boost.Contract and Boost.HOF
+libraries. Contract uses its header-only mode; its optional compiled library
+remains excluded pending dedicated runtime evaluation. C++17 begins at 1.68.0.
+
 Install the pinned release expected by this checkout:
 
 ```sh
-./scripts/install-boost
+./scripts/install-boost.sh
 ```
 
 To explicitly follow the newest published release instead:
 
 ```sh
-./scripts/install-boost latest
+./scripts/install-boost.sh latest
 ```
 
 The pinned form is recommended for reproducible openFrameworks projects. The
@@ -82,7 +88,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.66.0'
+  pod 'ofxiOSBoost', '1.67.0'
 end
 ```
 
@@ -100,13 +106,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.66.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.67.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.66.0`, and add the `ofxiOSBoost` product to the application
+select version `1.67.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -146,8 +152,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.66.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.66.0.tar.gz
+BOOST_VERSION=1.67.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.67.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -179,8 +185,8 @@ generation. This policy applies to both device and Simulator libraries:
 | Boost versions | Build standard | Rationale |
 | --- | --- | --- |
 | 1.61.0–1.64.x | C++11 | Conservative baseline for these older releases |
-| 1.65.0–1.66.x | C++14 | Uses the newer standard while retaining broad compatibility |
-| 1.67.0–1.79.x | C++17 | Boost libraries increasingly added and tested C++17 support |
+| 1.65.0–1.67.x | C++14 | Conservative compatibility through Boost 1.67 |
+| 1.68.0–1.79.x | C++17 | Boost libraries increasingly added and tested C++17 support |
 | 1.80.0 and newer | C++20 | Later releases include broader C++20 compatibility fixes |
 
 
@@ -197,7 +203,7 @@ generation. This policy applies to both device and Simulator libraries:
 
 ### How To Link to an Xcode Project?
 
-Run `./scripts/install-boost` before generating or opening the project. New
+Run `./scripts/install-boost.sh` before generating or opening the project. New
 projects should link `libs/boost/ios/boost.xcframework`; Xcode then selects the
 correct device or Simulator library automatically.
 
@@ -224,14 +230,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.66.0`. Pushing the tag
-`1.66.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.67.0`. Pushing the tag
+`1.67.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.66.0 ./scripts/build-boost-ios
+BOOST_VERSION=1.67.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -254,7 +260,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.66.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.67.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -275,7 +281,13 @@ application.
 
 #### Current Boost release documentation
 
-[Boost 1.66.0 upstream release history](https://www.boost.org/users/history/version_1_66_0.html)
+[Boost 1.67.0 upstream release history](https://www.boost.org/users/history/version_1_67_0.html)
+
+### Version 1.67.0 — April 11, 2018
+
+Boost 1.67.0 remains on C++14. It adds Boost.Contract and Boost.HOF, retains the
+compiled Context and header-only Coroutine2 coverage, and includes the complete
+updated Boost header tree. The package moves to C++17 with Boost 1.68.0.
 
 ### Version 1.66.0 — December 18, 2017
 

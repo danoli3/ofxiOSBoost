@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.66.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.67.0}"
 BOOST_MINOR="$(printf '%s' "$BOOST_VERSION" | cut -d. -f2)"
 if (( BOOST_MINOR <= 64 )); then
     CPPSTD=c++11
-elif (( BOOST_MINOR <= 66 )); then
+elif (( BOOST_MINOR <= 67 )); then
     CPPSTD=c++14
 elif (( BOOST_MINOR <= 79 )); then
     CPPSTD=c++17

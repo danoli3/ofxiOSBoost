@@ -12,13 +12,13 @@ stale Boost 1.60 snapshot and has been removed.
 To install the pinned release for this checkout, run from the repository root:
 
 ```sh
-./scripts/install-boost
+./scripts/install-boost.sh
 ```
 
 To install the newest published semantic release:
 
 ```sh
-./scripts/install-boost latest
+./scripts/install-boost.sh latest
 ```
 
 The installer downloads and verifies the release archive, then installs:
@@ -28,7 +28,7 @@ The installer downloads and verifies the release archive, then installs:
 - pkg-config metadata under `pkgconfig/`.
 
 For a local build instead of a published release, run
-`BOOST_VERSION=<version> ./scripts/build-boost-ios`. Build output is written to
+`BOOST_VERSION=<version> ./scripts/build-boost-ios.sh`. Build output is written to
 the ignored `dist/` directory and installed here as `ios/boost.xcframework`,
 `cmake/`, and `pkgconfig/`. The same version-specific headers are included in
 the generated archive and XCFramework.

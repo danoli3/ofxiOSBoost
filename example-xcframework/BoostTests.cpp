@@ -23,6 +23,10 @@
 #include <boost/callable_traits.hpp>
 #include <boost/mp11.hpp>
 #endif
+#if BOOST_VERSION >= 106700
+#include <boost/contract/assert.hpp>
+#include <boost/hof.hpp>
+#endif
 
 #include <cstdint>
 #include <exception>
@@ -228,6 +232,17 @@ bool testBoost166Headers(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 106700
+bool testBoost167Features(std::string &detail)
+{
+    BOOST_CONTRACT_ASSERT(2 + 2 == 4);
+    const auto sum = boost::hof::placeholders::_1 +
+                     boost::hof::placeholders::_2;
+    detail = "Contract assertion and HOF placeholder expression";
+    return sum(19, 23) == 42;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -263,6 +278,9 @@ BoostTestResult runBoostTests()
     run("Asio", testAsio);
 #if BOOST_VERSION >= 106600
     run("Boost 1.66 headers", testBoost166Headers);
+#endif
+#if BOOST_VERSION >= 106700
+    run("Boost 1.67 features", testBoost167Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);

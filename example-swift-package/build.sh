@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.66.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.67.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARCHIVE="${1:-$REPO_ROOT/dist/ofxiOSBoost-$BOOST_VERSION.tar.gz}"
