@@ -1,54 +1,65 @@
-name: Build and release Boost for iOS
+name: Refresh historical Boost releases
 
 on:
   workflow_dispatch:
     inputs:
-      boost_version:
-        description: Boost version to build
+      confirmation:
+        description: Type REFRESH-HISTORICAL-RELEASES to continue
         required: true
-        default: 1.66.0
         type: string
-  push:
-    branches:
-      - master
-    tags:
-      - "[0-9]*.[0-9]*.[0-9]*"
 
 permissions:
   contents: write
 
 concurrency:
-  group: boost-release-${{ github.ref }}
+  group: refresh-historical-boost-releases
   cancel-in-progress: false
 
 jobs:
-  build:
-    # Intel is required for the x86_64 Simulator slice in these legacy releases.
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm historical release refresh
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [[ "$CONFIRMATION" != "REFRESH-HISTORICAL-RELEASES" ]]; then
+            echo "Confirmation did not match REFRESH-HISTORICAL-RELEASES." >&2
+            exit 1
+          fi
+
+  refresh:
+    needs: confirm
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        boost_version:
+          - 1.61.0
+          - 1.62.0
+          - 1.63.0
+          - 1.64.0
+          - 1.65.0
+          - 1.66.0
     runs-on: macos-15-intel
     env:
-      # Master validates the newest supported version. Tag pushes are replaced
-      # with the exact tag by the Resolve tag version step below.
-      BOOST_VERSION: ${{ inputs.boost_version || '1.66.0' }}
+      BOOST_VERSION: ${{ matrix.boost_version }}
       IOS_MIN_VERSION: "12.0"
     steps:
       - name: Check out repository
         uses: actions/checkout@v7.0.1
 
-      - name: Resolve tag version
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "BOOST_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
-
-      - name: Validate supported release
+      - name: Validate supported historical release
         run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0) ;; *) exit 1 ;; esac
 
-      - name: Build release archive
+      - name: Build historical release archive
         run: |
           log="$RUNNER_TEMP/build-release.log"
           if ! ./scripts/build-boost-ios >"$log" 2>&1; then
             tail -n 200 "$log"
             exit 1
           fi
-          echo "Built Boost ${BOOST_VERSION} release archive."
+          echo "Built Boost ${BOOST_VERSION} for historical validation."
 
       - name: Inspect binary
         run: |
@@ -113,8 +124,7 @@ jobs:
             exit 1
           fi
 
-          xcrun simctl install "$udid" \
-            "$app_dir/ofxiOSBoostContextExample.app"
+          xcrun simctl install "$udid" "$app_dir/ofxiOSBoostContextExample.app"
           SIMCTL_CHILD_OFXIOSBOOST_CI=1 \
             xcrun simctl launch --console "$udid" \
               org.openframeworks.ofxiOSBoostContextExample >"$report" 2>&1 &
@@ -135,7 +145,7 @@ jobs:
           wait "$launch_pid" || true
           cat "$report"
           {
-            echo "### Boost ${BOOST_VERSION} iOS Simulator smoke tests"
+            echo "### Boost ${BOOST_VERSION} historical iOS Simulator validation"
             echo '```text'
             cat "$report"
             echo '```'
@@ -175,65 +185,22 @@ jobs:
           fi
           echo "Validated the CocoaPods package."
 
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: ofxiOSBoost-${{ env.BOOST_VERSION }}
-          path: |
-            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz
-            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}.tar.gz.sha256
-            dist/ofxiOSBoost.podspec
-            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip
-            dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip.sha256
-          if-no-files-found: error
-
-      - name: Create or update GitHub Release
-        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
+      - name: Update description and remove redundant addon assets
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ env.BOOST_VERSION }}
         run: |
           notes="$RUNNER_TEMP/release-notes.md"
           bash ./scripts/generate-release-notes "$BOOST_VERSION" "$notes"
-          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release create "$RELEASE_TAG" \
-              --target "$GITHUB_SHA" \
-              --title "Boost ${BOOST_VERSION} for iOS" \
-              --notes-file "$notes"
-          fi
-          gh release edit "$RELEASE_TAG" \
+          gh release view "$BOOST_VERSION" >/dev/null
+          gh release edit "$BOOST_VERSION" \
             --title "Boost ${BOOST_VERSION} for iOS" \
             --notes-file "$notes"
-          gh release upload "$RELEASE_TAG" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
-            "dist/ofxiOSBoost.podspec" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256" \
-            --clobber
-
-      - name: Validate published CocoaPods source
-        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
-        run: |
-          log="$RUNNER_TEMP/cocoapods-spec-lint.log"
-          if ! pod spec lint "dist/ofxiOSBoost.podspec" \
-            --platforms=ios >"$log" 2>&1; then
-            tail -n 200 "$log"
-            exit 1
-          fi
-          echo "Validated the published CocoaPods source."
-
-      - name: Publish CocoaPods release
-        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
-        env:
-          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        run: |
-          if [[ -z "$COCOAPODS_TRUNK_TOKEN" ]]; then
-            echo "COCOAPODS_TRUNK_TOKEN is not configured; skipping CocoaPods Trunk publication."
-            exit 0
-          fi
-          if pod trunk info ofxiOSBoost 2>/dev/null | grep -Fq -- "- ${BOOST_VERSION} ("; then
-            echo "ofxiOSBoost ${BOOST_VERSION} is already published to CocoaPods Trunk."
-            exit 0
-          fi
-          pod trunk push "dist/ofxiOSBoost.podspec"
+          for asset in \
+            "ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz" \
+            "ofxiOSBoost-addon-${BOOST_VERSION}.tar.gz.sha256"; do
+            if gh release view "$BOOST_VERSION" --json assets \
+              --jq '.assets[].name' | grep -Fqx "$asset"; then
+              gh release delete-asset "$BOOST_VERSION" "$asset" --yes
+            fi
+          done
+          echo "Updated Boost ${BOOST_VERSION} release metadata without replacing canonical assets."
