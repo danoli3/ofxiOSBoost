@@ -32,7 +32,7 @@ jobs:
       IOS_MIN_VERSION: "12.0"
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Resolve tag version
         if: startsWith(github.ref, 'refs/tags/')
@@ -42,7 +42,13 @@ jobs:
         run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0) ;; *) exit 1 ;; esac
 
       - name: Build release archive
-        run: ./scripts/build-boost-ios
+        run: |
+          log="$RUNNER_TEMP/build-release.log"
+          if ! ./scripts/build-boost-ios >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+          echo "Built Boost ${BOOST_VERSION} release archive."
 
       - name: Inspect binary
         run: |
@@ -67,7 +73,14 @@ jobs:
           fi
 
       - name: Build XCFramework example
-        run: ./example-xcframework/build.sh "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
+        run: |
+          log="$RUNNER_TEMP/xcframework-example.log"
+          if ! ./example-xcframework/build.sh \
+            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+          echo "Validated the XCFramework example."
 
       - name: Run XCFramework smoke tests in iOS Simulator
         run: |
@@ -86,7 +99,8 @@ jobs:
           xcrun simctl boot "$udid" 2>/dev/null || true
           xcrun simctl bootstatus "$udid" -b
 
-          xcodebuild \
+          build_log="$RUNNER_TEMP/simulator-smoke-build.log"
+          if ! xcodebuild \
             -project example-xcframework/ofxiOSBoostContextExample.xcodeproj \
             -target ofxiOSBoostContextExample \
             -configuration Release \
@@ -94,7 +108,10 @@ jobs:
             -destination "platform=iOS Simulator,id=$udid" \
             CONFIGURATION_BUILD_DIR="$app_dir" \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            build >"$build_log" 2>&1; then
+            tail -n 200 "$build_log"
+            exit 1
+          fi
 
           xcrun simctl install "$udid" \
             "$app_dir/ofxiOSBoostContextExample.app"
@@ -126,10 +143,23 @@ jobs:
           grep -Fq "ALL TESTS PASSED" "$report"
 
       - name: Build Swift package example
-        run: ./example-swift-package/build.sh "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
+        run: |
+          log="$RUNNER_TEMP/swift-package-example.log"
+          if ! ./example-swift-package/build.sh \
+            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+          echo "Validated the Swift package example."
 
       - name: Install CocoaPods
-        run: sudo gem install cocoapods --no-document
+        run: |
+          log="$RUNNER_TEMP/cocoapods-install.log"
+          if ! sudo gem install cocoapods --no-document >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+          echo "Installed CocoaPods."
 
       - name: Validate CocoaPods package
         run: |
@@ -138,10 +168,15 @@ jobs:
           package="$work/ofxiOSBoost-${BOOST_VERSION}"
           cp "dist/ofxiOSBoost.podspec" "$package/ofxiOSBoost.podspec"
           cd "$package"
-          pod lib lint ofxiOSBoost.podspec --platforms=ios --verbose
+          log="$RUNNER_TEMP/cocoapods-lib-lint.log"
+          if ! pod lib lint ofxiOSBoost.podspec --platforms=ios >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+          echo "Validated the CocoaPods package."
 
       - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ofxiOSBoost-${{ env.BOOST_VERSION }}
           path: |
@@ -176,7 +211,14 @@ jobs:
 
       - name: Validate published CocoaPods source
         if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
-        run: pod spec lint "dist/ofxiOSBoost.podspec" --platforms=ios
+        run: |
+          log="$RUNNER_TEMP/cocoapods-spec-lint.log"
+          if ! pod spec lint "dist/ofxiOSBoost.podspec" \
+            --platforms=ios >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+          echo "Validated the published CocoaPods source."
 
       - name: Publish CocoaPods release
         if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
