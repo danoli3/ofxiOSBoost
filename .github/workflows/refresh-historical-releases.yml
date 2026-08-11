@@ -1,4 +1,4 @@
-name: Refresh historical Boost releases
+name: Refresh historical Boost release metadata
 
 on:
   workflow_dispatch:
@@ -41,153 +41,15 @@ jobs:
           - 1.64.0
           - 1.65.0
           - 1.66.0
-    runs-on: macos-15-intel
+    runs-on: ubuntu-latest
     env:
       BOOST_VERSION: ${{ matrix.boost_version }}
-      IOS_MIN_VERSION: "12.0"
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7.0.1
 
-      - name: Validate supported historical release
-        run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0) ;; *) exit 1 ;; esac
-
-      - name: Build historical release archive
-        run: |
-          log="$RUNNER_TEMP/build-release.log"
-          if ! ./scripts/build-boost-ios >"$log" 2>&1; then
-            tail -n 200 "$log"
-            exit 1
-          fi
-          echo "Built Boost ${BOOST_VERSION} for historical validation."
-
-      - name: Inspect binary
-        run: |
-          package="dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz"
-          work="$(mktemp -d)"
-          tar -xzf "$package" -C "$work"
-          framework="$work/ofxiOSBoost-${BOOST_VERSION}/libs/boost/ios/boost.xcframework"
-          plutil -lint "$framework/Info.plist"
-          device_lib="$(find "$framework" -path '*ios-arm64/libboost.a' -print -quit)"
-          simulator_lib="$(find "$framework" -path '*ios-arm64_x86_64-simulator/libboost.a' -print -quit)"
-          test "$(xcrun lipo -archs "$device_lib")" = "arm64"
-          test "$(xcrun lipo -archs "$simulator_lib")" = "x86_64 arm64"
-          if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" ]]; then
-            xcrun nm -arch arm64 -gU "$device_lib" > "$work/device-arm64.nm"
-            xcrun nm -arch arm64 -gU "$simulator_lib" > "$work/simulator-arm64.nm"
-            xcrun nm -arch x86_64 -gU "$simulator_lib" > "$work/simulator-x86_64.nm"
-            for symbol in _make_fcontext _jump_fcontext _ontop_fcontext; do
-              grep -Fq "$symbol" "$work/device-arm64.nm"
-              grep -Fq "$symbol" "$work/simulator-arm64.nm"
-              grep -Fq "$symbol" "$work/simulator-x86_64.nm"
-            done
-          fi
-
-      - name: Build XCFramework example
-        run: |
-          log="$RUNNER_TEMP/xcframework-example.log"
-          if ! ./example-xcframework/build.sh \
-            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" >"$log" 2>&1; then
-            tail -n 200 "$log"
-            exit 1
-          fi
-          echo "Validated the XCFramework example."
-
-      - name: Run XCFramework smoke tests in iOS Simulator
-        run: |
-          package_dir="$RUNNER_TEMP/ofxiOSBoost-${BOOST_VERSION}"
-          app_dir="$RUNNER_TEMP/ofxiOSBoost-smoke-app"
-          report="$RUNNER_TEMP/ofxiOSBoost-smoke-report.txt"
-          mkdir -p "$package_dir" "libs/boost/ios" "$app_dir"
-          tar -xzf "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
-            -C "$package_dir" --strip-components=1
-          ditto "$package_dir/libs/boost/ios/boost.xcframework" \
-            "libs/boost/ios/boost.xcframework"
-
-          udid="$(xcrun simctl list devices available -j | jq -r \
-            '[.devices[][] | select(.isAvailable == true and (.name | startswith("iPhone")))] | first | .udid // empty')"
-          test -n "$udid"
-          xcrun simctl boot "$udid" 2>/dev/null || true
-          xcrun simctl bootstatus "$udid" -b
-
-          build_log="$RUNNER_TEMP/simulator-smoke-build.log"
-          if ! xcodebuild \
-            -project example-xcframework/ofxiOSBoostContextExample.xcodeproj \
-            -target ofxiOSBoostContextExample \
-            -configuration Release \
-            -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,id=$udid" \
-            CONFIGURATION_BUILD_DIR="$app_dir" \
-            CODE_SIGNING_ALLOWED=NO \
-            build >"$build_log" 2>&1; then
-            tail -n 200 "$build_log"
-            exit 1
-          fi
-
-          xcrun simctl install "$udid" "$app_dir/ofxiOSBoostContextExample.app"
-          SIMCTL_CHILD_OFXIOSBOOST_CI=1 \
-            xcrun simctl launch --console "$udid" \
-              org.openframeworks.ofxiOSBoostContextExample >"$report" 2>&1 &
-          launch_pid=$!
-
-          for _ in {1..60}; do
-            if grep -Fq "ALL TESTS PASSED" "$report"; then
-              break
-            fi
-            if ! kill -0 "$launch_pid" 2>/dev/null; then
-              break
-            fi
-            sleep 1
-          done
-          if kill -0 "$launch_pid" 2>/dev/null; then
-            kill "$launch_pid"
-          fi
-          wait "$launch_pid" || true
-          cat "$report"
-          {
-            echo "### Boost ${BOOST_VERSION} historical iOS Simulator validation"
-            echo '```text'
-            cat "$report"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-          grep -Fq "ALL TESTS PASSED" "$report"
-
-      - name: Build Swift package example
-        run: |
-          log="$RUNNER_TEMP/swift-package-example.log"
-          if ! ./example-swift-package/build.sh \
-            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" >"$log" 2>&1; then
-            tail -n 200 "$log"
-            exit 1
-          fi
-          echo "Validated the Swift package example."
-
-      - name: Install CocoaPods
-        run: |
-          log="$RUNNER_TEMP/cocoapods-install.log"
-          if ! sudo gem install cocoapods --no-document >"$log" 2>&1; then
-            tail -n 200 "$log"
-            exit 1
-          fi
-          echo "Installed CocoaPods."
-
-      - name: Validate CocoaPods package
-        run: |
-          work="$(mktemp -d)"
-          tar -xzf "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" -C "$work"
-          package="$work/ofxiOSBoost-${BOOST_VERSION}"
-          cp "dist/ofxiOSBoost.podspec" "$package/ofxiOSBoost.podspec"
-          cd "$package"
-          log="$RUNNER_TEMP/cocoapods-lib-lint.log"
-          if ! pod lib lint ofxiOSBoost.podspec --platforms=ios >"$log" 2>&1; then
-            tail -n 200 "$log"
-            exit 1
-          fi
-          echo "Validated the CocoaPods package."
-
       - name: Update description and remove redundant addon assets
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           notes="$RUNNER_TEMP/release-notes.md"
           bash ./scripts/generate-release-notes "$BOOST_VERSION" "$notes"
@@ -203,4 +65,4 @@ jobs:
               gh release delete-asset "$BOOST_VERSION" "$asset" --yes
             fi
           done
-          echo "Updated Boost ${BOOST_VERSION} release metadata without replacing canonical assets."
+          echo "Updated Boost ${BOOST_VERSION} metadata; canonical assets were unchanged."
