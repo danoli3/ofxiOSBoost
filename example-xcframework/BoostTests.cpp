@@ -27,6 +27,9 @@
 #include <boost/contract/assert.hpp>
 #include <boost/hof.hpp>
 #endif
+#if BOOST_VERSION >= 106800
+#include <boost/yap/yap.hpp>
+#endif
 
 #include <cstdint>
 #include <exception>
@@ -243,6 +246,16 @@ bool testBoost167Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 106800
+bool testBoost168Features(std::string &detail)
+{
+    const auto left = boost::yap::make_terminal(19);
+    const auto expression = left + 23;
+    detail = "YAP expression template evaluated";
+    return boost::yap::evaluate(expression) == 42;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -281,6 +294,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 106700
     run("Boost 1.67 features", testBoost167Features);
+#endif
+#if BOOST_VERSION >= 106800
+    run("Boost 1.68 features", testBoost168Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);

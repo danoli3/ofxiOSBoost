@@ -1,0 +1,88 @@
+diff --git a/tools/build/src/tools/darwin.jam b/tools/build/src/tools/darwin.jam
+--- a/tools/build/src/tools/darwin.jam
++++ b/tools/build/src/tools/darwin.jam
+@@ -140,5 +140,5 @@ rule init ( version ? : command * : options * : requirement * )
+     # - GCC 4.0 and higher in Darwin does not have -fcoalesce-templates.
+     if $(real-version) < "4.0.0"
+     {
+-        flags darwin.compile.c++ OPTIONS $(condition) : -fcoalesce-templates ;
++        # Disabled for modern Apple Clang, whose compatibility version is 4.2.1.
+     }
+@@ -500,7 +500,9 @@ rule setup-address-model ( targets * : sources * : properties * )
+         
+         case arm :
+         {
+-            if $(instruction-set) {
++            if $(address-model) = 64 {
++                options = -arch arm64 ;
++            } else if $(instruction-set) {
+                 options = -arch$(_)$(instruction-set) ;
+             } else {
+                 options = -arch arm ;
+diff --git a/tools/build/src/engine/build.jam b/tools/build/src/engine/build.jam
+--- a/tools/build/src/engine/build.jam
++++ b/tools/build/src/engine/build.jam
+@@ -186,7 +186,7 @@ toolset gcc : -o : -D
+ if ! $(CC) { CC = cc ; }
+ toolset cc $(CC) : "-o " : -D
+     : $(CFLAGS)
+-    [ opt --release : -s -O ]
++    [ opt --release : -O ]
+     [ opt --debug : -g ]
+     -I$(--python-include) -I$(--extra-include)
+     : $(LIBS) -L$(--python-lib[1]) -l$(--python-lib[2]) ;
+diff --git a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+--- a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
++++ b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum udt_builtin_mixture_enum
+   {
+-     builtin_to_builtin
++     udt_builtin_mixture_min = -1
++    ,builtin_to_builtin
+     ,builtin_to_udt
+     ,udt_to_builtin
+     ,udt_to_udt
++    ,udt_builtin_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric
+diff --git a/boost/container_hash/hash.hpp b/boost/container_hash/hash.hpp
+--- a/boost/container_hash/hash.hpp
++++ b/boost/container_hash/hash.hpp
+@@ -119,17 +119,12 @@ namespace boost
+ {
+     namespace hash_detail
+     {
+-#if defined(_HAS_AUTO_PTR_ETC) && !_HAS_AUTO_PTR_ETC
+         template <typename T>
+         struct hash_base
+         {
+             typedef T argument_type;
+             typedef std::size_t result_type;
+         };
+-#else
+-        template <typename T>
+-        struct hash_base : std::unary_function<T, std::size_t> {};
+-#endif
+ 
+         struct enable_hash_value { typedef std::size_t type; };
+ 
+diff --git a/boost/numeric/conversion/int_float_mixture_enum.hpp b/boost/numeric/conversion/int_float_mixture_enum.hpp
+--- a/boost/numeric/conversion/int_float_mixture_enum.hpp
++++ b/boost/numeric/conversion/int_float_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum int_float_mixture_enum
+   {
+-     integral_to_integral
++     int_float_mixture_min = -1
++    ,integral_to_integral
+     ,integral_to_float
+     ,float_to_integral
+     ,float_to_float
++    ,int_float_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric

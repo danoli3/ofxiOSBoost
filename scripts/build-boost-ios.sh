@@ -2,16 +2,16 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.67.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.68.0}"
 DEFAULT_BOOST_LIBS="chrono date_time filesystem graph locale random regex signals system thread"
-if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" ]]; then
+if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS context"
 fi
 BOOST_LIBS="${BOOST_LIBS:-$DEFAULT_BOOST_LIBS}"
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -84,6 +84,9 @@ tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
 echo "Applying Boost $BOOST_VERSION compatibility patches"
 case "$BOOST_VERSION" in
+    1.68.0)
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.68.0-build-engine.patch"
+        ;;
     1.67.0)
         COMPAT_PATCH="$REPO_ROOT/patches/boost-1.67.0-build-engine.patch"
         ;;
@@ -148,7 +151,7 @@ build_platform() {
     local address_model="$4"
     local context_properties=()
 
-    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" ]]; then
+    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" ]]; then
         local abi=sysv
         if [[ "$architecture" == arm ]]; then
             abi=aapcs
