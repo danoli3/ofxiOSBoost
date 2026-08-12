@@ -1,0 +1,123 @@
+diff --git a/tools/build/src/tools/darwin.jam b/tools/build/src/tools/darwin.jam
+--- a/tools/build/src/tools/darwin.jam
++++ b/tools/build/src/tools/darwin.jam
+@@ -140,5 +140,5 @@ rule init ( version ? : command * : options * : requirement * )
+     # - GCC 4.0 and higher in Darwin does not have -fcoalesce-templates.
+     if $(real-version) < "4.0.0"
+     {
+-        flags darwin.compile.c++ OPTIONS $(condition) : -fcoalesce-templates ;
++        # Disabled for modern Apple Clang, whose compatibility version is 4.2.1.
+     }
+@@ -500,7 +500,9 @@ rule setup-address-model ( targets * : sources * : properties * )
+         
+         case arm :
+         {
+-            if $(instruction-set) {
++            if $(address-model) = 64 {
++                options = -arch arm64 ;
++            } else if $(instruction-set) {
+                 options = -arch$(_)$(instruction-set) ;
+             } else {
+                 options = -arch arm ;
+diff --git a/tools/build/src/tools/gcc.jam b/tools/build/src/tools/gcc.jam
+--- a/tools/build/src/tools/gcc.jam
++++ b/tools/build/src/tools/gcc.jam
+@@ -463,7 +463,7 @@ local rule threading-flags ( * )
+     local bsd = [ MATCH ^(.*bsd)$ : $(all-os) ] ;
+     threading-flags <target-os>$(bsd) : -pthread ;
+ 
+-    local no-threading = android beos haiku sgi darwin vxworks ;
++    local no-threading = android beos haiku sgi darwin iphone vxworks ;
+     local threading-generic-os = [ set.difference $(all-os) : $(no-threading) $(bsd) windows cygwin solaris qnx ] ;
+     threading-flags <target-os>$(threading-generic-os) : -pthread : rt ;
+ }
+diff --git a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+--- a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
++++ b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum udt_builtin_mixture_enum
+   {
+-     builtin_to_builtin
++     udt_builtin_mixture_min = -1
++    ,builtin_to_builtin
+     ,builtin_to_udt
+     ,udt_to_builtin
+     ,udt_to_udt
++    ,udt_builtin_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric
+diff --git a/boost/container_hash/hash.hpp b/boost/container_hash/hash.hpp
+--- a/boost/container_hash/hash.hpp
++++ b/boost/container_hash/hash.hpp
+@@ -120,15 +120,10 @@ namespace boost
+ {
+     namespace hash_detail
+     {
+-#if defined(BOOST_NO_CXX98_FUNCTION_BASE)
+         template <typename T>
+         struct hash_base
+         {
+             typedef T argument_type;
+             typedef std::size_t result_type;
+         };
+-#else
+-        template <typename T>
+-        struct hash_base : std::unary_function<T, std::size_t> {};
+-#endif
+ 
+         struct enable_hash_value { typedef std::size_t type; };
+diff --git a/boost/numeric/conversion/int_float_mixture_enum.hpp b/boost/numeric/conversion/int_float_mixture_enum.hpp
+--- a/boost/numeric/conversion/int_float_mixture_enum.hpp
++++ b/boost/numeric/conversion/int_float_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum int_float_mixture_enum
+   {
+-     integral_to_integral
++     int_float_mixture_min = -1
++    ,integral_to_integral
+     ,integral_to_float
+     ,float_to_integral
+     ,float_to_float
++    ,int_float_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric
+diff --git a/boost/nowide/detail/convert.hpp b/boost/nowide/detail/convert.hpp
+--- a/boost/nowide/detail/convert.hpp
++++ b/boost/nowide/detail/convert.hpp
+@@ -37,17 +37,17 @@ namespace nowide {
+             while(source_begin != source_end)
+             {
+                 using namespace detail::utf;
+-                code_point c = utf_traits<CharIn>::template decode(source_begin, source_end);
++                code_point c = utf_traits<CharIn>::decode(source_begin, source_end);
+                 if(c == illegal || c == incomplete)
+                 {
+                     c = BOOST_NOWIDE_REPLACEMENT_CHARACTER;
+                 }
+                 size_t width = utf_traits<CharOut>::width(c);
+                 if(buffer_size < width)
+                 {
+                     rv = NULL;
+                     break;
+                 }
+-                buffer = utf_traits<CharOut>::template encode(c, buffer);
++                buffer = utf_traits<CharOut>::encode(c, buffer);
+                 buffer_size -= width;
+             }
+@@ -73,10 +73,10 @@ namespace nowide {
+             while(begin != end)
+             {
+-                c = utf_traits<CharIn>::template decode(begin, end);
++                c = utf_traits<CharIn>::decode(begin, end);
+                 if(c == illegal || c == incomplete)
+                 {
+                     c = BOOST_NOWIDE_REPLACEMENT_CHARACTER;
+                 }
+-                utf_traits<CharOut>::template encode(c, inserter);
++                utf_traits<CharOut>::encode(c, inserter);
+             }
+             return result;

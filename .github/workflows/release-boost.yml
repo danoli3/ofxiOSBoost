@@ -6,7 +6,7 @@ on:
       boost_version:
         description: Boost version to build
         required: true
-        default: 1.72.0
+        default: 1.73.0
         type: string
   push:
     branches:
@@ -28,7 +28,7 @@ jobs:
     env:
       # Master validates the newest supported version. Tag pushes are replaced
       # with the exact tag by the Resolve tag version step below.
-      BOOST_VERSION: ${{ inputs.boost_version || '1.72.0' }}
+      BOOST_VERSION: ${{ inputs.boost_version || '1.73.0' }}
       IOS_MIN_VERSION: "12.0"
     steps:
       - name: Check out repository
@@ -39,7 +39,7 @@ jobs:
         run: echo "BOOST_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
 
       - name: Validate supported release
-        run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0) ;; *) exit 1 ;; esac
+        run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0) ;; *) exit 1 ;; esac
 
       - name: Build release archive
         run: |
@@ -61,7 +61,7 @@ jobs:
           simulator_lib="$(find "$framework" -path '*ios-arm64_x86_64-simulator/libboost.a' -print -quit)"
           test "$(xcrun lipo -archs "$device_lib")" = "arm64"
           test "$(xcrun lipo -archs "$simulator_lib")" = "x86_64 arm64"
-          if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" ]]; then
+          if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" ]]; then
             xcrun nm -arch arm64 -gU "$device_lib" > "$work/device-arm64.nm"
             xcrun nm -arch arm64 -gU "$simulator_lib" > "$work/simulator-arm64.nm"
             xcrun nm -arch x86_64 -gU "$simulator_lib" > "$work/simulator-x86_64.nm"

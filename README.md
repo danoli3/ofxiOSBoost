@@ -31,6 +31,7 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
+| [1.73.0](https://www.boost.org/users/history/version_1_73_0.html) | C++17 | [![Boost 1.73.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.73.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.73.0) |
 | [1.72.0](https://www.boost.org/users/history/version_1_72_0.html) | C++17 | [![Boost 1.72.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.72.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.72.0) |
 | [1.71.0](https://www.boost.org/users/history/version_1_71_0.html) | C++17 | [![Boost 1.71.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.71.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.71.0) |
 | [1.70.0](https://www.boost.org/users/history/version_1_70_0.html) | C++17 | [![Boost 1.70.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.70.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.70.0) |
@@ -93,6 +94,12 @@ existing collection; the smoke suite adds coverage for Boost.Filesystem's newly
 compiled `filesystem_error` implementation. The complete suite passed on an
 arm64 iOS Simulator and physical arm64 iOS device.
 
+Boost 1.73.0 remains on C++17 and adds Boost.StaticString plus Boost.Nowide.
+StaticString operations, portable Nowide UTF conversion, and Variant2's new
+hash support are smoke-tested. The compiled Nowide library is included and its
+`fopen` adapter is exercised on both Simulator and physical device. The complete
+consolidated suite passed on an arm64 iOS Simulator and physical arm64 device.
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -119,7 +126,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.72.0'
+  pod 'ofxiOSBoost', '1.73.0'
 end
 ```
 
@@ -137,13 +144,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.72.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.73.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.72.0`, and add the `ofxiOSBoost` product to the application
+select version `1.73.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -183,8 +190,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.72.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.72.0.tar.gz
+BOOST_VERSION=1.73.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.73.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -261,14 +268,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.72.0`. Pushing the tag
-`1.72.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.73.0`. Pushing the tag
+`1.73.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.72.0 ./scripts/build-boost-ios.sh
+BOOST_VERSION=1.73.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -291,7 +298,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.72.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.73.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -311,6 +318,15 @@ application.
 
 
 #### Current Boost release documentation
+
+[Boost 1.73.0 upstream release history](https://www.boost.org/users/history/version_1_73_0.html)
+
+### Version 1.73.0 — April 28, 2020
+
+Boost 1.73.0 remains on C++17. It adds Boost.StaticString and Boost.Nowide,
+retains compiled Context and header-only Coroutine2, and includes the complete
+Boost header tree. Its complete runtime suite passed on an arm64 iOS Simulator
+and physical arm64 iOS device.
 
 [Boost 1.72.0 upstream release history](https://www.boost.org/users/history/version_1_72_0.html)
 

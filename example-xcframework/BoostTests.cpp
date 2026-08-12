@@ -41,6 +41,12 @@
 #if BOOST_VERSION >= 107100
 #include <boost/variant2/variant.hpp>
 #endif
+#if BOOST_VERSION >= 107300
+#include <boost/nowide/cstdio.hpp>
+#include <boost/functional/hash.hpp>
+#include <boost/nowide/convert.hpp>
+#include <boost/static_string/static_string.hpp>
+#endif
 
 #include <cstdint>
 #include <exception>
@@ -320,6 +326,30 @@ bool testBoost172Updates(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107300
+bool testBoost173Features(std::string &detail)
+{
+    boost::static_string<16> text("Boost");
+    text.append(" 1.73");
+
+    const std::string utf8 = u8"caf\u00e9";
+    const std::wstring wide = boost::nowide::widen(utf8);
+    const std::string roundTrip = boost::nowide::narrow(wide);
+    std::FILE *nullFile = boost::nowide::fopen("/dev/null", "r");
+    const bool nowideFileOpened = nullFile != nullptr;
+    if (nullFile)
+        std::fclose(nullFile);
+
+    boost::variant2::variant<int, std::string> value = std::string("hash");
+    const std::size_t hash = boost::hash<decltype(value)>{}(value);
+
+    detail = "StaticString, Nowide UTF-8 + compiled fopen, and Variant2 hash";
+    return text == "Boost 1.73" && text.size() == 10 && text.capacity() == 16 &&
+           text.data()[text.size()] == '\0' && roundTrip == utf8 &&
+           nowideFileOpened && hash != 0;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -370,6 +400,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107200
     run("Boost 1.72 updates", testBoost172Updates);
+#endif
+#if BOOST_VERSION >= 107300
+    run("Boost 1.73 features", testBoost173Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
