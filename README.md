@@ -18,13 +18,12 @@ libc++. Current release builds contain:
 
 ### Release build matrix
 
-Badges below query the check status attached to each release tag. They do not
-fall back to the latest `master` or manually dispatched workflow run.
+Badges below show the current `master` workflow status. Each row keeps its
+version-specific badge label while sharing the same workflow status and link.
 The tagged workflow builds the XCFramework, installs the consolidated example
 on an iOS Simulator, runs its smoke suite, and requires `ALL TESTS PASSED`
 before publishing release assets. The captured report is included in the
-GitHub Actions job summary. For tags created with this workflow, rerunning the
-tag's existing workflow updates the same tag check and badge.
+GitHub Actions job summary.
 
 The same build and Simulator smoke suite runs on every push to `master` using
 the newest supported Boost version. Master runs upload workflow artifacts but
@@ -32,17 +31,18 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| [1.71.0](https://www.boost.org/users/history/version_1_71_0.html) | C++17 | [![Boost 1.71.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.71.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.71.0) | [1.71.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.71.0) |
-| [1.70.0](https://www.boost.org/users/history/version_1_70_0.html) | C++17 | [![Boost 1.70.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.70.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.70.0) | [1.70.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.70.0) |
-| [1.69.0](https://www.boost.org/users/history/version_1_69_0.html) | C++17 | [![Boost 1.69.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.69.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.69.0) | [1.69.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.69.0) |
-| [1.68.0](https://www.boost.org/users/history/version_1_68_0.html) | C++17 | [![Boost 1.68.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.68.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.68.0) | [1.68.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.68.0) |
-| [1.67.0](https://www.boost.org/users/history/version_1_67_0.html) | C++14 | [![Boost 1.67.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.67.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.67.0) | [1.67.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.67.0) |
-| [1.66.0](https://www.boost.org/users/history/version_1_66_0.html) | C++14 | [![Boost 1.66.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.66.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.66.0) | [1.66.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.66.0) |
-| [1.65.0](https://www.boost.org/users/history/version_1_65_0.html) | C++14 | [![Boost 1.65.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.65.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.65.0) | [1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
-| [1.64.0](https://www.boost.org/users/history/version_1_64_0.html) | C++11 | [![Boost 1.64.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.64.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.64.0) | [1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
-| [1.63.0](https://www.boost.org/users/history/version_1_63_0.html) | C++11 | [![Boost 1.63.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.63.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.63.0) | [1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
-| [1.62.0](https://www.boost.org/users/history/version_1_62_0.html) | C++11 | [![Boost 1.62.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.62.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.62.0) | [1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
-| [1.61.0](https://www.boost.org/users/history/version_1_61_0.html) | C++11 | [![Boost 1.61.0 build](https://img.shields.io/github/checks-status/danoli3/ofxiOSBoost/1.61.0?label=build)](https://github.com/danoli3/ofxiOSBoost/tree/1.61.0) | [1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
+| [1.72.0](https://www.boost.org/users/history/version_1_72_0.html) | C++17 | [![Boost 1.72.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.72.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.72.0) |
+| [1.71.0](https://www.boost.org/users/history/version_1_71_0.html) | C++17 | [![Boost 1.71.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.71.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.71.0) |
+| [1.70.0](https://www.boost.org/users/history/version_1_70_0.html) | C++17 | [![Boost 1.70.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.70.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.70.0) |
+| [1.69.0](https://www.boost.org/users/history/version_1_69_0.html) | C++17 | [![Boost 1.69.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.69.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.69.0) |
+| [1.68.0](https://www.boost.org/users/history/version_1_68_0.html) | C++17 | [![Boost 1.68.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.68.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.68.0) |
+| [1.67.0](https://www.boost.org/users/history/version_1_67_0.html) | C++14 | [![Boost 1.67.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.67.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.67.0) |
+| [1.66.0](https://www.boost.org/users/history/version_1_66_0.html) | C++14 | [![Boost 1.66.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.66.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.66.0) |
+| [1.65.0](https://www.boost.org/users/history/version_1_65_0.html) | C++14 | [![Boost 1.65.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.65.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.65.0) |
+| [1.64.0](https://www.boost.org/users/history/version_1_64_0.html) | C++11 | [![Boost 1.64.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.64.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.64.0) |
+| [1.63.0](https://www.boost.org/users/history/version_1_63_0.html) | C++11 | [![Boost 1.63.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.63.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.63.0) |
+| [1.62.0](https://www.boost.org/users/history/version_1_62_0.html) | C++11 | [![Boost 1.62.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.62.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.62.0) |
+| [1.61.0](https://www.boost.org/users/history/version_1_61_0.html) | C++11 | [![Boost 1.61.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.61.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.61.0) |
 
 Boost 1.65.0 adds compiled Boost.Context. Its arm64 AAPCS Mach-O device
 implementation and Simulator implementations were runtime-tested with real
@@ -88,6 +88,11 @@ configuration, and adds smoke coverage for the new header-only Boost.Variant2
 library. The complete suite passed on a physical arm64 iOS device; Simulator
 runtime confirmation remains pending.
 
+Boost 1.72.0 remains on C++17 and introduces no new library. It updates the
+existing collection; the smoke suite adds coverage for Boost.Filesystem's newly
+compiled `filesystem_error` implementation. The complete suite passed on an
+arm64 iOS Simulator and physical arm64 iOS device.
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -114,7 +119,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.71.0'
+  pod 'ofxiOSBoost', '1.72.0'
 end
 ```
 
@@ -132,13 +137,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.71.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.72.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.71.0`, and add the `ofxiOSBoost` product to the application
+select version `1.72.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -178,8 +183,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.71.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.71.0.tar.gz
+BOOST_VERSION=1.72.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.72.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -256,14 +261,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.71.0`. Pushing the tag
-`1.71.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.72.0`. Pushing the tag
+`1.72.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.71.0 ./scripts/build-boost-ios.sh
+BOOST_VERSION=1.72.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -286,7 +291,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.71.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.72.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -306,6 +311,14 @@ application.
 
 
 #### Current Boost release documentation
+
+[Boost 1.72.0 upstream release history](https://www.boost.org/users/history/version_1_72_0.html)
+
+### Version 1.72.0 — December 11, 2019
+
+Boost 1.72.0 remains on C++17 and introduces no new library. It updates the
+existing collection, retains compiled Context and header-only Coroutine2, and
+includes the complete Boost header tree.
 
 [Boost 1.71.0 upstream release history](https://www.boost.org/users/history/version_1_71_0.html)
 

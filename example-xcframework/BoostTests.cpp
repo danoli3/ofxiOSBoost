@@ -305,6 +305,21 @@ bool testBoost171Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107200
+bool testBoost172Updates(std::string &detail)
+{
+    try {
+        boost::filesystem::file_size(
+            boost::filesystem::path("/ofxiosboost/nonexistent/1.72"));
+    } catch (const boost::filesystem::filesystem_error &error) {
+        detail = "compiled Filesystem exception caught";
+        return error.code().value() != 0;
+    }
+    detail = "expected Filesystem exception was not thrown";
+    return false;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -352,6 +367,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107100
     run("Boost 1.71 features", testBoost171Features);
+#endif
+#if BOOST_VERSION >= 107200
+    run("Boost 1.72 updates", testBoost172Updates);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);

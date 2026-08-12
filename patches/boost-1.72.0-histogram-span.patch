@@ -1,0 +1,12 @@
+diff --git a/boost/histogram/detail/span.hpp b/boost/histogram/detail/span.hpp
+--- a/boost/histogram/detail/span.hpp
++++ b/boost/histogram/detail/span.hpp
+@@ -8,7 +8,8 @@
+ #define BOOST_HISTOGRAM_DETAIL_SPAN_HPP
+ 
+-#if __cpp_constexpr >= 201603 && __cpp_deduction_guides >= 201703 && \
++#if __cplusplus >= 202002L && __cpp_constexpr >= 201603 && \
++    __cpp_deduction_guides >= 201703 && \
+     __cpp_lib_nonmember_container_access >= 201411 && __has_include(<span>)
+ #include <span>
+
