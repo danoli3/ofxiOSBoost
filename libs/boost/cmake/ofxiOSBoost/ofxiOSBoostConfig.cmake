@@ -3,7 +3,7 @@ get_filename_component(_OFXIOSBOOST_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../.." ABS
 set(_OFXIOSBOOST_XCFRAMEWORK "${_OFXIOSBOOST_PREFIX}/ios/boost.xcframework")
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    message(FATAL_ERROR "ofxiOSBoost 1.70.0 supports iOS targets only")
+    message(FATAL_ERROR "ofxiOSBoost 1.71.0 supports iOS targets only")
 endif()
 
 string(TOLOWER "${CMAKE_OSX_SYSROOT}" _OFXIOSBOOST_SYSROOT)
@@ -21,7 +21,7 @@ set(_OFXIOSBOOST_INCLUDE_PATH
 if(NOT EXISTS "${_OFXIOSBOOST_LIBRARY_PATH}" OR
    NOT IS_DIRECTORY "${_OFXIOSBOOST_INCLUDE_PATH}")
     message(FATAL_ERROR
-        "ofxiOSBoost 1.70.0 is incomplete or has no slice for ${CMAKE_OSX_SYSROOT}")
+        "ofxiOSBoost 1.71.0 is incomplete or has no slice for ${CMAKE_OSX_SYSROOT}")
 endif()
 
 if(NOT TARGET ofxiOSBoost::boost)
@@ -33,7 +33,7 @@ if(NOT TARGET ofxiOSBoost::boost)
     )
 endif()
 
-set(ofxiOSBoost_VERSION "1.70.0")
+set(ofxiOSBoost_VERSION "1.71.0")
 set(ofxiOSBoost_FOUND TRUE)
 
 unset(_OFXIOSBOOST_LIBRARY)

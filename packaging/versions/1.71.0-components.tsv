@@ -1,0 +1,46 @@
+# status	library	note
+# upstream	https://www.boost.org/users/history/version_1_71_0.html
+included	chrono	Compiled date and time duration support.
+included	date_time	Compiled date/time and locale facets.
+included	filesystem	Portable filesystem operations.
+included	graph	Compiled Graph algorithms.
+included	locale	Localization backends available without optional ICU packaging.
+included	random	Compiled random_device implementation.
+included	regex	Regular-expression engine.
+included	system	Error-code support required by several compiled libraries.
+included	thread	Portable threading primitives.
+included	context	Architecture-specific fcontext implementation carried forward from the validated configuration.
+excluded	atomic	Header-only native atomic operations are covered by the smoke suite; the fallback compiled library remains excluded.
+excluded	beast	Header-only HTTP and WebSocket support; offline HTTP coverage is retained.
+excluded	callable_traits	Header-only callable type inspection remains covered by the smoke suite.
+excluded	container	Not selected; useful for iOS, but requires an explicit size and API expansion decision.
+excluded	contract	Header-only mode is smoke-tested; the optional compiled library remains excluded pending dedicated runtime evaluation.
+excluded	coroutine	Deprecated compiled library; depends on Context but has not received separate runtime coverage.
+excluded	coroutine2	Header-only API backed by included Context; yield/resume coverage is retained.
+excluded	exception	Predominantly header-based; no compiled binary selected.
+excluded	fiber	Separate compiled Context dependent; scheduler and threading paths still need device and Simulator runtime tests.
+excluded	graph_parallel	Depends on MPI and is not appropriate for a normal iOS application.
+excluded	histogram	Header-only histogram construction and bin updates remain covered by the smoke suite.
+excluded	hof	Header-only higher-order function utilities remain smoke-tested.
+excluded	iostreams	Not yet packaged; compression filters also require explicit zlib/bzip2 dependency handling.
+excluded	log	Large dependency surface and desktop-oriented backends require an iOS-specific configuration and tests.
+excluded	math	Not selected initially; useful scientific compiled components may be added after size and link testing.
+excluded	metaparse	Predominantly header-based; no compiled binary selected.
+excluded	mp11	Header-only metaprogramming utilities remain covered by the smoke suite.
+excluded	mpi	Requires an MPI runtime, which is not appropriate for a normal iOS application.
+excluded	outcome	Header-only result value handling remains covered by the smoke suite.
+excluded	process	Requires iOS spawn/fork and filesystem integration audit; excluded initially.
+excluded	program_options	Command-line parsing is of limited use in a normal iOS application.
+excluded	python	Requires a separately packaged Python runtime.
+excluded	poly_collection	Header-only polymorphic container support.
+excluded	safe_numerics	Headers are included; runtime coverage remains deferred until compatibility with current Apple Clang is confirmed.
+excluded	serialization	Not selected initially; a strong candidate for an expansion build.
+excluded	signals	Legacy compiled Boost.Signals was removed upstream in Boost 1.69.
+excluded	signals2	Header-only successor to Boost.Signals; slot dispatch is covered by the smoke suite.
+excluded	stacktrace	Requires iOS device and Simulator runtime tests before inclusion.
+excluded	test	Intended for test executables rather than the shipped application library.
+excluded	timer	Not selected initially; a small candidate for an expanded build.
+excluded	type_erasure	Predominantly header-based; no compiled binary selected.
+excluded	variant2	New in 1.71; header-only alternative selection and visitation are covered by the smoke suite.
+excluded	wave	Large C/C++ preprocessing toolchain not normally needed at iOS application runtime.
+excluded	yap	Header-only expression-template utilities remain covered by the smoke suite.

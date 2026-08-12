@@ -38,6 +38,9 @@
 #include <boost/histogram.hpp>
 #include <boost/outcome.hpp>
 #endif
+#if BOOST_VERSION >= 107100
+#include <boost/variant2/variant.hpp>
+#endif
 
 #include <cstdint>
 #include <exception>
@@ -289,6 +292,19 @@ bool testBoost170Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107100
+bool testBoost171Features(std::string &detail)
+{
+    boost::variant2::variant<int, std::string> value = 42;
+    const int first = boost::variant2::visit(
+        [](const auto &item) { return static_cast<int>(item.size()); },
+        boost::variant2::variant<std::string>(std::string("variant2")));
+    detail = "Variant2 alternative selection and visitation";
+    return boost::variant2::holds_alternative<int>(value) &&
+           boost::variant2::get<int>(value) == 42 && first == 8;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -333,6 +349,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107000
     run("Boost 1.70 features", testBoost170Features);
+#endif
+#if BOOST_VERSION >= 107100
+    run("Boost 1.71 features", testBoost171Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
