@@ -34,6 +34,10 @@
 #if BOOST_VERSION >= 106800
 #include <boost/yap/yap.hpp>
 #endif
+#if BOOST_VERSION >= 107000
+#include <boost/histogram.hpp>
+#include <boost/outcome.hpp>
+#endif
 
 #include <cstdint>
 #include <exception>
@@ -270,6 +274,21 @@ bool testBoost168Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107000
+bool testBoost170Features(std::string &detail)
+{
+    auto histogram = boost::histogram::make_histogram(
+        boost::histogram::axis::regular<>(2, 0.0, 2.0));
+    histogram(0.25);
+    histogram(1.25);
+
+    boost::outcome_v2::result<int> outcome = 42;
+    detail = "Histogram bins and Outcome result value";
+    return histogram.at(0) == 1 && histogram.at(1) == 1 &&
+           outcome.has_value() && outcome.value() == 42;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -311,6 +330,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 106800
     run("Boost 1.68 features", testBoost168Features);
+#endif
+#if BOOST_VERSION >= 107000
+    run("Boost 1.70 features", testBoost170Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);

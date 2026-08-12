@@ -2,19 +2,21 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.69.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.70.0}"
 DEFAULT_BOOST_LIBS="chrono date_time filesystem graph locale random regex system thread"
-if [[ "$BOOST_VERSION" != "1.69.0" ]]; then
-    DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS signals"
-fi
-if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" ]]; then
+case "$BOOST_VERSION" in
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0)
+        DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS signals"
+        ;;
+esac
+if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS context"
 fi
 BOOST_LIBS="${BOOST_LIBS:-$DEFAULT_BOOST_LIBS}"
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -87,6 +89,9 @@ tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
 echo "Applying Boost $BOOST_VERSION compatibility patches"
 case "$BOOST_VERSION" in
+    1.70.0)
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.70.0-build-engine.patch"
+        ;;
     1.69.0)
         COMPAT_PATCH="$REPO_ROOT/patches/boost-1.69.0-build-engine.patch"
         ;;
@@ -156,13 +161,21 @@ build_platform() {
     local architecture="$3"
     local address_model="$4"
     local context_properties=()
+    local locale_properties=()
 
-    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" ]]; then
+    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" ]]; then
         local abi=sysv
         if [[ "$architecture" == arm ]]; then
             abi=aapcs
         fi
         context_properties=(abi="$abi" binary-format=mach-o)
+    fi
+    if [[ "$BOOST_VERSION" == "1.70.0" && " $BOOST_LIBS " == *" locale "* ]]; then
+        local platform_sdk="$SIMULATOR_SDK"
+        if [[ "$name" == device-* ]]; then
+            platform_sdk="$IPHONEOS_SDK"
+        fi
+        locale_properties=("-sICONV_PATH=$platform_sdk/usr")
     fi
 
     echo "Building $name"
@@ -174,11 +187,18 @@ build_platform() {
             --build-dir="$BUILD_DIR/$name" \
             --stagedir="$BUILD_DIR/$name/stage" \
             toolset="$toolset" architecture="$architecture" address-model="$address_model" \
+            "${locale_properties[@]}" \
             "${context_properties[@]}" \
             target-os=iphone variant=release link=static runtime-link=static threading=multi \
             stage
     )
 
+    for library in $BOOST_LIBS; do
+        [[ -s "$BUILD_DIR/$name/stage/lib/libboost_$library.a" ]] || {
+            echo "Missing requested library for $name: libboost_$library.a" >&2
+            exit 1
+        }
+    done
     local libraries=("$BUILD_DIR/$name/stage/lib"/libboost_*.a)
     test -e "${libraries[0]}" || { echo "No libraries were produced for $name." >&2; exit 1; }
     xcrun libtool -static -o "$BUILD_DIR/libboost-$name.a" "${libraries[@]}"
