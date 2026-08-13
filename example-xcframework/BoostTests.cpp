@@ -47,9 +47,20 @@
 #include <boost/nowide/convert.hpp>
 #include <boost/static_string/static_string.hpp>
 #endif
+#if BOOST_VERSION >= 107400
+#include <boost/asio/any_io_executor.hpp>
+#include <boost/asio/post.hpp>
+#include <boost/nowide/utf/convert.hpp>
+#include <boost/stl_interfaces/iterator_interface.hpp>
+#endif
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <exception>
+#include <fstream>
+#include <numeric>
 #include <sstream>
 #include <type_traits>
 #include <vector>
@@ -135,6 +146,37 @@ bool testCoroutine2(std::string &detail)
     detail = "Coroutine2 yielded 21, 42";
     return values.size() == 2 && values[0] == 21 && values[1] == 42;
 }
+#endif
+
+#if BOOST_VERSION >= 107400
+struct Boost174Iterator
+    : boost::stl_interfaces::iterator_interface<
+          Boost174Iterator,
+          std::random_access_iterator_tag,
+          int>
+{
+    Boost174Iterator() noexcept : current(nullptr) {}
+    explicit Boost174Iterator(int *value) noexcept : current(value) {}
+
+    int &operator*() const noexcept { return *current; }
+    Boost174Iterator &operator+=(std::ptrdiff_t offset) noexcept
+    {
+        current += offset;
+        return *this;
+    }
+    std::ptrdiff_t operator-(Boost174Iterator other) const noexcept
+    {
+        return current - other.current;
+    }
+
+private:
+    int *current;
+};
+
+struct Boost174Variant : boost::variant2::variant<int, std::string>
+{
+    using boost::variant2::variant<int, std::string>::variant;
+};
 #endif
 
 bool testPackagedLibraries(std::string &detail)
@@ -350,6 +392,64 @@ bool testBoost173Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107400
+bool testBoost174Features(std::string &detail)
+{
+    std::array<int, 5> values{{5, 1, 4, 2, 3}};
+    Boost174Iterator first(values.data());
+    Boost174Iterator last(values.data() + values.size());
+    std::sort(first, last);
+    const bool iteratorPassed =
+        std::accumulate(first, last, 0) == 15 && first[2] == 3 &&
+        last - first == 5 && first < last;
+
+    const std::string utf8 = u8"caf\u00e9";
+    const std::u32string utf32 = boost::nowide::utf::convert_string<char32_t>(
+        utf8.data(), utf8.data() + utf8.size());
+    const std::string utfRoundTrip = boost::nowide::utf::convert_string<char>(
+        utf32.data(), utf32.data() + utf32.size());
+
+    Boost174Variant derived(std::string("derived"));
+    const std::size_t visited = boost::variant2::visit<std::size_t>(
+        [](const auto &) { return std::size_t(7); },
+        derived);
+
+    boost::asio::io_context service;
+    boost::asio::any_io_executor executor = service.get_executor();
+    int callbacks = 0;
+    boost::asio::post(executor, [&callbacks] { ++callbacks; });
+    service.run();
+
+    const char *temporaryRoot = std::getenv("TMPDIR");
+    if (!temporaryRoot || !*temporaryRoot) {
+        detail = "app sandbox TMPDIR is unavailable";
+        return false;
+    }
+    const boost::filesystem::path directory =
+        boost::filesystem::path(temporaryRoot) / "ofxiosboost-1.74-smoke";
+    const boost::filesystem::path source = directory / "source.txt";
+    const boost::filesystem::path destination = directory / "destination.txt";
+    boost::system::error_code ignored;
+    boost::filesystem::remove_all(directory, ignored);
+    boost::filesystem::create_directories(directory);
+    {
+        std::ofstream output(source.string());
+        output << "Boost 1.74";
+    }
+    const bool copied = boost::filesystem::copy_file(
+        source, destination, boost::filesystem::copy_options::skip_existing);
+    const bool skipped = !boost::filesystem::copy_file(
+        source, destination, boost::filesystem::copy_options::skip_existing);
+    const bool filesystemPassed =
+        copied && skipped && boost::filesystem::file_size(destination) == 10;
+    boost::filesystem::remove_all(directory, ignored);
+
+    detail = "STLInterfaces, Nowide UTF, Variant2 visit<R>, Filesystem copy, and Asio executor";
+    return iteratorPassed && utfRoundTrip == utf8 && visited == 7 &&
+           callbacks == 1 && filesystemPassed;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -403,6 +503,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107300
     run("Boost 1.73 features", testBoost173Features);
+#endif
+#if BOOST_VERSION >= 107400
+    run("Boost 1.74 features", testBoost174Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
