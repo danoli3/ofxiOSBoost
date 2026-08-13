@@ -53,6 +53,18 @@
 #include <boost/nowide/utf/convert.hpp>
 #include <boost/stl_interfaces/iterator_interface.hpp>
 #endif
+#if BOOST_VERSION >= 107500
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/json.hpp>
+#include <boost/leaf.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/pfr.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -176,6 +188,41 @@ private:
 struct Boost174Variant : boost::variant2::variant<int, std::string>
 {
     using boost::variant2::variant<int, std::string>::variant;
+};
+#endif
+
+#if BOOST_VERSION >= 107500
+struct Boost175SharedPayload {
+    std::string value;
+
+    template<class Archive>
+    void serialize(Archive &archive, const unsigned int)
+    {
+        archive & value;
+    }
+};
+
+struct Boost175Record {
+    int id = 0;
+    std::string name;
+    std::vector<int> values;
+    boost::shared_ptr<Boost175SharedPayload> first;
+    boost::shared_ptr<Boost175SharedPayload> second;
+
+    template<class Archive>
+    void serialize(Archive &archive, const unsigned int)
+    {
+        archive & id & name & values & first & second;
+    }
+};
+
+struct Boost175Aggregate {
+    int id;
+    long count;
+};
+
+struct Boost175LeafError {
+    int value;
 };
 #endif
 
@@ -450,6 +497,58 @@ bool testBoost174Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107500
+bool testBoost175Features(std::string &detail)
+{
+    boost::json::value json = boost::json::parse(
+        R"({"name":"Boost","version":175,"ready":true,"values":[1,2,3]})");
+    boost::json::object &object = json.as_object();
+    object["platform"] = "iOS";
+    const std::string serializedJson = boost::json::serialize(json);
+    const bool jsonPassed = object.at("name").as_string() == "Boost" &&
+        object.at("version").as_int64() == 175 &&
+        object.at("values").as_array().size() == 3 &&
+        serializedJson.find("iOS") != std::string::npos;
+
+    Boost175Record input;
+    input.id = 175;
+    input.name = "serialization";
+    input.values = {1, 7, 5};
+    input.first = boost::make_shared<Boost175SharedPayload>();
+    input.first->value = "shared";
+    input.second = input.first;
+    std::stringstream archiveBuffer;
+    {
+        boost::archive::binary_oarchive output(archiveBuffer);
+        output << input;
+    }
+    Boost175Record output;
+    {
+        boost::archive::binary_iarchive inputArchive(archiveBuffer);
+        inputArchive >> output;
+    }
+    const bool serializationPassed = output.id == 175 &&
+        output.name == "serialization" && output.values == input.values &&
+        output.first && output.second && output.first == output.second &&
+        output.first->value == "shared";
+
+    Boost175Aggregate aggregate{17, 5};
+    boost::pfr::for_each_field(aggregate, [](auto &field) { ++field; });
+    const bool pfrPassed = boost::pfr::get<0>(aggregate) == 18 &&
+        boost::pfr::get<1>(aggregate) == 6;
+
+    const int leafValue = boost::leaf::try_handle_all(
+        []() -> boost::leaf::result<int> {
+            return boost::leaf::new_error(Boost175LeafError{75});
+        },
+        [](const Boost175LeafError &error) { return error.value; },
+        [](const boost::leaf::error_info &) { return -1; });
+
+    detail = "JSON DOM, Serialization identity, LEAF error, and PFR fields";
+    return jsonPassed && serializationPassed && pfrPassed && leafValue == 75;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -506,6 +605,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107400
     run("Boost 1.74 features", testBoost174Features);
+#endif
+#if BOOST_VERSION >= 107500
+    run("Boost 1.75 features", testBoost175Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
