@@ -22,6 +22,17 @@
     NSLog(@"\n%@", report);
 
     if (std::getenv("OFXIOSBOOST_CI") != nullptr) {
+        NSString *reportPath =
+            [NSTemporaryDirectory() stringByAppendingPathComponent:
+                @"ofxiOSBoost-smoke-report.txt"];
+        NSError *writeError = nil;
+        if (![report writeToFile:reportPath
+                      atomically:YES
+                        encoding:NSUTF8StringEncoding
+                           error:&writeError]) {
+            NSLog(@"Failed to write CI report: %@", writeError);
+            std::_Exit(EXIT_FAILURE);
+        }
         std::fprintf(stdout, "%s\n", result.report.c_str());
         std::fflush(stdout);
         std::_Exit(result.passed ? EXIT_SUCCESS : EXIT_FAILURE);

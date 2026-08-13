@@ -115,24 +115,25 @@ jobs:
 
           xcrun simctl install "$udid" \
             "$app_dir/ofxiOSBoostContextExample.app"
-          SIMCTL_CHILD_OFXIOSBOOST_CI=1 \
-            xcrun simctl launch --console "$udid" \
-              org.openframeworks.ofxiOSBoostContextExample >"$report" 2>&1 &
-          launch_pid=$!
+          container="$(xcrun simctl get_app_container "$udid" \
+            org.openframeworks.ofxiOSBoostContextExample data)"
+          app_report="$container/tmp/ofxiOSBoost-smoke-report.txt"
+          rm -f "$app_report"
+          SIMCTL_CHILD_OFXIOSBOOST_CI=1 xcrun simctl launch "$udid" \
+            org.openframeworks.ofxiOSBoostContextExample
 
           for _ in {1..60}; do
-            if grep -Fq "ALL TESTS PASSED" "$report"; then
-              break
-            fi
-            if ! kill -0 "$launch_pid" 2>/dev/null; then
+            if [[ -s "$app_report" ]]; then
               break
             fi
             sleep 1
           done
-          if kill -0 "$launch_pid" 2>/dev/null; then
-            kill "$launch_pid"
+          if [[ ! -s "$app_report" ]]; then
+            xcrun simctl spawn "$udid" log show --last 2m --style compact \
+              --predicate 'process == "ofxiOSBoostContextExample"' | tail -n 100
+            exit 1
           fi
-          wait "$launch_pid" || true
+          cp "$app_report" "$report"
           cat "$report"
           {
             echo "### Boost ${BOOST_VERSION} iOS Simulator smoke tests"
