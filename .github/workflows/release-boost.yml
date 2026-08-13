@@ -6,7 +6,7 @@ on:
       boost_version:
         description: Boost version to build
         required: true
-        default: 1.76.0
+        default: 1.77.0
         type: string
   push:
     branches:
@@ -28,7 +28,7 @@ jobs:
     env:
       # Master validates the newest supported version. Tag pushes are replaced
       # with the exact tag by the Resolve tag version step below.
-      BOOST_VERSION: ${{ inputs.boost_version || '1.76.0' }}
+      BOOST_VERSION: ${{ inputs.boost_version || '1.77.0' }}
       IOS_MIN_VERSION: "12.0"
     steps:
       - name: Check out repository
@@ -39,7 +39,7 @@ jobs:
         run: echo "BOOST_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
 
       - name: Validate supported release
-        run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0|1.74.0|1.75.0|1.76.0) ;; *) exit 1 ;; esac
+        run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0|1.74.0|1.75.0|1.76.0|1.77.0) ;; *) exit 1 ;; esac
 
       - name: Build release archive
         run: |
@@ -61,7 +61,7 @@ jobs:
           simulator_lib="$(find "$framework" -path '*ios-arm64_x86_64-simulator/libboost.a' -print -quit)"
           test "$(xcrun lipo -archs "$device_lib")" = "arm64"
           test "$(xcrun lipo -archs "$simulator_lib")" = "x86_64 arm64"
-          if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" ]]; then
+          if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" ]]; then
             xcrun nm -arch arm64 -gU "$device_lib" > "$work/device-arm64.nm"
             xcrun nm -arch arm64 -gU "$simulator_lib" > "$work/simulator-arm64.nm"
             xcrun nm -arch x86_64 -gU "$simulator_lib" > "$work/simulator-x86_64.nm"
@@ -233,8 +233,20 @@ jobs:
             echo "COCOAPODS_TRUNK_TOKEN is not configured; skipping CocoaPods Trunk publication."
             exit 0
           fi
-          if pod trunk info ofxiOSBoost 2>/dev/null | grep -Fq -- "- ${BOOST_VERSION} ("; then
-            echo "ofxiOSBoost ${BOOST_VERSION} is already published to CocoaPods Trunk."
-            exit 0
-          fi
-          pod trunk push "dist/ofxiOSBoost.podspec"
+          log="$RUNNER_TEMP/cocoapods-trunk-push.log"
+          for attempt in 1 2 3; do
+            if pod trunk info ofxiOSBoost 2>/dev/null | grep -Fq -- "- ${BOOST_VERSION} ("; then
+              echo "ofxiOSBoost ${BOOST_VERSION} is already published to CocoaPods Trunk."
+              exit 0
+            fi
+            if pod trunk push "dist/ofxiOSBoost.podspec" >"$log" 2>&1; then
+              echo "Published ofxiOSBoost ${BOOST_VERSION} to CocoaPods Trunk."
+              exit 0
+            fi
+            if [[ "$attempt" -lt 3 ]]; then
+              echo "CocoaPods publication attempt ${attempt} failed; retrying."
+              sleep 10
+            fi
+          done
+          tail -n 80 "$log"
+          exit 1

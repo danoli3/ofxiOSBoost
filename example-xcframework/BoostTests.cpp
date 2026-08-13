@@ -1,6 +1,9 @@
 #include "BoostTests.hpp"
 
 #include <boost/version.hpp>
+#if BOOST_VERSION >= 107700
+#define BOOST_FILESYSTEM_VERSION 4
+#endif
 #include <boost/asio/io_service.hpp>
 #include <boost/atomic.hpp>
 #include <boost/chrono.hpp>
@@ -71,6 +74,10 @@
 #include <boost/bind/bind.hpp>
 #include <boost/core/bit.hpp>
 #include <boost/core/cmath.hpp>
+#endif
+#if BOOST_VERSION >= 107700
+#include <boost/describe.hpp>
+#include <boost/lambda2.hpp>
 #endif
 
 #include <algorithm>
@@ -174,6 +181,15 @@ int addBoost176Values(int left, int right)
 {
     return left + right;
 }
+#endif
+
+#if BOOST_VERSION >= 107700
+struct Boost177Record {
+    int id;
+    std::string name;
+};
+
+BOOST_DESCRIBE_STRUCT(Boost177Record, (), (id, name))
 #endif
 
 #if BOOST_VERSION >= 107400
@@ -597,6 +613,41 @@ bool testBoost176Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107700
+bool testBoost177Features(std::string &detail)
+{
+    Boost177Record record{77, "Describe"};
+    std::size_t describedMembers = 0;
+    bool describePassed = true;
+    using Members = boost::describe::describe_members<
+        Boost177Record, boost::describe::mod_public>;
+    boost::mp11::mp_for_each<Members>([&](auto descriptor) {
+        ++describedMembers;
+        describePassed = describePassed && descriptor.name[0] != '\0';
+    });
+    describePassed = describePassed && describedMembers == 2 &&
+        record.id == 77 && record.name == "Describe";
+
+    const auto expression = boost::lambda2::_1 * 2 + boost::lambda2::_2;
+    const bool lambdaPassed = expression(35, 7) == 77;
+
+    const std::array<int, 3> source{{7, 7, 0}};
+    const boost::json::value json = boost::json::value_from(source);
+    const std::array<int, 3> roundTrip =
+        boost::json::value_to<std::array<int, 3>>(json);
+    const std::size_t jsonHash = std::hash<boost::json::value>{}(json);
+    const bool jsonPassed = roundTrip == source &&
+        jsonHash == std::hash<boost::json::value>{}(json);
+
+    const boost::filesystem::path hidden(".boost");
+    const bool filesystemPassed = hidden.stem() == ".boost" &&
+        hidden.extension().empty();
+
+    detail = "Describe, Lambda2, JSON array/hash, and Filesystem v4";
+    return describePassed && lambdaPassed && jsonPassed && filesystemPassed;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -659,6 +710,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107600
     run("Boost 1.76 features", testBoost176Features);
+#endif
+#if BOOST_VERSION >= 107700
+    run("Boost 1.77 features", testBoost177Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);

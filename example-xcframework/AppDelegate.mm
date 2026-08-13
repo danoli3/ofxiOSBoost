@@ -46,6 +46,10 @@
     UITextView *textView = [[UITextView alloc] initWithFrame:CGRectZero];
     textView.translatesAutoresizingMaskIntoConstraints = NO;
     textView.editable = NO;
+    textView.selectable = YES;
+    textView.scrollEnabled = YES;
+    textView.alwaysBounceVertical = YES;
+    textView.showsVerticalScrollIndicator = YES;
     textView.backgroundColor = UIColor.clearColor;
     textView.textColor = UIColor.blackColor;
     textView.font = [UIFont monospacedSystemFontOfSize:16.0
@@ -62,6 +66,8 @@
     self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
     self.window.rootViewController = controller;
     [self.window makeKeyAndVisible];
+    [controller.view layoutIfNeeded];
+    [textView setContentOffset:CGPointZero animated:NO];
     return YES;
 }
 
