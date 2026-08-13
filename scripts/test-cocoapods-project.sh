@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${1:-1.75.0}"
+BOOST_VERSION="${1:-1.76.0}"
 [[ "$BOOST_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
     echo "Usage: $0 [BOOST_VERSION]" >&2
     exit 2

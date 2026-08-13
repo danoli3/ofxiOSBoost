@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-REQUESTED_VERSION="${1:-1.75.0}"
+REQUESTED_VERSION="${1:-1.76.0}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INSTALL_ROOT="$REPO_ROOT/libs/boost"

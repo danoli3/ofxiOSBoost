@@ -4,7 +4,7 @@ libdir=${xcframework}/ios-arm64
 includedir=${libdir}/Headers
 
 Name: ofxiOSBoost
-Description: Boost 1.75.0 static libraries for arm64 iOS devices
-Version: 1.75.0
+Description: Boost 1.76.0 static libraries for arm64 iOS devices
+Version: 1.76.0
 Cflags: -I${includedir} -std=c++17
 Libs: ${libdir}/libboost.a

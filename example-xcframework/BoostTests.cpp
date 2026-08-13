@@ -65,6 +65,13 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #endif
+#if BOOST_VERSION >= 107600
+#include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/bind/bind.hpp>
+#include <boost/core/bit.hpp>
+#include <boost/core/cmath.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -72,6 +79,8 @@
 #include <cstdlib>
 #include <exception>
 #include <fstream>
+#include <functional>
+#include <limits>
 #include <numeric>
 #include <sstream>
 #include <type_traits>
@@ -157,6 +166,13 @@ bool testCoroutine2(std::string &detail)
 
     detail = "Coroutine2 yielded 21, 42";
     return values.size() == 2 && values[0] == 21 && values[1] == 42;
+}
+#endif
+
+#if BOOST_VERSION >= 107600
+int addBoost176Values(int left, int right)
+{
+    return left + right;
 }
 #endif
 
@@ -549,6 +565,38 @@ bool testBoost175Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107600
+bool testBoost176Features(std::string &detail)
+{
+    const unsigned int bits = 0x2du;
+    const bool corePassed = boost::core::popcount(bits) == 4 &&
+        boost::core::countr_zero(bits) == 0 &&
+        boost::core::bit_floor(13u) == 8u &&
+        boost::core::bit_ceil(13u) == 16u &&
+        boost::core::isfinite(1.0) &&
+        boost::core::isnan(std::numeric_limits<double>::quiet_NaN());
+
+    const boost::asio::ip::address address =
+        boost::asio::ip::address::from_string("127.0.0.1");
+    const boost::asio::ip::tcp::endpoint endpoint(address, 1760);
+    const std::size_t addressHash =
+        std::hash<boost::asio::ip::address>{}(address);
+    const std::size_t endpointHash =
+        std::hash<boost::asio::ip::tcp::endpoint>{}(endpoint);
+    const bool asioPassed = endpoint.port() == 1760 &&
+        addressHash == std::hash<boost::asio::ip::address>{}(address) &&
+        endpointHash ==
+            std::hash<boost::asio::ip::tcp::endpoint>{}(endpoint);
+
+    const auto add = boost::bind(
+        &addBoost176Values, std::placeholders::_1, std::placeholders::_2);
+    const bool bindPassed = add(17, 59) == 76;
+
+    detail = "Core bit/cmath, Asio IP hashes, and Bind std placeholders";
+    return corePassed && asioPassed && bindPassed;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -608,6 +656,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107500
     run("Boost 1.75 features", testBoost175Features);
+#endif
+#if BOOST_VERSION >= 107600
+    run("Boost 1.76 features", testBoost176Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
