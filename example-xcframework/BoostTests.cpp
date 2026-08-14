@@ -85,6 +85,11 @@
 #include <boost/system/result.hpp>
 #include <boost/variant2.hpp>
 #endif
+#if BOOST_VERSION >= 107900
+#include <boost/io/nullstream.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/unordered/unordered_map.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -96,6 +101,7 @@
 #include <limits>
 #include <numeric>
 #include <sstream>
+#include <stdexcept>
 #include <type_traits>
 #include <vector>
 
@@ -688,6 +694,43 @@ bool testBoost178Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107900
+bool testBoost179Features(std::string &detail)
+{
+    const boost::json::value document = boost::json::parse(
+        R"({"release":{"version":179,"stable":true}})");
+    const bool jsonPassed =
+        document.at_pointer("/release/version").as_int64() == 179 &&
+        document.at_pointer("/release/stable").as_bool();
+
+    boost::unordered_map<std::string, int> releases{
+        {"stable", 179}, {"old", 178}};
+    const bool containsPassed = releases.contains("stable");
+    const std::size_t erased = boost::unordered::erase_if(
+        releases,
+        [](const auto &entry) { return entry.second < 179; });
+    const bool unorderedPassed = containsPassed && erased == 1 &&
+        releases.size() == 1;
+
+    bool throwPassed = false;
+    try {
+        boost::throw_with_location(std::runtime_error("Boost 1.79"));
+    } catch (const std::runtime_error &error) {
+        const boost::source_location location = boost::get_throw_location(error);
+        throwPassed = std::string(error.what()) == "Boost 1.79" &&
+            location.line() != 0;
+    }
+
+    boost::io::onullstream nullOutput;
+    nullOutput << "Boost " << 179;
+    const bool ioPassed = nullOutput.good();
+
+    detail = "JSON Pointer, Unordered contains/erase_if, "
+        "throw_with_location, and IO null stream";
+    return jsonPassed && unorderedPassed && throwPassed && ioPassed;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -756,6 +799,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107800
     run("Boost 1.78 features", testBoost178Features);
+#endif
+#if BOOST_VERSION >= 107900
+    run("Boost 1.79 features", testBoost179Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
