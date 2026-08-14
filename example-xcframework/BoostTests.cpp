@@ -79,6 +79,12 @@
 #include <boost/describe.hpp>
 #include <boost/lambda2.hpp>
 #endif
+#if BOOST_VERSION >= 107800
+#include <boost/core/span.hpp>
+#include <boost/core/type_name.hpp>
+#include <boost/system/result.hpp>
+#include <boost/variant2.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -648,6 +654,40 @@ bool testBoost177Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 107800
+bool testBoost178Features(std::string &detail)
+{
+    const std::array<int, 3> values{{17, 18, 43}};
+    const boost::span<const int> view(values);
+    const bool corePassed = view.size() == 3 &&
+        std::accumulate(view.begin(), view.end(), 0) == 78 &&
+        !boost::core::type_name<int>().empty();
+
+    const boost::system::result<int> success(78);
+    const boost::system::result<int> failure(
+        boost::system::errc::make_error_code(
+            boost::system::errc::invalid_argument));
+    const bool systemPassed = success.has_value() && success.value() == 78 &&
+        !failure.has_value() &&
+        failure.error() == boost::system::errc::invalid_argument;
+
+    const boost::variant2::variant<int, std::string> variant(
+        std::string("variant2"));
+    const std::size_t visited = boost::variant2::visit_by_index(
+        variant,
+        [](int value) -> std::size_t { return static_cast<std::size_t>(value); },
+        [](const std::string &value) -> std::size_t { return value.size(); });
+    const bool variantPassed = visited == 8;
+
+    const boost::filesystem::path directory("boost/");
+    const bool filesystemPassed = directory.filename().empty();
+
+    detail = "Core span/type_name, System result, Variant2 visit_by_index, "
+        "and Filesystem v4 trailing separator";
+    return corePassed && systemPassed && variantPassed && filesystemPassed;
+}
+#endif
+
 } // namespace
 
 BoostTestResult runBoostTests()
@@ -713,6 +753,9 @@ BoostTestResult runBoostTests()
 #endif
 #if BOOST_VERSION >= 107700
     run("Boost 1.77 features", testBoost177Features);
+#endif
+#if BOOST_VERSION >= 107800
+    run("Boost 1.78 features", testBoost178Features);
 #endif
 #if BOOST_VERSION >= 106500
     run("Boost.Context", testContext);
