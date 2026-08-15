@@ -122,13 +122,19 @@ jobs:
           SIMCTL_CHILD_OFXIOSBOOST_CI=1 xcrun simctl launch "$udid" \
             org.openframeworks.ofxiOSBoostContextExample
 
-          for _ in {1..60}; do
-            if [[ -s "$app_report" ]]; then
+          for _ in {1..120}; do
+            if [[ -s "$app_report" ]] && \
+              grep -Eq '^(ALL TESTS PASSED|TESTS FAILED)$' "$app_report"; then
               break
             fi
             sleep 1
           done
-          if [[ ! -s "$app_report" ]]; then
+          if [[ ! -s "$app_report" ]] || \
+            ! grep -Eq '^(ALL TESTS PASSED|TESTS FAILED)$' "$app_report"; then
+            if [[ -s "$app_report" ]]; then
+              echo "Smoke test report did not reach a terminal result:" >&2
+              cat "$app_report" >&2
+            fi
             xcrun simctl spawn "$udid" log show --last 2m --style compact \
               --predicate 'process == "ofxiOSBoostContextExample"' | tail -n 100
             exit 1
