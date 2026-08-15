@@ -90,9 +90,20 @@
 #include <boost/throw_exception.hpp>
 #include <boost/unordered/unordered_map.hpp>
 #endif
+#if BOOST_VERSION >= 108000
+#include <boost/atomic/atomic_ref.hpp>
+#include <boost/math/ccmath/fma.hpp>
+#include <boost/math/statistics/chatterjee_correlation.hpp>
+#include <boost/optional.hpp>
+#include <boost/utility/string_view.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
+#if __cplusplus >= 202002L
+#include <bit>
+#include <concepts>
+#endif
 #include <cstdint>
 #include <cstdlib>
 #include <exception>
@@ -101,11 +112,43 @@
 #include <limits>
 #include <numeric>
 #include <sstream>
+#if __cplusplus >= 202002L
+#include <span>
+#endif
 #include <stdexcept>
+#include <system_error>
 #include <type_traits>
 #include <vector>
 
 namespace {
+
+#if BOOST_VERSION >= 108000
+struct Boost180FinalHash final {
+    std::size_t operator()(int value) const noexcept
+    {
+        return std::hash<int>{}(value);
+    }
+};
+
+struct Boost180FinalEqual final {
+    bool operator()(int lhs, int rhs) const noexcept
+    {
+        return lhs == rhs;
+    }
+};
+
+template <typename T>
+concept Boost180Integral = std::integral<T>;
+
+consteval int boost180ConstevalValue()
+{
+    return 80;
+}
+
+static_assert(Boost180Integral<int>);
+static_assert(boost180ConstevalValue() == 80);
+static_assert(boost::math::ccmath::fma(2.0, 3.0, 4.0) == 10.0);
+#endif
 
 #if BOOST_VERSION >= 106500
 using boost::context::detail::fcontext_t;
@@ -465,7 +508,7 @@ bool testBoost173Features(std::string &detail)
     boost::static_string<16> text("Boost");
     text.append(" 1.73");
 
-    const std::string utf8 = u8"caf\u00e9";
+    const std::string utf8 = "caf\xc3\xa9";
     const std::wstring wide = boost::nowide::widen(utf8);
     const std::string roundTrip = boost::nowide::narrow(wide);
     std::FILE *nullFile = boost::nowide::fopen("/dev/null", "r");
@@ -494,7 +537,7 @@ bool testBoost174Features(std::string &detail)
         std::accumulate(first, last, 0) == 15 && first[2] == 3 &&
         last - first == 5 && first < last;
 
-    const std::string utf8 = u8"caf\u00e9";
+    const std::string utf8 = "caf\xc3\xa9";
     const std::u32string utf32 = boost::nowide::utf::convert_string<char32_t>(
         utf8.data(), utf8.data() + utf8.size());
     const std::string utfRoundTrip = boost::nowide::utf::convert_string<char>(
@@ -731,82 +774,245 @@ bool testBoost179Features(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108000
+bool testBoost180Features(std::string &detail)
+{
+    std::array<unsigned char, 4> bytes{{1, 8, 0, 0}};
+    const std::span<unsigned char> span(bytes);
+    const boost::asio::mutable_buffer buffer = boost::asio::buffer(span);
+    const bool asioPassed = buffer.size() == bytes.size() &&
+        buffer.data() == bytes.data();
+
+    boost::json::value document = boost::json::parse(
+        R"({"release":{"version":180},"name":"Boost"})");
+    document.at("release").at("version") = 180;
+    const boost::json::string &name = document.at("name").as_string();
+    const bool jsonPassed =
+        document.at("release").at("version").as_int64() == 180 &&
+        name.subview() == "Boost";
+
+    const boost::optional<int> optional(180);
+    const bool optionalPassed = std::hash<boost::optional<int>>{}(optional) ==
+        std::hash<boost::optional<int>>{}(optional);
+
+    const boost::string_view text("Boost 1.80");
+    const bool utilityPassed = text.contains("1.80") &&
+        text.substr() == text;
+
+    detail = "Asio std::span buffer, mutable JSON/subview, Optional hash, "
+        "and Utility string_view";
+    return asioPassed && jsonPassed && optionalPassed && utilityPassed;
+}
+
+bool testBoost180AtomicAndCpp20(std::string &detail)
+{
+    alignas(64) int sharedValue = 0;
+    boost::atomic_ref<int> atomicValue(sharedValue);
+    boost::atomic<bool> waiterReady(false);
+    int observed = 0;
+    boost::thread waiter([&] {
+        waiterReady.store(true, boost::memory_order_release);
+        observed = atomicValue.wait(0, boost::memory_order_acquire);
+    });
+    while (!waiterReady.load(boost::memory_order_acquire)) {
+        boost::this_thread::yield();
+    }
+    atomicValue.store(80, boost::memory_order_release);
+    atomicValue.notify_all();
+    waiter.join();
+
+    const std::uint32_t bits = std::bit_cast<std::uint32_t>(1.0f);
+    detail = "Atomic ARM atomic_ref wait/notify and C++20 concept, consteval, bit_cast";
+    return observed == 80 && sharedValue == 80 && bits == 0x3f800000u;
+}
+
+bool testBoost180System(std::string &detail)
+{
+    const boost::system::error_code original =
+        boost::system::errc::make_error_code(
+            boost::system::errc::invalid_argument);
+    const std::error_code standard = original;
+    const boost::system::error_code restored(standard);
+    const std::error_code roundTripped = restored;
+    const bool systemPassed = roundTripped == standard &&
+        restored.message() == standard.message() &&
+        standard.value() == original.value();
+
+    std::ostringstream diagnostics;
+    diagnostics << "System semantic std round-trip: boost="
+                << original.category().name() << ':' << original.value()
+                << ", std=" << standard.category().name() << ':'
+                << standard.value() << ", restored="
+                << restored.category().name() << ':' << restored.value()
+                << ", round-tripped=" << roundTripped.category().name()
+                << ':' << roundTripped.value();
+    detail = diagnostics.str();
+    return systemPassed;
+}
+
+bool testBoost180Unordered(std::string &detail)
+{
+    boost::unordered_map<int, std::string,
+        Boost180FinalHash, Boost180FinalEqual> values;
+    values.emplace(80, "C++20");
+    const bool unorderedPassed = values.contains(80) &&
+        values.at(80) == "C++20";
+
+    detail = "Unordered map with final Hasher and KeyEqual types";
+    return unorderedPassed;
+}
+
+bool testBoost180Leaf(std::string &detail)
+{
+    bool leafPassed = false;
+    try {
+        boost::leaf::throw_exception(
+            std::runtime_error("Boost 1.80 LEAF"),
+            Boost175LeafError{80});
+    } catch (const std::runtime_error &error) {
+        leafPassed = std::string(error.what()) == "Boost 1.80 LEAF";
+    }
+
+    detail = "LEAF throw_exception with std::exception and typed error payload";
+    return leafPassed;
+}
+
+bool testBoost180Math(std::string &detail)
+{
+    const std::array<double, 6> independent{{1, 2, 3, 4, 5, 6}};
+    const std::array<double, 6> dependent{{1, 3, 2, 6, 5, 4}};
+    const double correlation =
+        boost::math::statistics::chatterjee_correlation(
+            independent, dependent);
+    const double fused = boost::math::ccmath::fma(1.5, 4.0, -1.0);
+
+    detail = "Math constexpr/runtime FMA and Chatterjee correlation";
+    return fused == 5.0 && std::isfinite(correlation) &&
+        correlation >= -1.0 && correlation <= 1.0;
+}
+#endif
+
 } // namespace
+
+namespace {
+
+struct BoostTestCase {
+    const char *name;
+    bool (*test)(std::string &);
+};
+
+const std::vector<BoostTestCase> &boostTestCases()
+{
+    static const std::vector<BoostTestCase> tests{
+        {"Packaged libraries", testPackagedLibraries},
+        {"System + Chrono", testSystemAndChrono},
+        {"DateTime", testDateTime},
+        {"Random", testRandom},
+        {"Thread + Atomic", testThreadAndAtomic},
+        {"Signals", testSignals},
+        {"Graph", testGraph},
+        {"Locale", testLocale},
+        {"Asio", testAsio},
+#if BOOST_VERSION >= 106600
+        {"Boost 1.66 headers", testBoost166Headers},
+#endif
+#if BOOST_VERSION >= 106700
+        {"Boost 1.67 features", testBoost167Features},
+#endif
+#if BOOST_VERSION >= 106800
+        {"Boost 1.68 features", testBoost168Features},
+#endif
+#if BOOST_VERSION >= 107000
+        {"Boost 1.70 features", testBoost170Features},
+#endif
+#if BOOST_VERSION >= 107100
+        {"Boost 1.71 features", testBoost171Features},
+#endif
+#if BOOST_VERSION >= 107200
+        {"Boost 1.72 updates", testBoost172Updates},
+#endif
+#if BOOST_VERSION >= 107300
+        {"Boost 1.73 features", testBoost173Features},
+#endif
+#if BOOST_VERSION >= 107400
+        {"Boost 1.74 features", testBoost174Features},
+#endif
+#if BOOST_VERSION >= 107500
+        {"Boost 1.75 features", testBoost175Features},
+#endif
+#if BOOST_VERSION >= 107600
+        {"Boost 1.76 features", testBoost176Features},
+#endif
+#if BOOST_VERSION >= 107700
+        {"Boost 1.77 features", testBoost177Features},
+#endif
+#if BOOST_VERSION >= 107800
+        {"Boost 1.78 features", testBoost178Features},
+#endif
+#if BOOST_VERSION >= 107900
+        {"Boost 1.79 features", testBoost179Features},
+#endif
+#if BOOST_VERSION >= 108000
+        {"Boost 1.80 features", testBoost180Features},
+        {"Boost 1.80 Atomic + C++20", testBoost180AtomicAndCpp20},
+        {"Boost 1.80 System", testBoost180System},
+        {"Boost 1.80 Unordered", testBoost180Unordered},
+        {"Boost 1.80 LEAF", testBoost180Leaf},
+        {"Boost 1.80 Math", testBoost180Math},
+#endif
+#if BOOST_VERSION >= 106500
+        {"Boost.Context", testContext},
+        {"Boost.Coroutine2", testCoroutine2},
+#endif
+    };
+    return tests;
+}
+
+} // namespace
+
+std::string boostTestReportHeader()
+{
+    return std::string("Boost ") + BOOST_LIB_VERSION + "\n\n";
+}
+
+std::size_t boostTestCount()
+{
+    return boostTestCases().size();
+}
+
+BoostTestResult runBoostTestAtIndex(std::size_t index)
+{
+    if (index >= boostTestCases().size()) {
+        return {false, "FAIL  Invalid test index\n      test index is out of range\n"};
+    }
+
+    const BoostTestCase &testCase = boostTestCases()[index];
+    std::string detail;
+    bool passed = false;
+    try {
+        passed = testCase.test(detail);
+    } catch (const std::exception &error) {
+        detail = error.what();
+    } catch (...) {
+        detail = "unknown exception";
+    }
+
+    std::ostringstream report;
+    report << (passed ? "PASS" : "FAIL") << "  " << testCase.name
+           << "\n      " << detail << "\n";
+    return {passed, report.str()};
+}
 
 BoostTestResult runBoostTests()
 {
-    std::ostringstream report;
-    report << "Boost " << BOOST_LIB_VERSION << "\n\n";
+    std::string report = boostTestReportHeader();
     bool passed = true;
-
-    const auto run = [&](const char *name,
-                         bool (*test)(std::string &)) {
-        std::string detail;
-        bool result = false;
-        try {
-            result = test(detail);
-        } catch (const std::exception &error) {
-            detail = error.what();
-        } catch (...) {
-            detail = "unknown exception";
-        }
-        passed = passed && result;
-        report << (result ? "PASS" : "FAIL") << "  " << name
-               << "\n      " << detail << "\n";
-    };
-
-    run("Packaged libraries", testPackagedLibraries);
-    run("System + Chrono", testSystemAndChrono);
-    run("DateTime", testDateTime);
-    run("Random", testRandom);
-    run("Thread + Atomic", testThreadAndAtomic);
-    run("Signals", testSignals);
-    run("Graph", testGraph);
-    run("Locale", testLocale);
-    run("Asio", testAsio);
-#if BOOST_VERSION >= 106600
-    run("Boost 1.66 headers", testBoost166Headers);
-#endif
-#if BOOST_VERSION >= 106700
-    run("Boost 1.67 features", testBoost167Features);
-#endif
-#if BOOST_VERSION >= 106800
-    run("Boost 1.68 features", testBoost168Features);
-#endif
-#if BOOST_VERSION >= 107000
-    run("Boost 1.70 features", testBoost170Features);
-#endif
-#if BOOST_VERSION >= 107100
-    run("Boost 1.71 features", testBoost171Features);
-#endif
-#if BOOST_VERSION >= 107200
-    run("Boost 1.72 updates", testBoost172Updates);
-#endif
-#if BOOST_VERSION >= 107300
-    run("Boost 1.73 features", testBoost173Features);
-#endif
-#if BOOST_VERSION >= 107400
-    run("Boost 1.74 features", testBoost174Features);
-#endif
-#if BOOST_VERSION >= 107500
-    run("Boost 1.75 features", testBoost175Features);
-#endif
-#if BOOST_VERSION >= 107600
-    run("Boost 1.76 features", testBoost176Features);
-#endif
-#if BOOST_VERSION >= 107700
-    run("Boost 1.77 features", testBoost177Features);
-#endif
-#if BOOST_VERSION >= 107800
-    run("Boost 1.78 features", testBoost178Features);
-#endif
-#if BOOST_VERSION >= 107900
-    run("Boost 1.79 features", testBoost179Features);
-#endif
-#if BOOST_VERSION >= 106500
-    run("Boost.Context", testContext);
-    run("Boost.Coroutine2", testCoroutine2);
-#endif
-    report << "\n" << (passed ? "ALL TESTS PASSED" : "TESTS FAILED");
-    return {passed, report.str()};
+    for (std::size_t index = 0; index < boostTestCount(); ++index) {
+        const BoostTestResult result = runBoostTestAtIndex(index);
+        passed = passed && result.passed;
+        report += result.report;
+    }
+    report += std::string("\n") +
+        (passed ? "ALL TESTS PASSED" : "TESTS FAILED");
+    return {passed, report};
 }

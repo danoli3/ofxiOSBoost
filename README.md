@@ -31,6 +31,7 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
+| [1.80.0](https://www.boost.org/users/history/version_1_80_0.html) | C++20 | [![Boost 1.80.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | Planned |
 | [1.79.0](https://www.boost.org/users/history/version_1_79_0.html) | C++17 | [![Boost 1.79.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.79.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.79.0) |
 | [1.78.0](https://www.boost.org/users/history/version_1_78_0.html) | C++17 | [![Boost 1.78.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.78.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.78.0) |
 | [1.77.0](https://www.boost.org/users/history/version_1_77_0.html) | C++17 | [![Boost 1.77.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.77.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.77.0) |
@@ -142,6 +143,13 @@ throw-with-location, and IO null-stream coverage. Three-slice compile/link and
 SwiftPM packaging checks pass; the complete runtime suite passed on an arm64
 iOS Simulator and physical arm64 iOS device.
 
+Boost 1.80.0 moves to C++20 and introduces no new library. The smoke suite adds
+Asio `std::span` buffer, mutable JSON access and string subview, Optional hash,
+Utility string-view, ARM Atomic wait/notify, core C++20, System, Unordered,
+LEAF, and Math coverage. Three-slice compile/link and SwiftPM packaging checks
+pass; the complete sequential runtime suite passed on an arm64 iOS Simulator
+and physical arm64 iOS device.
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -168,7 +176,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.79.0'
+  pod 'ofxiOSBoost', '1.80.0'
 end
 ```
 
@@ -186,13 +194,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.79.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.80.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.79.0`, and add the `ofxiOSBoost` product to the application
+select version `1.80.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -232,8 +240,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.79.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.79.0.tar.gz
+BOOST_VERSION=1.80.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.80.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -310,14 +318,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.79.0`. Pushing the tag
-`1.79.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.80.0`. Pushing the tag
+`1.80.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.79.0 ./scripts/build-boost-ios.sh
+BOOST_VERSION=1.80.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -340,7 +348,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.79.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.80.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -360,6 +368,17 @@ application.
 
 
 #### Current Boost release documentation
+
+[Boost 1.80.0 upstream release history](https://www.boost.org/users/history/version_1_80_0.html)
+
+### Version 1.80.0 — August 10, 2022
+
+Boost 1.80.0 moves to C++20 and adds no new library. Coverage expands to Asio
+`std::span` buffers, mutable JSON access and string subviews, Optional hashing,
+Utility string-view operations, ARM Atomic wait/notify, core C++20, System,
+Unordered, LEAF, and Math behavior. Three-slice compile/link and SwiftPM
+packaging checks pass; the complete sequential runtime suite passed on an arm64
+iOS Simulator and physical arm64 iOS device.
 
 [Boost 1.79.0 upstream release history](https://www.boost.org/users/history/version_1_79_0.html)
 

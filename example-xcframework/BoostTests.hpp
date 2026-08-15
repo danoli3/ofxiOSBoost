@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 
 struct BoostTestResult {
@@ -8,3 +9,6 @@ struct BoostTestResult {
 };
 
 BoostTestResult runBoostTests();
+std::string boostTestReportHeader();
+std::size_t boostTestCount();
+BoostTestResult runBoostTestAtIndex(std::size_t index);
