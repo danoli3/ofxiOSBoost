@@ -112,6 +112,21 @@
 #include <boost/unordered/unordered_flat_map.hpp>
 #include <boost/url.hpp>
 #endif
+#if BOOST_VERSION >= 108200
+#include <boost/asio/buffer.hpp>
+#include <boost/core/data.hpp>
+#include <boost/core/identity.hpp>
+#include <boost/core/memory_resource.hpp>
+#include <boost/core/size.hpp>
+#include <boost/mysql/blob.hpp>
+#include <boost/mysql/date.hpp>
+#include <boost/mysql/field.hpp>
+#include <boost/nowide/quoted.hpp>
+#include <boost/pfr/core.hpp>
+#include <boost/static_string/static_string.hpp>
+#include <boost/unordered/unordered_node_map.hpp>
+#include <boost/unordered/unordered_node_set.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -134,6 +149,7 @@
 #include <span>
 #endif
 #include <stdexcept>
+#include <string_view>
 #include <system_error>
 #include <type_traits>
 #include <vector>
@@ -147,6 +163,56 @@ struct Boost181Release {
 };
 
 BOOST_DESCRIBE_STRUCT(Boost181Release, (), (version, channel))
+#endif
+
+#if BOOST_VERSION >= 108200
+struct Boost182PfrRecord {
+    int version;
+    short patch;
+};
+
+struct Boost182TransparentHash {
+    using is_transparent = void;
+
+    std::size_t operator()(std::string_view value) const noexcept
+    {
+        return std::hash<std::string_view>{}(value);
+    }
+};
+
+struct Boost182TransparentEqual {
+    using is_transparent = void;
+
+    bool operator()(std::string_view lhs, std::string_view rhs) const noexcept
+    {
+        return lhs == rhs;
+    }
+};
+
+class Boost182MemoryResource final : public boost::core::memory_resource {
+public:
+    std::size_t allocations = 0;
+    std::size_t deallocations = 0;
+
+private:
+    void *do_allocate(std::size_t bytes, std::size_t) override
+    {
+        ++allocations;
+        return ::operator new(bytes);
+    }
+
+    void do_deallocate(void *pointer, std::size_t, std::size_t) override
+    {
+        ++deallocations;
+        ::operator delete(pointer);
+    }
+
+    bool do_is_equal(const boost::core::memory_resource &other)
+        const noexcept override
+    {
+        return this == &other;
+    }
+};
 #endif
 
 #if BOOST_VERSION >= 108000
@@ -1010,6 +1076,153 @@ bool testBoost181Stacktrace(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108200
+bool testBoost182Asio(std::string &detail)
+{
+    using namespace boost::asio::buffer_literals;
+    const boost::asio::const_buffer literal = "Boost 1.82"_buf;
+    const auto bytes = static_cast<const char *>(literal.data());
+
+    detail = "Asio buffer literal preserved size and bytes";
+    return literal.size() == 10 && std::string(bytes, literal.size()) ==
+        "Boost 1.82";
+}
+
+bool testBoost182Core(std::string &detail)
+{
+    Boost182MemoryResource resource;
+    void *allocation = resource.allocate(sizeof(int), alignof(int));
+    resource.deallocate(allocation, sizeof(int), alignof(int));
+
+    int values[] = {18, 24};
+    boost::span<int> view(values);
+    const int identity = boost::identity{}(view[0] + view[1]);
+
+    detail = "Core memory_resource, data, size, identity, and span";
+    return resource.allocations == 1 && resource.deallocations == 1 &&
+        boost::data(values) == values && boost::size(values) == 2 &&
+        identity == 42;
+}
+
+bool testBoost182Filesystem(std::string &detail)
+{
+    boost::filesystem::path parent("boost/1.82///");
+    parent.remove_filename_and_trailing_separators();
+    boost::filesystem::path replaced("boost/1.82/release.txt");
+    replaced.replace_filename("device.txt");
+
+    detail = "Filesystem v4 removal and replacement path semantics";
+    return parent.generic_string() == "boost/1.82" &&
+        replaced.generic_string() == "boost/1.82/device.txt";
+}
+
+bool testBoost182Json(std::string &detail)
+{
+    boost::json::value value = {{"release", 182}};
+    value.set_at_pointer("/platform/name", "iOS");
+    const std::size_t hash = boost::hash<boost::json::value>{}(value);
+
+    const boost::json::value minimal = {{"version", 182}};
+    const Boost181Release restored =
+        boost::json::value_to<Boost181Release>(minimal);
+
+    detail = "JSON set_at_pointer, hash, and missing optional conversion";
+    return value.at_pointer("/platform/name") == "iOS" && hash != 0 &&
+        restored.version == 182 && !restored.channel;
+}
+
+bool testBoost182Mysql(std::string &detail)
+{
+    const boost::mysql::date releaseDate(2023, 4, 14);
+    boost::mysql::field number(182);
+    boost::mysql::field text(std::string("offline"));
+    const boost::mysql::blob bytes{0x01, 0x82};
+
+    detail = "MySQL offline date, field, string, and blob value types";
+    return releaseDate.valid() && releaseDate.year() == 2023 &&
+        number.as_int64() == 182 && text.as_string() == "offline" &&
+        bytes.size() == 2;
+}
+
+bool testBoost182Nowide(std::string &detail)
+{
+    const std::string utf8 = "Boost/\xC3\xA9t\xC3\xA9.txt";
+    const std::wstring wide =
+        boost::nowide::utf::convert_string<wchar_t>(utf8);
+    const std::string restored =
+        boost::nowide::utf::convert_string<char>(wide);
+    std::ostringstream stream;
+    stream << boost::nowide::quoted(boost::filesystem::path(utf8));
+
+    detail = "Nowide convert_string and quoted UTF-8 filesystem path";
+    return restored == utf8 && stream.str().find("\xC3\xA9t\xC3\xA9.txt") !=
+        std::string::npos;
+}
+
+bool testBoost182Pfr(std::string &detail)
+{
+    Boost182PfrRecord record{182, 0};
+    boost::pfr::get<int>(record) = 180;
+    boost::pfr::get<short>(record) = 2;
+
+    detail = "PFR reflection availability and get-by-type mutation";
+    return BOOST_PFR_ENABLED &&
+        boost::pfr::is_implicitly_reflectable_v<Boost182PfrRecord, void> &&
+        boost::pfr::get<int>(record) + boost::pfr::get<short>(record) == 182;
+}
+
+bool testBoost182StaticString(std::string &detail)
+{
+    const boost::static_string<16> value("Boost 1.82");
+    const std::string_view standardView = value;
+    const boost::core::string_view coreView = value;
+
+    detail = "StaticString std and Core string_view interoperability";
+    return standardView == "Boost 1.82" && coreView == "Boost 1.82";
+}
+
+bool testBoost182Unordered(std::string &detail)
+{
+    boost::unordered_node_map<std::string, int, Boost182TransparentHash,
+        Boost182TransparentEqual> releases;
+    releases.emplace("current", 182);
+    const auto found = releases.find(std::string_view("current"));
+
+    boost::unordered_node_set<int> versions;
+    versions.emplace(181);
+    versions.emplace(182);
+
+    detail = "Unordered node map/set and heterogeneous lookup";
+    return found != releases.end() && found->second == 182 &&
+        versions.contains(181) && versions.contains(182);
+}
+
+bool testBoost182Url(std::string &detail)
+{
+    boost::urls::url formatted =
+        boost::urls::format("https://boost.org/{}/{}", "release", "C++ 20");
+    formatted.set_params({{"version", "1.82"}, {"target", "iOS"}});
+    const boost::core::string_view view = formatted;
+
+    detail = "URL format encoding, set_params, and string_view conversion";
+    return formatted.encoded_path() == "/release/C++%2020" &&
+        formatted.encoded_query() == "version=1.82&target=iOS" &&
+        !view.empty();
+}
+
+bool testBoost182StacktraceThread(std::string &detail)
+{
+    std::size_t frames = 0;
+    boost::thread worker([&frames] {
+        frames = boost::stacktrace::stacktrace().size();
+    });
+    worker.join();
+
+    detail = "Stacktrace basic backend captured frames on a joined thread";
+    return frames > 0;
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -1085,6 +1298,19 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.81 Timer", testBoost181Timer},
         {"Boost 1.81 TypeErasure", testBoost181TypeErasure},
         {"Boost 1.81 Stacktrace", testBoost181Stacktrace},
+#endif
+#if BOOST_VERSION >= 108200
+        {"Boost 1.82 Asio", testBoost182Asio},
+        {"Boost 1.82 Core", testBoost182Core},
+        {"Boost 1.82 Filesystem", testBoost182Filesystem},
+        {"Boost 1.82 JSON", testBoost182Json},
+        {"Boost 1.82 MySQL offline", testBoost182Mysql},
+        {"Boost 1.82 Nowide", testBoost182Nowide},
+        {"Boost 1.82 PFR", testBoost182Pfr},
+        {"Boost 1.82 StaticString", testBoost182StaticString},
+        {"Boost 1.82 Unordered", testBoost182Unordered},
+        {"Boost 1.82 URL", testBoost182Url},
+        {"Boost 1.82 Stacktrace thread", testBoost182StacktraceThread},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},

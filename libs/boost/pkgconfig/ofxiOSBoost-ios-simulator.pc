@@ -4,7 +4,7 @@ libdir=${xcframework}/ios-arm64_x86_64-simulator
 includedir=${libdir}/Headers
 
 Name: ofxiOSBoost-simulator
-Description: Boost 1.81.0 static libraries for arm64/x86_64 iOS Simulator
-Version: 1.81.0
+Description: Boost 1.82.0 static libraries for arm64/x86_64 iOS Simulator
+Version: 1.82.0
 Cflags: -I${includedir} -std=c++20
 Libs: ${libdir}/libboost.a
