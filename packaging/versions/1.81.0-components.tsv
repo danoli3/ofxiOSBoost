@@ -1,0 +1,59 @@
+# status	library	note
+# upstream	https://www.boost.org/users/history/version_1_81_0.html
+included	chrono	Compiled date and time duration support.
+included	date_time	Compiled date/time library retained for build compatibility.
+included	filesystem	Compiled Filesystem supports v3 and the opt-in v4 API; string-view path support is available.
+included	graph	Compiled Graph algorithms.
+included	locale	Localization backends available without optional ICU packaging; the Boost 1.81 Locale update is included.
+included	random	Compiled random_device implementation.
+included	system	Error-code support required by several compiled libraries; result emplace is covered.
+included	thread	Portable threading primitives.
+included	context	Architecture-specific fcontext implementation carried forward from the validated configuration.
+included	nowide	Compiled UTF-8 adapters with generic conversion and fopen coverage.
+included	json	Compiled parser and DOM support; described and optional value conversions are covered.
+included	serialization	Binary archive round-trip and shared-pointer identity are covered in memory.
+included	url	New compiled URL parser; URI parsing receives dedicated Simulator and device coverage.
+included	container	Compiled polymorphic memory resources receive dedicated allocation coverage.
+included	log	Compiled logging core and setup support receive dedicated record coverage.
+included	stacktrace	Compiled portable basic backend receives dedicated capture coverage.
+included	timer	Compiled CPU timer receives dedicated elapsed-time coverage.
+included	type_erasure	Compiled dynamic binding support receives dedicated runtime type-erasure coverage.
+excluded	any	Header-only type erasure; customizable basic_any is not selected for dedicated coverage.
+excluded	atomic	Header-only; ARM atomic_ref wait/notify coverage is retained.
+excluded	beast	Header-only HTTP and WebSocket support; offline HTTP coverage is retained.
+excluded	bind	Header-only standard-placeholder interoperability remains covered.
+excluded	callable_traits	Header-only callable type inspection remains covered by the smoke suite.
+excluded	contract	Header-only mode is smoke-tested; the optional compiled library remains excluded.
+excluded	coroutine	Deprecated compiled library; depends on Context but has not received separate runtime coverage.
+excluded	coroutine2	Available header-only API backed by included Context; no separate archive exists, and yield/resume coverage is retained.
+excluded	core	Header-only portable bit/cmath, span, type-name, and fclose helpers remain available.
+excluded	describe	Header-only reflection remains smoke-tested and is used by JSON conversion coverage.
+excluded	exception	Predominantly header-based; no compiled binary selected.
+excluded	fiber	Separate compiled Context dependent; scheduler and threading paths need dedicated tests.
+excluded	graph_parallel	Depends on MPI and is not appropriate for a normal iOS application.
+excluded	histogram	Header-only histogram construction and bin updates remain covered.
+excluded	hof	Header-only higher-order function utilities remain smoke-tested.
+excluded	iostreams	Compression filters require explicit zlib/bzip2 dependency handling.
+excluded	lambda2	Header-only lambda expressions remain smoke-tested.
+excluded	leaf	Header-only typed error handling remains smoke-tested.
+excluded	math	Modern APIs remain available through packaged headers; legacy compiled C99/TR1 wrappers are omitted.
+excluded	metaparse	Predominantly header-based; no compiled binary selected.
+excluded	mp11	Header-only metaprogramming utilities remain covered by the smoke suite.
+excluded	mpi	Requires an MPI runtime and is not appropriate for a normal iOS application.
+excluded	outcome	Header-only result value handling remains covered by the smoke suite.
+excluded	pfr	Header-only aggregate access and field iteration remain smoke-tested.
+excluded	poly_collection	Header-only polymorphic container support.
+excluded	process	Requires an iOS spawn/fork and filesystem integration audit.
+excluded	program_options	Command-line parsing is of limited use in a normal iOS application.
+excluded	python	Requires a separately packaged Python runtime.
+excluded	regex	Header-only in C++11 and newer; runtime regex coverage is retained.
+excluded	safe_numerics	Headers are included; runtime coverage remains deferred pending Apple Clang compatibility.
+excluded	signals	Legacy compiled Boost.Signals was removed upstream in Boost 1.69.
+excluded	signals2	Header-only successor to Boost.Signals; slot dispatch is covered.
+excluded	static_string	Header-only fixed-capacity string operations remain covered.
+excluded	stl_interfaces	Header-only CRTP random-access iterator behavior is covered on iOS.
+excluded	test	Intended for test executables rather than the shipped application library.
+excluded	unordered	Header-only flat-map behavior is covered; no separate compiled binary is required.
+excluded	variant2	Header-only selection, visitation, streaming, hashing, and JSON conversion are covered.
+excluded	wave	Large C/C++ preprocessing toolchain not normally needed at iOS application runtime.
+excluded	yap	Header-only expression-template utilities remain covered.

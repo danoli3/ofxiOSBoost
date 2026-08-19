@@ -97,6 +97,21 @@
 #include <boost/optional.hpp>
 #include <boost/utility/string_view.hpp>
 #endif
+#if BOOST_VERSION >= 108100
+#include <boost/container/pmr/monotonic_buffer_resource.hpp>
+#include <boost/container/pmr/vector.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/sources/logger.hpp>
+#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
+#include <boost/stacktrace/stacktrace.hpp>
+#include <boost/timer/timer.hpp>
+#include <boost/type_erasure/any.hpp>
+#include <boost/type_erasure/any_cast.hpp>
+#include <boost/type_erasure/builtin.hpp>
+#include <boost/type_erasure/operators.hpp>
+#include <boost/unordered/unordered_flat_map.hpp>
+#include <boost/url.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -111,6 +126,9 @@
 #include <functional>
 #include <limits>
 #include <numeric>
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
 #include <sstream>
 #if __cplusplus >= 202002L
 #include <span>
@@ -121,6 +139,15 @@
 #include <vector>
 
 namespace {
+
+#if BOOST_VERSION >= 108100
+struct Boost181Release {
+    int version;
+    std::optional<std::string> channel;
+};
+
+BOOST_DESCRIBE_STRUCT(Boost181Release, (), (version, channel))
+#endif
 
 #if BOOST_VERSION >= 108000
 struct Boost180FinalHash final {
@@ -892,6 +919,97 @@ bool testBoost180Math(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108100
+bool testBoost181Features(std::string &detail)
+{
+    const auto parsed = boost::urls::parse_uri(
+        "https://www.boost.org/releases/1.81.0/?channel=stable");
+    const bool urlPassed = parsed && parsed->scheme() == "https" &&
+        parsed->host() == "www.boost.org" &&
+        parsed->encoded_path() == "/releases/1.81.0/";
+
+    boost::unordered_flat_map<std::string, int> releases;
+    releases.emplace("current", 181);
+    releases.emplace("previous", 180);
+    const bool unorderedPassed = releases.contains("current") &&
+        releases.at("current") == 181 && releases.size() == 2;
+
+    const Boost181Release source{181, std::string("stable")};
+    const boost::json::value json = boost::json::value_from(source);
+    const Boost181Release restored =
+        boost::json::value_to<Boost181Release>(json);
+    const bool jsonPassed = restored.version == 181 && restored.channel &&
+        *restored.channel == "stable";
+
+    boost::system::result<std::string> result(std::string("old"));
+    result.emplace("Boost 1.81");
+    const bool systemPassed = result.has_value() &&
+        result.value() == "Boost 1.81";
+
+    detail = "URL parse, Unordered flat_map, JSON described/optional "
+        "conversion, and System result emplace";
+    return urlPassed && unorderedPassed && jsonPassed && systemPassed;
+}
+
+bool testBoost181Log(std::string &detail)
+{
+    boost::log::sources::logger logger;
+    boost::log::record record = logger.open_record();
+    const bool opened = static_cast<bool>(record);
+    if (opened) {
+        logger.push_record(std::move(record));
+    }
+
+    detail = "Log core opened and submitted a source record";
+    return opened;
+}
+
+bool testBoost181Container(std::string &detail)
+{
+    std::array<unsigned char, 1024> storage{};
+    boost::container::pmr::monotonic_buffer_resource resource(
+        storage.data(), storage.size());
+    boost::container::pmr::vector<int> values(&resource);
+    values.push_back(20);
+    values.push_back(22);
+
+    detail = "Container PMR allocated a vector from a local monotonic resource";
+    return values.size() == 2 && values[0] + values[1] == 42;
+}
+
+bool testBoost181Timer(std::string &detail)
+{
+    boost::timer::cpu_timer timer;
+    const boost::timer::cpu_times elapsed = timer.elapsed();
+    timer.stop();
+
+    detail = "Timer reported non-negative wall, user, and system CPU time";
+    return elapsed.wall >= 0 && elapsed.user >= 0 && elapsed.system >= 0;
+}
+
+bool testBoost181TypeErasure(std::string &detail)
+{
+    using Number = boost::type_erasure::any<boost::mpl::vector<
+        boost::type_erasure::copy_constructible<>,
+        boost::type_erasure::addable<>,
+        boost::type_erasure::typeid_<>>>;
+    Number left(19);
+    Number right(23);
+    Number sum = left + right;
+
+    detail = "TypeErasure dynamically dispatched addition and preserved type";
+    return boost::type_erasure::any_cast<int>(sum) == 42;
+}
+
+bool testBoost181Stacktrace(std::string &detail)
+{
+    const boost::stacktrace::stacktrace trace;
+
+    detail = "Stacktrace basic backend captured at least one native frame";
+    return !trace.empty();
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -959,6 +1077,14 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.80 Unordered", testBoost180Unordered},
         {"Boost 1.80 LEAF", testBoost180Leaf},
         {"Boost 1.80 Math", testBoost180Math},
+#endif
+#if BOOST_VERSION >= 108100
+        {"Boost 1.81 features", testBoost181Features},
+        {"Boost 1.81 Log", testBoost181Log},
+        {"Boost 1.81 Container", testBoost181Container},
+        {"Boost 1.81 Timer", testBoost181Timer},
+        {"Boost 1.81 TypeErasure", testBoost181TypeErasure},
+        {"Boost 1.81 Stacktrace", testBoost181Stacktrace},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},

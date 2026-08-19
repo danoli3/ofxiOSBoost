@@ -1,0 +1,64 @@
+diff --git a/tools/build/src/tools/darwin.jam b/tools/build/src/tools/darwin.jam
+--- a/tools/build/src/tools/darwin.jam
++++ b/tools/build/src/tools/darwin.jam
+@@ -140,5 +140,5 @@ rule init ( version ? : command * : options * : requirement * )
+     # - GCC 4.0 and higher in Darwin does not have -fcoalesce-templates.
+     if [ version.version-less $(real-version) : 4 0 ]
+     {
+-        flags darwin.compile.c++ OPTIONS $(condition) : -fcoalesce-templates ;
++        # Disabled for modern Apple Clang, whose compatibility version is 4.2.1.
+     }
+diff --git a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+--- a/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
++++ b/boost/numeric/conversion/udt_builtin_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum udt_builtin_mixture_enum
+   {
+-     builtin_to_builtin
++     udt_builtin_mixture_min = -1
++    ,builtin_to_builtin
+     ,builtin_to_udt
+     ,udt_to_builtin
+     ,udt_to_udt
++    ,udt_builtin_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric
+diff --git a/libs/locale/build/Jamfile.v2 b/libs/locale/build/Jamfile.v2
+--- a/libs/locale/build/Jamfile.v2
++++ b/libs/locale/build/Jamfile.v2
+@@ -213,8 +213,14 @@ rule configure-full ( properties * : flags-only )
+       || ! <boost.locale.iconv> in $(properties:G) 
+         && ! <target-os>solaris in $(properties)
+     {
+-        # See if iconv is bundled with standard library.
+-        if [ configure.builds has_iconv : $(properties) : "iconv (libc)" ]
++        # iconv is provided by libSystem on iOS. Its configure executable
++        # cannot be linked or run as a host program while cross-compiling.
++        if <target-os>iphone in $(properties)
++        {
++            found-iconv = true ;
++        }
++        # See if iconv is bundled with standard library.
++        else if [ configure.builds has_iconv : $(properties) : "iconv (libc)" ]
+         {
+             found-iconv = true ;
+         }
+diff --git a/boost/numeric/conversion/int_float_mixture_enum.hpp b/boost/numeric/conversion/int_float_mixture_enum.hpp
+--- a/boost/numeric/conversion/int_float_mixture_enum.hpp
++++ b/boost/numeric/conversion/int_float_mixture_enum.hpp
+@@ -14,10 +14,12 @@ namespace boost { namespace numeric
+ {
+   enum int_float_mixture_enum
+   {
+-     integral_to_integral
++     int_float_mixture_min = -1
++    ,integral_to_integral
+     ,integral_to_float
+     ,float_to_integral
+     ,float_to_float
++    ,int_float_mixture_max
+   } ;
+ 
+ } } // namespace boost::numeric

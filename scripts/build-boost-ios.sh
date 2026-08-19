@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.80.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.81.0}"
 DEFAULT_BOOST_LIBS="chrono date_time filesystem graph locale random regex system thread"
 case "$BOOST_VERSION" in
     1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0)
@@ -12,9 +12,12 @@ esac
 if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS context"
 fi
-if [[ "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" ]]; then
+if [[ "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" ]]; then
     # Regex is header-only in C++11 and newer beginning with Boost 1.76.
     DEFAULT_BOOST_LIBS="${DEFAULT_BOOST_LIBS/ regex/} context nowide json serialization"
+fi
+if [[ "$BOOST_VERSION" == "1.81.0" ]]; then
+    DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS url log container timer type_erasure stacktrace"
 fi
 if [[ "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS nowide"
@@ -26,7 +29,7 @@ BOOST_LIBS="${BOOST_LIBS:-$DEFAULT_BOOST_LIBS}"
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0|1.74.0|1.75.0|1.76.0|1.77.0|1.78.0|1.79.0|1.80.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0|1.74.0|1.75.0|1.76.0|1.77.0|1.78.0|1.79.0|1.80.0|1.81.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -99,6 +102,10 @@ tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
 echo "Applying Boost $BOOST_VERSION compatibility patches"
 case "$BOOST_VERSION" in
+    1.81.0)
+        # Container Hash was rewritten, removing the old unary_function hunk.
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.81.0-build-engine.patch"
+        ;;
     1.80.0)
         # Boost 1.80 retains the same iOS compatibility points as 1.78/1.79.
         COMPAT_PATCH="$REPO_ROOT/patches/boost-1.78.0-build-engine.patch"
@@ -171,7 +178,7 @@ for library in $BOOST_LIBS; do
     WITH_LIBRARIES+=("--with-$library")
 done
 HOST_TOOLSET=cc
-if [[ "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" ]]; then
+if [[ "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" ]]; then
     HOST_TOOLSET=clang
 fi
 (
@@ -218,14 +225,14 @@ build_platform() {
     local context_properties=()
     local locale_properties=()
 
-    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" ]]; then
+    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" ]]; then
         local abi=sysv
         if [[ "$architecture" == arm ]]; then
             abi=aapcs
         fi
         context_properties=(abi="$abi" binary-format=mach-o)
     fi
-    if [[ ( "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" ) && " $BOOST_LIBS " == *" locale "* ]]; then
+    if [[ ( "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" ) && " $BOOST_LIBS " == *" locale "* ]]; then
         local platform_sdk="$SIMULATOR_SDK"
         if [[ "$name" == device-* ]]; then
             platform_sdk="$IPHONEOS_SDK"
@@ -249,13 +256,34 @@ build_platform() {
     )
 
     for library in $BOOST_LIBS; do
-        [[ -s "$BUILD_DIR/$name/stage/lib/libboost_$library.a" ]] || {
-            echo "Missing requested library for $name: libboost_$library.a" >&2
+        local archive_name="libboost_$library.a"
+        if [[ "$library" == "stacktrace" ]]; then
+            archive_name="libboost_stacktrace_basic.a"
+        fi
+        [[ -s "$BUILD_DIR/$name/stage/lib/$archive_name" ]] || {
+            echo "Missing requested library for $name: $archive_name" >&2
             exit 1
         }
     done
     local libraries=("$BUILD_DIR/$name/stage/lib"/libboost_*.a)
     test -e "${libraries[0]}" || { echo "No libraries were produced for $name." >&2; exit 1; }
+    if [[ " $BOOST_LIBS " == *" stacktrace "* ]]; then
+        local filtered_libraries=()
+        local archive
+        for archive in "${libraries[@]}"; do
+            case "$(basename "$archive")" in
+                libboost_stacktrace_basic.a)
+                    filtered_libraries+=("$archive")
+                    ;;
+                libboost_stacktrace_*.a)
+                    ;;
+                *)
+                    filtered_libraries+=("$archive")
+                    ;;
+            esac
+        done
+        libraries=("${filtered_libraries[@]}")
+    fi
     xcrun libtool -static -o "$BUILD_DIR/libboost-$name.a" "${libraries[@]}"
 }
 
