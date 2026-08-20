@@ -144,6 +144,17 @@
 #include <boost/unordered/concurrent_flat_map.hpp>
 #include <boost/url/parse_query.hpp>
 #endif
+#if BOOST_VERSION >= 108400
+#include <boost/cobalt/run.hpp>
+#include <boost/cobalt/task.hpp>
+#include <boost/redis/request.hpp>
+// Boost.Redis 1.84 has no Boost.Build archive. Compile the implementation
+// units needed by the deterministic offline consumer test in this translation
+// unit, following Redis's separate-compilation model.
+#include <boost/redis/impl/request.ipp>
+#include <boost/redis/resp3/impl/serialization.ipp>
+#include <boost/redis/resp3/impl/type.ipp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -1486,6 +1497,29 @@ bool testBoost183Variant2(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108400
+bool testBoost184Cobalt(std::string &detail)
+{
+    const int result = boost::cobalt::run(
+        []() -> boost::cobalt::task<int> { co_return 84; }());
+
+    detail = "Cobalt compiled coroutine returned through run()";
+    return result == 84;
+}
+
+bool testBoost184Redis(std::string &detail)
+{
+    boost::redis::request request;
+    request.push("SET", "ofxiOSBoost", "1.84.0", "EX", 84);
+
+    const std::string expected =
+        "*5\r\n$3\r\nSET\r\n$11\r\nofxiOSBoost\r\n"
+        "$6\r\n1.84.0\r\n$2\r\nEX\r\n$2\r\n84\r\n";
+    detail = "Redis separate-compilation RESP3 request serialization";
+    return request.get_commands() == 1 && request.payload() == expected;
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -1591,6 +1625,10 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.83 Unordered", testBoost183Unordered},
         {"Boost 1.83 URL", testBoost183Url},
         {"Boost 1.83 Variant2", testBoost183Variant2},
+#endif
+#if BOOST_VERSION >= 108400
+        {"Boost 1.84 Cobalt", testBoost184Cobalt},
+        {"Boost 1.84 Redis offline", testBoost184Redis},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},

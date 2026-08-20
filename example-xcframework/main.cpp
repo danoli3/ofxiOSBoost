@@ -18,7 +18,11 @@ struct RuntimeBase {
 };
 
 struct RuntimeDerived : RuntimeBase {
+#if BOOST_VERSION >= 108400
+    BOOST_TYPE_INDEX_REGISTER_RUNTIME_CLASS(RuntimeBase)
+#else
     BOOST_TYPE_INDEX_REGISTER_RUNTIME_CLASS((RuntimeBase))
+#endif
 };
 #endif
 
