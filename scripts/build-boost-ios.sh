@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${BOOST_VERSION:-1.82.0}"
+BOOST_VERSION="${BOOST_VERSION:-1.83.0}"
 DEFAULT_BOOST_LIBS="chrono date_time filesystem graph locale random regex system thread"
 case "$BOOST_VERSION" in
     1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0)
@@ -12,11 +12,11 @@ esac
 if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS context"
 fi
-if [[ "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" ]]; then
+if [[ "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" || "$BOOST_VERSION" == "1.83.0" ]]; then
     # Regex is header-only in C++11 and newer beginning with Boost 1.76.
     DEFAULT_BOOST_LIBS="${DEFAULT_BOOST_LIBS/ regex/} context nowide json serialization"
 fi
-if [[ "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" ]]; then
+if [[ "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" || "$BOOST_VERSION" == "1.83.0" ]]; then
     DEFAULT_BOOST_LIBS="$DEFAULT_BOOST_LIBS url log container timer type_erasure stacktrace"
 fi
 if [[ "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" ]]; then
@@ -29,7 +29,7 @@ BOOST_LIBS="${BOOST_LIBS:-$DEFAULT_BOOST_LIBS}"
 IOS_MIN_VERSION="${IOS_MIN_VERSION:-12.0}"
 
 case "$BOOST_VERSION" in
-    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0|1.74.0|1.75.0|1.76.0|1.77.0|1.78.0|1.79.0|1.80.0|1.81.0|1.82.0) ;;
+    1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0|1.74.0|1.75.0|1.76.0|1.77.0|1.78.0|1.79.0|1.80.0|1.81.0|1.82.0|1.83.0) ;;
     *) echo "Boost $BOOST_VERSION is not supported by this build script yet." >&2; exit 2 ;;
 esac
 
@@ -98,10 +98,24 @@ if [[ ! -s "$CACHED_ARCHIVE" ]]; then
     mv "$CACHED_ARCHIVE.part" "$CACHED_ARCHIVE"
 fi
 cp "$CACHED_ARCHIVE" "$SOURCE_ARCHIVE"
+if [[ "$BOOST_VERSION" == "1.83.0" ]]; then
+    EXPECTED_SOURCE_SHA="6478edfe2f3305127cffe8caf73ea0176c53769f4bf1585be237eb30798c3b8e"
+    ACTUAL_SOURCE_SHA="$(shasum -a 256 "$SOURCE_ARCHIVE" | awk '{ print $1 }')"
+    if [[ "$ACTUAL_SOURCE_SHA" != "$EXPECTED_SOURCE_SHA" ]]; then
+        echo "Boost $BOOST_VERSION source checksum mismatch." >&2
+        echo "Expected: $EXPECTED_SOURCE_SHA" >&2
+        echo "Actual:   $ACTUAL_SOURCE_SHA" >&2
+        exit 1
+    fi
+fi
 tar -xjf "$SOURCE_ARCHIVE" -C "$WORK_DIR"
 
 echo "Applying Boost $BOOST_VERSION compatibility patches"
 case "$BOOST_VERSION" in
+    1.83.0)
+        # Dry-run validated against the updated B2 4.10.1 release.
+        COMPAT_PATCH="$REPO_ROOT/patches/boost-1.81.0-build-engine.patch"
+        ;;
     1.82.0)
         # Boost 1.82 retains the same tested iOS compatibility points as 1.81.
         COMPAT_PATCH="$REPO_ROOT/patches/boost-1.81.0-build-engine.patch"
@@ -172,6 +186,11 @@ case "$BOOST_VERSION" in
         ;;
 esac
 patch -d "$SOURCE_DIR" -p1 < "$COMPAT_PATCH"
+if [[ "$BOOST_VERSION" == "1.83.0" ]]; then
+    echo "Applying official Boost.Unordered 1.83 copy-assignment fix"
+    patch -d "$SOURCE_DIR" -p1 < \
+        "$REPO_ROOT/patches/boost-1.83.0-unordered-copy-assignment.patch"
+fi
 if [[ "$BOOST_VERSION" == "1.72.0" ]]; then
     patch -d "$SOURCE_DIR" -p1 < "$REPO_ROOT/patches/boost-1.72.0-histogram-span.patch"
 fi
@@ -182,7 +201,7 @@ for library in $BOOST_LIBS; do
     WITH_LIBRARIES+=("--with-$library")
 done
 HOST_TOOLSET=cc
-if [[ "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" ]]; then
+if [[ "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" || "$BOOST_VERSION" == "1.83.0" ]]; then
     HOST_TOOLSET=clang
 fi
 (
@@ -229,14 +248,14 @@ build_platform() {
     local context_properties=()
     local locale_properties=()
 
-    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" ]]; then
+    if [[ "$BOOST_VERSION" == "1.65.0" || "$BOOST_VERSION" == "1.66.0" || "$BOOST_VERSION" == "1.67.0" || "$BOOST_VERSION" == "1.68.0" || "$BOOST_VERSION" == "1.69.0" || "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" || "$BOOST_VERSION" == "1.83.0" ]]; then
         local abi=sysv
         if [[ "$architecture" == arm ]]; then
             abi=aapcs
         fi
         context_properties=(abi="$abi" binary-format=mach-o)
     fi
-    if [[ ( "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" ) && " $BOOST_LIBS " == *" locale "* ]]; then
+    if [[ ( "$BOOST_VERSION" == "1.70.0" || "$BOOST_VERSION" == "1.71.0" || "$BOOST_VERSION" == "1.72.0" || "$BOOST_VERSION" == "1.73.0" || "$BOOST_VERSION" == "1.74.0" || "$BOOST_VERSION" == "1.75.0" || "$BOOST_VERSION" == "1.76.0" || "$BOOST_VERSION" == "1.77.0" || "$BOOST_VERSION" == "1.78.0" || "$BOOST_VERSION" == "1.79.0" || "$BOOST_VERSION" == "1.80.0" || "$BOOST_VERSION" == "1.81.0" || "$BOOST_VERSION" == "1.82.0" || "$BOOST_VERSION" == "1.83.0" ) && " $BOOST_LIBS " == *" locale "* ]]; then
         local platform_sdk="$SIMULATOR_SDK"
         if [[ "$name" == device-* ]]; then
             platform_sdk="$IPHONEOS_SDK"

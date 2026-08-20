@@ -127,6 +127,23 @@
 #include <boost/unordered/unordered_node_map.hpp>
 #include <boost/unordered/unordered_node_set.hpp>
 #endif
+#if BOOST_VERSION >= 108300
+#include <boost/any/unique_any.hpp>
+#include <boost/compat/latch.hpp>
+#include <boost/compat/shared_lock.hpp>
+#include <boost/core/yield_primitives.hpp>
+#include <boost/filesystem/cstdio.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/flyweight.hpp>
+#include <boost/iterator/filter_iterator.hpp>
+#include <boost/iterator/is_iterator.hpp>
+#include <boost/math/distributions/normal.hpp>
+#include <boost/multi_index/identity.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/unordered/concurrent_flat_map.hpp>
+#include <boost/url/parse_query.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -135,7 +152,9 @@
 #include <concepts>
 #endif
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <exception>
 #include <fstream>
 #include <functional>
@@ -145,6 +164,7 @@
 #include <optional>
 #endif
 #include <sstream>
+#include <shared_mutex>
 #if __cplusplus >= 202002L
 #include <span>
 #endif
@@ -212,6 +232,24 @@ private:
     {
         return this == &other;
     }
+};
+#endif
+
+#if BOOST_VERSION >= 108300
+struct Boost183Immobile {
+    explicit Boost183Immobile(int input) : value(input) {}
+    Boost183Immobile(const Boost183Immobile &) = delete;
+    Boost183Immobile(Boost183Immobile &&) = delete;
+    Boost183Immobile &operator=(const Boost183Immobile &) = delete;
+    Boost183Immobile &operator=(Boost183Immobile &&) = delete;
+
+    int value;
+};
+
+struct Boost183Incomplete;
+
+struct Boost183Odd {
+    bool operator()(int value) const noexcept { return value % 2 != 0; }
 };
 #endif
 
@@ -1223,6 +1261,231 @@ bool testBoost182StacktraceThread(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108300
+bool testBoost183Compat(std::string &detail)
+{
+    boost::compat::latch ready(1);
+    boost::thread worker([&ready] { ready.count_down(); });
+    ready.wait();
+    worker.join();
+
+    std::shared_mutex mutex;
+    boost::compat::shared_lock<std::shared_mutex> lock(mutex);
+
+    detail = "Compat latch and shared_lock synchronized successfully";
+    return ready.try_wait() && lock.owns_lock();
+}
+
+bool testBoost183Any(std::string &detail)
+{
+    boost::anys::unique_any value(
+        boost::anys::in_place_type<Boost183Immobile>, 183);
+    const Boost183Immobile *stored =
+        boost::anys::any_cast<Boost183Immobile>(&value);
+
+    detail = "Any unique_any held an immobile in-place value";
+    return stored && stored->value == 183;
+}
+
+bool testBoost183Atomic(std::string &detail)
+{
+    alignas(boost::atomic_ref<int>::required_alignment) int storage = 183;
+    const int &readOnly = storage;
+    boost::atomic_ref<const int> reference(readOnly);
+
+    detail = "Atomic const-qualified atomic_ref loaded writable storage";
+    return reference.load(boost::memory_order_relaxed) == 183;
+}
+
+bool testBoost183Core(std::string &detail)
+{
+    const std::uint32_t swapped = boost::core::byteswap(0x01020304u);
+    const boost::core::string_view incompleteName =
+        boost::core::type_name<Boost183Incomplete>();
+    boost::core::sp_thread_pause();
+    boost::core::sp_thread_yield();
+
+    detail = "Core byteswap, incomplete type_name, and yield primitives";
+    return swapped == 0x04030201u && !incompleteName.empty();
+}
+
+bool testBoost183Filesystem(std::string &detail)
+{
+    const char *temporaryRoot = std::getenv("TMPDIR");
+    if (!temporaryRoot || !*temporaryRoot) {
+        detail = "app sandbox TMPDIR is unavailable";
+        return false;
+    }
+
+    const boost::filesystem::path directory =
+        boost::filesystem::path(temporaryRoot) / "ofxiosboost-1.83-smoke";
+    const boost::filesystem::path file = directory / "release.txt";
+    boost::system::error_code ignored;
+    boost::filesystem::remove_all(directory, ignored);
+    boost::filesystem::create_directories(directory);
+
+    boost::filesystem::ofstream first(file);
+    first << "Boost 1.83";
+    boost::filesystem::ofstream moved(std::move(first));
+    moved.close();
+
+    boost::filesystem::directory_entry entry(file);
+    entry.refresh();
+    std::FILE *handle = boost::filesystem::fopen(file, "rb");
+    char bytes[11] = {};
+    const std::size_t count = handle ? std::fread(bytes, 1, 10, handle) : 0;
+    if (handle) std::fclose(handle);
+    boost::filesystem::remove_all(directory, ignored);
+
+    detail = "Filesystem refresh, movable stream, and path-aware fopen";
+    return entry.is_regular_file() && count == 10 &&
+        std::string(bytes, count) == "Boost 1.83";
+}
+
+bool testBoost183Flyweight(std::string &detail)
+{
+    const boost::flyweight<std::string> value(std::string("Boost 1.83"));
+
+    detail = "Flyweight smart-pointer dereference syntax";
+    return *value == "Boost 1.83" && value->size() == 10;
+}
+
+bool testBoost183Iterator(std::string &detail)
+{
+    std::vector<int> values{1, 2, 3, 4, 5};
+    using Iterator = std::vector<int>::iterator;
+    auto original = boost::make_filter_iterator(
+        Boost183Odd{}, values.begin(), values.end());
+    auto first = decltype(original)(std::move(original));
+    auto last = boost::make_filter_iterator(
+        Boost183Odd{}, values.end(), values.end());
+    const int total = std::accumulate(first, last, 0);
+
+    detail = "Iterator is_iterator and movable filter predicate";
+    return boost::iterators::is_iterator<Iterator>::value && total == 9;
+}
+
+bool testBoost183Json(std::string &detail)
+{
+    boost::json::parse_options parseOptions;
+    parseOptions.numbers = boost::json::number_precision::precise;
+    parseOptions.allow_infinity_and_nan = true;
+    const boost::json::value value = boost::json::parse(
+        R"({"value":Infinity})", {}, parseOptions);
+
+    boost::json::serialize_options serializeOptions;
+    serializeOptions.allow_infinity_and_nan = true;
+    const std::string serialized =
+        boost::json::serialize(value, serializeOptions);
+
+    detail = "JSON precise parsing and Infinity serialization options";
+    return std::isinf(value.at("value").as_double()) &&
+        serialized.find("Infinity") != std::string::npos;
+}
+
+bool testBoost183Locale(std::string &detail)
+{
+    const boost::locale::conv::narrow_converter converter("UTF-8", "UTF-8");
+    const std::string input = "caf\xC3\xA9";
+
+    detail = "Locale reusable narrow_converter preserved UTF-8";
+    return converter(input) == input;
+}
+
+bool testBoost183Math(std::string &detail)
+{
+    const boost::math::normal_distribution<double> distribution;
+    const double result = boost::math::logcdf(distribution, 0.0);
+
+    detail = "Math normal-distribution logcdf";
+    return std::abs(result - std::log(0.5)) < 1e-12;
+}
+
+bool testBoost183Mp11(std::string &detail)
+{
+    using Values = boost::mp11::mp_list_v<1, 2, 3>;
+    using Offset = boost::mp11::mp_iota_c<3, 5>;
+
+    detail = "Mp11 value lists and offset iota";
+    return boost::mp11::mp_size<Values>::value == 3 &&
+        boost::mp11::mp_front<Values>::value == 1 &&
+        boost::mp11::mp_front<Offset>::value == 5 &&
+        boost::mp11::mp_back<Offset>::value == 7;
+}
+
+bool testBoost183MultiIndex(std::string &detail)
+{
+    using Values = boost::multi_index::multi_index_container<int,
+        boost::multi_index::indexed_by<
+            boost::multi_index::ordered_non_unique<
+                boost::multi_index::identity<int>>>>;
+    Values original{3, 1, 3, 2};
+    std::stringstream storage;
+    {
+        boost::archive::binary_oarchive output(storage);
+        output << original;
+    }
+
+    Values restored;
+    {
+        boost::archive::binary_iarchive input(storage);
+        input >> restored;
+    }
+
+    detail = "MultiIndex version-4 serialization round-trip";
+    return restored.size() == 4 && restored.count(3) == 2 &&
+        *restored.begin() == 1;
+}
+
+bool testBoost183Unordered(std::string &detail)
+{
+    boost::concurrent_flat_map<int, int> values;
+    boost::thread first([&values] {
+        for (int i = 0; i < 100; ++i) values.emplace(i, i);
+    });
+    boost::thread second([&values] {
+        for (int i = 100; i < 200; ++i) values.emplace(i, i);
+    });
+    first.join();
+    second.join();
+
+    int observed = 0;
+    const std::size_t visited = values.visit(183, [&observed](const auto &item) {
+        observed = item.second;
+    });
+
+    boost::unordered_flat_map<int, int> populated{{1, 1}};
+    const boost::unordered_flat_map<int, int> empty;
+    populated = empty;
+
+    detail = "Unordered concurrent writers and patched empty copy assignment";
+    return values.size() == 200 && visited == 1 && observed == 183 &&
+        populated.empty();
+}
+
+bool testBoost183Url(std::string &detail)
+{
+    const auto parsed = boost::urls::parse_uri(
+        "http://[fe80::1%25en0]/status?version=1.83&target=iOS");
+    const auto query = boost::urls::parse_query("version=1.83&target=iOS");
+
+    detail = "URL IPv6 zone identifier and query parsing";
+    return parsed && parsed->encoded_host().find("%25en0") !=
+        boost::core::string_view::npos && query && query->size() == 2;
+}
+
+bool testBoost183Variant2(std::string &detail)
+{
+    using Value = boost::variant2::variant<int, std::string>;
+    Value value(std::string("Boost 1.83"));
+    const bool storageMode = Value::uses_double_storage();
+
+    detail = storageMode ? "Variant2 reports double storage" :
+        "Variant2 reports single storage";
+    return boost::variant2::get<std::string>(value) == "Boost 1.83";
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -1311,6 +1574,23 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.82 Unordered", testBoost182Unordered},
         {"Boost 1.82 URL", testBoost182Url},
         {"Boost 1.82 Stacktrace thread", testBoost182StacktraceThread},
+#endif
+#if BOOST_VERSION >= 108300
+        {"Boost 1.83 Compat", testBoost183Compat},
+        {"Boost 1.83 Any", testBoost183Any},
+        {"Boost 1.83 Atomic", testBoost183Atomic},
+        {"Boost 1.83 Core", testBoost183Core},
+        {"Boost 1.83 Filesystem", testBoost183Filesystem},
+        {"Boost 1.83 Flyweight", testBoost183Flyweight},
+        {"Boost 1.83 Iterator", testBoost183Iterator},
+        {"Boost 1.83 JSON", testBoost183Json},
+        {"Boost 1.83 Locale", testBoost183Locale},
+        {"Boost 1.83 Math", testBoost183Math},
+        {"Boost 1.83 Mp11", testBoost183Mp11},
+        {"Boost 1.83 MultiIndex", testBoost183MultiIndex},
+        {"Boost 1.83 Unordered", testBoost183Unordered},
+        {"Boost 1.83 URL", testBoost183Url},
+        {"Boost 1.83 Variant2", testBoost183Variant2},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},

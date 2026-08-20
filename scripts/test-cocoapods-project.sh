@@ -2,10 +2,19 @@
 
 set -euo pipefail
 
-BOOST_VERSION="${1:-1.82.0}"
+BOOST_VERSION="${1:-1.83.0}"
 [[ "$BOOST_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
     echo "Usage: $0 [BOOST_VERSION]" >&2
     exit 2
+}
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+RELEASE_ARCHIVE="$REPO_ROOT/dist/ofxiOSBoost-$BOOST_VERSION.tar.gz"
+GENERATED_PODSPEC="$REPO_ROOT/dist/ofxiOSBoost.podspec"
+[[ -s "$RELEASE_ARCHIVE" && -s "$GENERATED_PODSPEC" ]] || {
+    echo "Build the local Boost $BOOST_VERSION release artifacts first." >&2
+    exit 1
 }
 
 for command in pod ruby xcodebuild xcrun; do
@@ -48,6 +57,9 @@ cleanup() {
 trap cleanup EXIT
 
 mkdir -p "$WORK_DIR/cocoapods-home"
+mkdir -p "$WORK_DIR/ofxiOSBoost"
+tar -xzf "$RELEASE_ARCHIVE" -C "$WORK_DIR/ofxiOSBoost" --strip-components=1
+cp "$GENERATED_PODSPEC" "$WORK_DIR/ofxiOSBoost/ofxiOSBoost.podspec"
 
 cat > "$WORK_DIR/main.mm" <<'EOF'
 #import <UIKit/UIKit.h>
@@ -116,7 +128,7 @@ platform :ios, '12.0'
 
 target 'CocoaPodsTest' do
   project 'CocoaPodsTest.xcodeproj'
-  pod 'ofxiOSBoost', '$BOOST_VERSION'
+  pod 'ofxiOSBoost', :path => '$WORK_DIR/ofxiOSBoost'
 end
 EOF
 
@@ -125,7 +137,7 @@ install_log="$WORK_DIR/pod-install.log"
 if ! (
     cd "$WORK_DIR"
     CP_HOME_DIR="$WORK_DIR/cocoapods-home" \
-        pod install --repo-update --no-ansi >"$install_log" 2>&1
+        pod install --no-repo-update --no-ansi >"$install_log" 2>&1
 ); then
     tail -n 80 "$install_log"
     exit 1

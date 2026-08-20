@@ -31,7 +31,8 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| [1.82.0](https://www.boost.org/users/history/version_1_82_0.html) | C++20 | [![Boost 1.82.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | Planned |
+| [1.83.0](https://www.boost.org/users/history/version_1_83_0.html) | C++20 | [![Boost 1.83.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | Planned |
+| [1.82.0](https://www.boost.org/users/history/version_1_82_0.html) | C++20 | [![Boost 1.82.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.82.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.82.0) |
 | [1.81.0](https://www.boost.org/users/history/version_1_81_0.html) | C++20 | [![Boost 1.81.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.81.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.81.0) |
 | [1.80.0](https://www.boost.org/users/history/version_1_80_0.html) | C++20 | [![Boost 1.80.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.80.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.80.0) |
 | [1.79.0](https://www.boost.org/users/history/version_1_79_0.html) | C++17 | [![Boost 1.79.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.79.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.79.0) |
@@ -172,6 +173,17 @@ packaging, and the complete arm64 Simulator and physical arm64 device suites
 pass. Boost.Log's staged Atomic, Regex, and Log setup dependencies are merged
 to keep the selected Log build self-contained.
 
+Boost 1.83.0 remains on C++20 and carries forward the 1.82 compiled set.
+Boost.Compat is new and header-only. Fifteen separate one-per-frame tests add
+coverage for Compat, Any unique_any, const Atomic references, Core byteswap and
+yield primitives, Filesystem refresh/streams/fopen, Flyweight, Iterator, JSON
+options, Locale converters, Math log-CDF, Mp11 value lists, MultiIndex
+serialization, concurrent Unordered, URL IPv6 zones, and Variant2 storage
+reporting. The official
+Boost.Unordered 1.83 copy-assignment fix is applied during packaging.
+Three-slice compile/link, SwiftPM arm64/x86_64, local CocoaPods, and the full
+arm64 Simulator and physical arm64 device runtime suites pass.
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -198,7 +210,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.82.0'
+  pod 'ofxiOSBoost', '1.83.0'
 end
 ```
 
@@ -216,13 +228,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.82.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.83.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.82.0`, and add the `ofxiOSBoost` product to the application
+select version `1.83.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -262,8 +274,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.82.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.82.0.tar.gz
+BOOST_VERSION=1.83.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.83.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -340,14 +352,14 @@ contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
 Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.82.0`. Pushing the tag
-`1.82.0` runs the same workflow. The workflow publishes both the archive
+release Boost for iOS** workflow with version `1.83.0`. Pushing the tag
+`1.83.0` runs the same workflow. The workflow publishes both the archive
 and its SHA-256 checksum to the matching GitHub Release.
 
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.82.0 ./scripts/build-boost-ios.sh
+BOOST_VERSION=1.83.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -370,7 +382,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.82.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.83.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -390,6 +402,15 @@ application.
 
 
 #### Current Boost release documentation
+
+[Boost 1.83.0 upstream release history](https://www.boost.org/users/history/version_1_83_0.html)
+
+### Version 1.83.0 — August 11, 2023
+
+Boost 1.83.0 remains on C++20, adds header-only Boost.Compat, and carries the
+validated 1.82 compiled set forward. Its expanded sequential suite targets the
+major 1.83 library updates while MySQL TLS/live-query support remains deferred
+until OpenSSL and a server fixture are packaged.
 
 [Boost 1.82.0 upstream release history](https://www.boost.org/users/history/version_1_82_0.html)
 
