@@ -155,6 +155,19 @@
 #include <boost/redis/resp3/impl/serialization.ipp>
 #include <boost/redis/resp3/impl/type.ipp>
 #endif
+#if BOOST_VERSION >= 108500
+#include <boost/charconv.hpp>
+#include <boost/container/flat_map.hpp>
+#include <boost/core/functor.hpp>
+#include <boost/mysql/character_set.hpp>
+#include <boost/mysql/format_sql.hpp>
+#include <boost/pfr/core_name.hpp>
+#include <boost/random/splitmix64.hpp>
+#include <boost/scope/scope_exit.hpp>
+#include <boost/scope/scope_fail.hpp>
+#include <boost/scope/scope_success.hpp>
+#include <boost/scope/unique_resource.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -167,6 +180,8 @@
 #include <cstdlib>
 #include <cmath>
 #include <exception>
+#if __cplusplus >= 201703L
+#endif
 #include <fstream>
 #include <functional>
 #include <limits>
@@ -183,9 +198,51 @@
 #include <string_view>
 #include <system_error>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
+#if BOOST_VERSION >= 108500
+namespace boost185_test {
+
+class PrivateJsonRecord {
+public:
+    PrivateJsonRecord() = default;
+    PrivateJsonRecord(int version, std::string platform)
+        : version_(version), platform_(std::move(platform)) {}
+
+    int version() const noexcept { return version_; }
+    const std::string &platform() const noexcept { return platform_; }
+
+private:
+    int version_ = 0;
+    std::string platform_;
+    BOOST_DESCRIBE_CLASS(PrivateJsonRecord, (), (), (),
+        (version_, platform_))
+};
+
+} // namespace boost185_test
+
+namespace boost::json {
+
+template<>
+struct is_described_class<boost185_test::PrivateJsonRecord> : std::true_type {};
+
+} // namespace boost::json
+#endif
+
 namespace {
+
+#if BOOST_VERSION >= 108500
+
+struct Boost185LeafError {
+    int value;
+};
+
+int boost185Add(int lhs, int rhs) noexcept
+{
+    return lhs + rhs;
+}
+#endif
 
 #if BOOST_VERSION >= 108100
 struct Boost181Release {
@@ -1520,6 +1577,227 @@ bool testBoost184Redis(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108500
+bool testBoost185CharconvInteger(std::string &detail)
+{
+    char buffer[32]{};
+    const auto written = boost::charconv::to_chars(
+        buffer, buffer + sizeof(buffer), 0x85, 16);
+    int parsed = 0;
+    const auto read = boost::charconv::from_chars(buffer, written.ptr, parsed, 16);
+
+    detail = "Charconv integer to_chars/from_chars round-trip";
+    return written.ec == std::errc() && read.ec == std::errc() &&
+        read.ptr == written.ptr && parsed == 0x85;
+}
+
+bool testBoost185CharconvFloating(std::string &detail)
+{
+    char buffer[64]{};
+    const auto written = boost::charconv::to_chars(
+        buffer, buffer + sizeof(buffer), 85.125);
+    double parsed = 0.0;
+    const auto read = boost::charconv::from_chars(buffer, written.ptr, parsed);
+
+    detail = "Charconv compiled floating conversion round-trip";
+    return written.ec == std::errc() && read.ec == std::errc() &&
+        read.ptr == written.ptr && std::abs(parsed - 85.125) < 1e-12;
+}
+
+bool testBoost185CharconvInvalid(std::string &detail)
+{
+    const char input[] = "";
+    int value = 85;
+    const auto result = boost::charconv::from_chars(
+        input, input + sizeof(input) - 1, value);
+
+    detail = "Charconv invalid input reports invalid_argument";
+    return result.ec == std::errc::invalid_argument &&
+        result.ptr == input && value == 85;
+}
+
+bool testBoost185CharconvOverflow(std::string &detail)
+{
+    const char input[] = "999999999999999999999999999999999999";
+    int value = 85;
+    const auto result = boost::charconv::from_chars(
+        input, input + sizeof(input) - 1, value);
+
+    detail = "Charconv overflow reports result_out_of_range";
+    return result.ec == std::errc::result_out_of_range && value == 85;
+}
+
+bool testBoost185ScopeExit(std::string &detail)
+{
+    int calls = 0;
+    {
+        boost::scope::scope_exit guard([&calls] { ++calls; });
+    }
+
+    detail = "Scope scope_exit executes at block exit";
+    return calls == 1;
+}
+
+bool testBoost185ScopeSuccessFail(std::string &detail)
+{
+    int successes = 0;
+    int failures = 0;
+    {
+        boost::scope::scope_success success([&successes] { ++successes; });
+        boost::scope::scope_fail failure([&failures] { ++failures; });
+    }
+    try {
+        boost::scope::scope_success success([&successes] { ++successes; });
+        boost::scope::scope_fail failure([&failures] { ++failures; });
+        throw std::runtime_error("scope failure path");
+    } catch (const std::runtime_error &) {
+    }
+
+    detail = "Scope success and failure guards select exception path";
+    return successes == 1 && failures == 1;
+}
+
+bool testBoost185UniqueResource(std::string &detail)
+{
+    int released = 0;
+    {
+        boost::scope::unique_resource resource(
+            85, [&released](int value) noexcept { released = value; });
+        if (resource.get() != 85) return false;
+    }
+
+    detail = "Scope unique_resource releases exactly once";
+    return released == 85;
+}
+
+bool testBoost185ContainerFlatMap(std::string &detail)
+{
+    boost::container::flat_map<std::uint8_t, std::string> values;
+    values[static_cast<std::uint8_t>(96)].push_back('a');
+    values[static_cast<std::uint8_t>(102)].push_back('b');
+    values[static_cast<std::uint8_t>(104)].push_back('c');
+
+    boost::container::flat_multimap<int, std::string> duplicates;
+    duplicates.emplace(85, "first");
+    duplicates.emplace(85, "second");
+
+    detail = "Patched Container flat_map insertion preserves mapped values";
+    return values.size() == 3 && values.at(96) == "a" &&
+        values.at(102) == "b" && values.at(104) == "c" &&
+        duplicates.count(85) == 2;
+}
+
+bool testBoost185MysqlCharconv(std::string &detail)
+{
+    constexpr boost::mysql::format_options options{
+        boost::mysql::utf8mb4_charset, true};
+    const std::string query = boost::mysql::format_sql(
+        options, "SELECT {}, {}", 85, 85.25);
+
+    detail = "MySQL offline SQL formatting links compiled Charconv";
+    return query == "SELECT 85, 8.525e+01";
+}
+
+bool testBoost185JsonPrivateMembers(std::string &detail)
+{
+    const boost185_test::PrivateJsonRecord original(85, "iOS");
+    const boost::json::value encoded = boost::json::value_from(original);
+    const auto restored =
+        boost::json::value_to<boost185_test::PrivateJsonRecord>(encoded);
+
+    detail = "JSON converts private described members";
+    return restored.version() == 85 && restored.platform() == "iOS";
+}
+
+bool testBoost185JsonPath(std::string &detail)
+{
+    const boost::filesystem::path original("release/1.85.0");
+    const boost::json::value encoded = boost::json::value_from(original);
+    const auto restored = boost::json::value_to<boost::filesystem::path>(encoded);
+
+    detail = "JSON path-like conversion round-trip";
+    return restored == original;
+}
+
+bool testBoost185JsonRvalueVisit(std::string &detail)
+{
+    boost::json::value input("Boost 1.85");
+    const bool visited = boost::json::visit(
+        [](auto &&value) -> bool {
+            using Value = std::remove_cv_t<std::remove_reference_t<decltype(value)>>;
+            if constexpr (std::is_same_v<Value, boost::json::string>) {
+                return value == "Boost 1.85";
+            } else {
+                return false;
+            }
+        },
+        std::move(input));
+
+    detail = "JSON rvalue visit forwards the stored value";
+    return visited;
+}
+
+bool testBoost185LeafCapture(std::string &detail)
+{
+    boost::leaf::result<int> captured = boost::leaf::try_capture_all(
+        []() -> boost::leaf::result<int> {
+            return boost::leaf::new_error(Boost185LeafError{85});
+        });
+    const int handled = boost::leaf::try_handle_all(
+        [&captured]() -> boost::leaf::result<int> {
+            BOOST_LEAF_CHECK(captured);
+            return 0;
+        },
+        [](const Boost185LeafError &error) { return error.value; },
+        [] { return -1; });
+
+    detail = "LEAF try_capture_all transports error objects";
+    return handled == 85;
+}
+
+bool testBoost185RandomSplitmix64(std::string &detail)
+{
+    boost::random::splitmix64 generator;
+    const std::uint64_t first = generator();
+
+    detail = "Random splitmix64 default-seed validation value";
+    return first == UINT64_C(15963217749786287401);
+}
+
+bool testBoost185CoreFunctor(std::string &detail)
+{
+    boost::core::functor<boost185Add> add;
+
+    detail = "Core functor wraps a noexcept raw function";
+    return add(40, 45) == 85 && noexcept(add(1, 2));
+}
+
+bool testBoost185PfrLocalNames(std::string &detail)
+{
+    struct LocalRecord {
+        int release;
+        bool validated;
+    };
+    constexpr auto names = boost::pfr::names_as_array<LocalRecord>();
+
+    detail = "PFR exposes field names for a function-local type";
+    return names.size() == 2 && names[0] == "release" &&
+        names[1] == "validated";
+}
+
+bool testBoost185LocaleChar8(std::string &detail)
+{
+    boost::locale::generator generator;
+    generator.characters(boost::locale::char_facet_t::char8_f);
+    const std::locale locale = generator("C");
+    const std::u8string upper = boost::locale::to_upper(
+        std::u8string(u8"boost"), locale);
+
+    detail = "Locale char8_t facets compile and link in C++20 mode";
+    return upper == std::u8string(u8"BOOST");
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -1629,6 +1907,25 @@ const std::vector<BoostTestCase> &boostTestCases()
 #if BOOST_VERSION >= 108400
         {"Boost 1.84 Cobalt", testBoost184Cobalt},
         {"Boost 1.84 Redis offline", testBoost184Redis},
+#endif
+#if BOOST_VERSION >= 108500
+        {"Boost 1.85 Charconv integer", testBoost185CharconvInteger},
+        {"Boost 1.85 Charconv floating", testBoost185CharconvFloating},
+        {"Boost 1.85 Charconv invalid", testBoost185CharconvInvalid},
+        {"Boost 1.85 Charconv overflow", testBoost185CharconvOverflow},
+        {"Boost 1.85 Scope exit", testBoost185ScopeExit},
+        {"Boost 1.85 Scope success/fail", testBoost185ScopeSuccessFail},
+        {"Boost 1.85 Scope unique_resource", testBoost185UniqueResource},
+        {"Boost 1.85 Container flat_map", testBoost185ContainerFlatMap},
+        {"Boost 1.85 MySQL + Charconv", testBoost185MysqlCharconv},
+        {"Boost 1.85 JSON private members", testBoost185JsonPrivateMembers},
+        {"Boost 1.85 JSON path", testBoost185JsonPath},
+        {"Boost 1.85 JSON rvalue visit", testBoost185JsonRvalueVisit},
+        {"Boost 1.85 LEAF capture", testBoost185LeafCapture},
+        {"Boost 1.85 Random splitmix64", testBoost185RandomSplitmix64},
+        {"Boost 1.85 Core functor", testBoost185CoreFunctor},
+        {"Boost 1.85 PFR local names", testBoost185PfrLocalNames},
+        {"Boost 1.85 Locale char8_t", testBoost185LocaleChar8},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},

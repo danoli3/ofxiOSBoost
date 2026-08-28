@@ -4,6 +4,10 @@
 #include <boost/regex.hpp>
 #include <boost/version.hpp>
 
+#if BOOST_VERSION >= 108500
+#include <boost/charconv.hpp>
+#endif
+
 #if BOOST_VERSION >= 106200
 #include <boost/qvm/vec.hpp>
 #endif
@@ -55,6 +59,19 @@ bool ofxiOSBoostRunLinkTest(void)
         return false;
     }
     if (boost::atomic<int>::is_always_lock_free != boost::atomic<int>().is_lock_free()) {
+        return false;
+    }
+#endif
+
+#if BOOST_VERSION >= 108500
+    char buffer[32]{};
+    const auto encoded = boost::charconv::to_chars(
+        buffer, buffer + sizeof(buffer), 85.25);
+    double decoded = 0.0;
+    const auto parsed = boost::charconv::from_chars(
+        buffer, encoded.ptr, decoded);
+    if (encoded.ec != std::errc() || parsed.ec != std::errc() ||
+        decoded != 85.25) {
         return false;
     }
 #endif
