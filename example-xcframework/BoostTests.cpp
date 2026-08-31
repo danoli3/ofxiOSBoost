@@ -168,9 +168,17 @@
 #include <boost/scope/scope_success.hpp>
 #include <boost/scope/unique_resource.hpp>
 #endif
+#if BOOST_VERSION >= 108600
+#include <boost/asio/steady_timer.hpp>
+#include <boost/container/devector.hpp>
+#include <boost/core/pointer_in_range.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/time_generator_v7.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #if __cplusplus >= 202002L
 #include <bit>
 #include <concepts>
@@ -1798,6 +1806,108 @@ bool testBoost185LocaleChar8(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108600
+bool testBoost186CharconvLeadingCharacter(std::string &detail)
+{
+    const char input[] = "-z";
+    int value = 86;
+    const auto result = boost::charconv::from_chars(
+        input, input + sizeof(input) - 1, value, 36);
+
+    detail = "Charconv accepts a signed first digit in base 36";
+    return result.ec == std::errc() && result.ptr == input + 2 && value == -35;
+}
+
+bool testBoost186CharconvHighBaseOverflow(std::string &detail)
+{
+    const char input[] = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
+    unsigned int value = 86;
+    const auto result = boost::charconv::from_chars(
+        input, input + sizeof(input) - 1, value, 36);
+
+    detail = "Charconv detects integer overflow above base 10";
+    return result.ec == std::errc::result_out_of_range && value == 86;
+}
+
+bool testBoost186AsioDeferredDefault(std::string &detail)
+{
+    boost::asio::io_context io;
+    boost::asio::steady_timer timer(io);
+    timer.expires_after(std::chrono::milliseconds(0));
+    bool completed = false;
+    timer.async_wait()([&completed](const boost::system::error_code &error) {
+        completed = !error;
+    });
+    io.run();
+
+    detail = "Asio timer uses the deferred default completion token";
+    return completed;
+}
+
+bool testBoost186CorePointerInRange(std::string &detail)
+{
+    int values[] = {1, 8, 6, 0};
+
+    detail = "Core pointer_in_range uses a half-open range";
+    return boost::pointer_in_range(values + 1, values, values + 4) &&
+        !boost::pointer_in_range(values + 4, values, values + 4);
+}
+
+bool testBoost186FilesystemWeaklyCanonical(std::string &detail)
+{
+    const boost::filesystem::path base =
+        boost::filesystem::temp_directory_path() / "ofxiosboost-186" / "child";
+    const boost::filesystem::path resolved =
+        boost::filesystem::weakly_canonical("../target", base);
+
+    detail = "Filesystem resolves relative weakly_canonical against its base";
+    return resolved == base.parent_path() / "target";
+}
+
+bool testBoost186JsonResultAccessors(std::string &detail)
+{
+    const boost::json::value value = {{"release", 86}};
+    const auto found = value.try_at("release");
+    const auto missing = value.try_at("missing");
+
+    detail = "JSON non-throwing accessors return system::result";
+    return found && found->as_int64() == 86 && !missing &&
+        missing.error() == boost::json::error::out_of_range;
+}
+
+bool testBoost186LexicalCastEmbeddedNull(std::string &detail)
+{
+    const std::string_view input("1\0.86", 5);
+    const std::string output = boost::lexical_cast<std::string>(input);
+
+    detail = "LexicalCast preserves embedded NULs in string_view";
+    return output == std::string("1\0.86", 5);
+}
+
+bool testBoost186ContainerDevectorClear(std::string &detail)
+{
+    boost::container::devector<int> values;
+    values.push_front(85);
+    const auto capacity = values.capacity();
+    values.clear();
+    values.push_front(86);
+
+    detail = "Container devector reuses storage after clear and push_front";
+    return values.size() == 1 && values.front() == 86 &&
+        values.capacity() == capacity;
+}
+
+bool testBoost186UuidV7(std::string &detail)
+{
+    boost::uuids::time_generator_v7 generator;
+    const boost::uuids::uuid value = generator();
+
+    detail = "UUID time_generator_v7 emits RFC 9562 version 7 UUIDs";
+    return value.variant() == boost::uuids::uuid::variant_rfc_4122 &&
+        value.version() == boost::uuids::uuid::version_time_based_v7;
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -1926,6 +2036,17 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.85 Core functor", testBoost185CoreFunctor},
         {"Boost 1.85 PFR local names", testBoost185PfrLocalNames},
         {"Boost 1.85 Locale char8_t", testBoost185LocaleChar8},
+#endif
+#if BOOST_VERSION >= 108600
+        {"Boost 1.86 Charconv leading character", testBoost186CharconvLeadingCharacter},
+        {"Boost 1.86 Charconv high-base overflow", testBoost186CharconvHighBaseOverflow},
+        {"Boost 1.86 Asio deferred default", testBoost186AsioDeferredDefault},
+        {"Boost 1.86 Core pointer range", testBoost186CorePointerInRange},
+        {"Boost 1.86 Filesystem weakly canonical", testBoost186FilesystemWeaklyCanonical},
+        {"Boost 1.86 JSON result accessors", testBoost186JsonResultAccessors},
+        {"Boost 1.86 LexicalCast embedded NUL", testBoost186LexicalCastEmbeddedNull},
+        {"Boost 1.86 Container devector", testBoost186ContainerDevectorClear},
+        {"Boost 1.86 UUID v7", testBoost186UuidV7},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},

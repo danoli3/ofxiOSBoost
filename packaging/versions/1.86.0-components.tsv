@@ -1,0 +1,69 @@
+# status	library	note
+# upstream	https://www.boost.org/users/history/version_1_86_0.html
+included	chrono	Compiled date and time duration support.
+included	date_time	Compiled date/time library retained for build compatibility.
+included	filesystem	Compiled Filesystem v4 with 1.86 relative weakly_canonical coverage.
+included	graph	Compiled Graph algorithms; Boost 1.86 raises Graph's minimum to C++14.
+included	locale	Compiled localization backends without optional ICU packaging.
+included	random	Compiled random_device implementation.
+included	system	Error-code support required by several compiled libraries.
+included	thread	Portable threading primitives.
+included	context	Architecture-specific fcontext implementation.
+included	nowide	Compiled UTF-8 adapters.
+included	json	Compiled parser and DOM support with 1.86 result-accessor coverage.
+included	serialization	Compiled archive support.
+included	url	Compiled URL parser.
+included	container	Compiled polymorphic memory resources.
+included	log	Compiled logging core and setup support.
+included	stacktrace	Compiled portable basic backend only.
+included	timer	Compiled CPU timer.
+included	type_erasure	Compiled dynamic binding support.
+included	cobalt	Compiled C++20 coroutine library carried forward from Boost 1.84.
+included	charconv	Compiled locale-independent numeric conversion library required by Boost.MySQL.
+excluded	any	Header-only; all headers are packaged.
+excluded	asio	Header-only; used by Cobalt and Redis tests.
+excluded	atomic	No explicit top-level archive; used by compiled dependencies.
+excluded	beast	Header-only HTTP and WebSocket support.
+excluded	bind	Header-only.
+excluded	callable_traits	Header-only.
+excluded	compat	Header-only.
+excluded	contract	Optional compiled mode remains excluded.
+excluded	coroutine	Deprecated compiled library pending dedicated iOS validation.
+excluded	coroutine2	Header-only API backed by included Context.
+excluded	core	Header-only; 1.86 pointer_in_range is covered.
+excluded	describe	Header-only.
+excluded	exception	Predominantly header-based.
+excluded	fiber	Compiled Context-dependent scheduler pending dedicated iOS validation.
+excluded	flyweight	Header APIs are packaged.
+excluded	graph_parallel	Requires MPI.
+excluded	histogram	Header-only.
+excluded	hof	Header-only.
+excluded	iostreams	Requires explicit compression dependency handling.
+excluded	iterator	Header-only.
+excluded	lambda2	Header-only.
+excluded	leaf	Header-only and used by Cobalt.
+excluded	math	Modern header APIs are packaged; legacy compiled wrappers are omitted.
+excluded	metaparse	Predominantly header-based.
+excluded	mp11	Header-only and used by Cobalt.
+excluded	multi_index	Header-only; serialization uses the included archive.
+excluded	mpi	Requires an MPI runtime.
+excluded	mysql	Header-only client linked against included Charconv; TLS/live queries require external fixtures.
+excluded	outcome	Header-only.
+excluded	pfr	Header-only.
+excluded	poly_collection	Header-only.
+excluded	process	Process v2 becomes compiled in 1.86 but remains excluded pending a dedicated iOS spawn/fork audit.
+excluded	program_options	Command-line parsing is of limited use in an iOS application.
+excluded	python	Requires a separately packaged Python runtime.
+excluded	redis	Separate-compilation headers are built into the consumer test; no upstream Boost.Build archive exists.
+excluded	regex	No explicit top-level selection; Boost.Log may stage its dependency archive.
+excluded	safe_numerics	Headers are packaged.
+excluded	signals	Removed upstream.
+excluded	signals2	Header-only successor to Signals.
+excluded	scope	Header-only scope guards and unique_resource library.
+excluded	static_string	Header-only.
+excluded	stl_interfaces	Header-only.
+excluded	test	Intended for test executables.
+excluded	unordered	Header-only containers are packaged and tested.
+excluded	variant2	Header-only and used by Cobalt.
+excluded	wave	C/C++ preprocessing toolchain not normally needed at runtime.
+excluded	yap	Header-only.
