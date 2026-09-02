@@ -213,8 +213,8 @@ coverage targets corrected Charconv parsing, Asio's deferred default token,
 Core pointer ranges, Filesystem relative canonicalization, JSON result
 accessors, LexicalCast embedded NULs, Container devector reuse, and UUID v7.
 The three-slice package, standalone and SwiftPM consumers, local CocoaPods,
-generic Simulator/device builds, and complete arm64 Simulator runtime suite
-pass. Physical arm64 device runtime confirmation remains pending.
+generic Simulator/device builds, and complete arm64 Simulator and physical
+arm64 device runtime suites pass.
 
 Install the pinned release expected by this checkout:
 
@@ -443,8 +443,7 @@ Boost 1.86.0 remains on C++20 and carries forward the compiled 1.85 set.
 Release-specific tests cover upstream changes across Charconv, Asio, Core,
 Filesystem, JSON, LexicalCast, Container, and UUID. Process v2 remains excluded
 pending dedicated iOS runtime validation. Canonical packaging and consumer
-gates plus the arm64 Simulator runtime suite pass; physical arm64 device
-runtime confirmation remains pending.
+gates plus the arm64 Simulator and physical arm64 device runtime suites pass.
 
 [Boost 1.85.0 upstream release history](https://www.boost.org/users/history/version_1_85_0.html)
 
