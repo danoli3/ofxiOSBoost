@@ -4,7 +4,12 @@
 #if BOOST_VERSION >= 107700
 #define BOOST_FILESYSTEM_VERSION 4
 #endif
+#if BOOST_VERSION >= 108700
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
+#else
 #include <boost/asio/io_service.hpp>
+#endif
 #include <boost/atomic.hpp>
 #include <boost/chrono.hpp>
 #if BOOST_VERSION >= 106500
@@ -174,6 +179,9 @@
 #include <boost/core/pointer_in_range.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/time_generator_v7.hpp>
+#endif
+#if BOOST_VERSION >= 108700
+#include <boost/parser/parser.hpp>
 #endif
 
 #include <algorithm>
@@ -613,10 +621,19 @@ bool testLocale(std::string &detail)
 
 bool testAsio(std::string &detail)
 {
+#if BOOST_VERSION >= 108700
+    boost::asio::io_context service;
+#else
     boost::asio::io_service service;
+#endif
     int callbacks = 0;
+#if BOOST_VERSION >= 108700
+    boost::asio::post(service, [&callbacks] { ++callbacks; });
+    boost::asio::post(service, [&callbacks] { ++callbacks; });
+#else
     service.post([&callbacks] { ++callbacks; });
     service.post([&callbacks] { ++callbacks; });
+#endif
     const std::size_t handled = service.run();
     detail = "two offline io_service callbacks";
     return callbacks == 2 && handled == 2;
@@ -854,8 +871,13 @@ bool testBoost176Features(std::string &detail)
         boost::core::isfinite(1.0) &&
         boost::core::isnan(std::numeric_limits<double>::quiet_NaN());
 
+#if BOOST_VERSION >= 108700
+    const boost::asio::ip::address address =
+        boost::asio::ip::make_address("127.0.0.1");
+#else
     const boost::asio::ip::address address =
         boost::asio::ip::address::from_string("127.0.0.1");
+#endif
     const boost::asio::ip::tcp::endpoint endpoint(address, 1760);
     const std::size_t addressHash =
         std::hash<boost::asio::ip::address>{}(address);
@@ -986,7 +1008,11 @@ bool testBoost180Features(std::string &detail)
 {
     std::array<unsigned char, 4> bytes{{1, 8, 0, 0}};
     const std::span<unsigned char> span(bytes);
+#if BOOST_VERSION >= 108700
+    const boost::asio::mutable_buffer buffer(span.data(), span.size_bytes());
+#else
     const boost::asio::mutable_buffer buffer = boost::asio::buffer(span);
+#endif
     const bool asioPassed = buffer.size() == bytes.size() &&
         buffer.data() == bytes.data();
 
@@ -1908,6 +1934,18 @@ bool testBoost186UuidV7(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108700
+bool testBoost187Parser(std::string &detail)
+{
+    const auto result = boost::parser::parse(
+        "17, 8, 7", boost::parser::int_ % ',', boost::parser::ws);
+
+    detail = "Parser builds a typed attribute from a comma-separated grammar";
+    return result && result->size() == 3 && (*result)[0] == 17 &&
+        (*result)[1] == 8 && (*result)[2] == 7;
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -2047,6 +2085,9 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.86 LexicalCast embedded NUL", testBoost186LexicalCastEmbeddedNull},
         {"Boost 1.86 Container devector", testBoost186ContainerDevectorClear},
         {"Boost 1.86 UUID v7", testBoost186UuidV7},
+#endif
+#if BOOST_VERSION >= 108700
+        {"Boost 1.87 Parser grammar", testBoost187Parser},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},
