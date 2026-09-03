@@ -222,8 +222,7 @@ library. Parser is packaged through the complete header tree and receives a
 dedicated deterministic grammar/attribute runtime test. The compiled 1.86 set
 carries forward unchanged; Process v2 remains excluded pending its dedicated
 iOS spawning audit. Three-slice, standalone, SwiftPM, CocoaPods, generic Xcode,
-and arm64 Simulator runtime validation pass; physical-device runtime remains
-pending.
+and complete arm64 Simulator and physical arm64 device runtime validation pass.
 
 Install the pinned release expected by this checkout:
 
@@ -450,8 +449,8 @@ application.
 
 Boost 1.87.0 remains on C++20, adds header-only Boost.Parser, and carries the
 compiled 1.86 library set forward. Parser receives dedicated deterministic
-grammar and typed-attribute coverage. The complete arm64 Simulator suite passes;
-physical arm64 device runtime confirmation remains pending.
+grammar and typed-attribute coverage. The complete runtime suite passes on an
+arm64 iOS Simulator and physical arm64 iOS device.
 
 [Boost 1.86.0 upstream release history](https://www.boost.org/users/history/version_1_86_0.html)
 
