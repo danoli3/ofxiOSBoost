@@ -59,11 +59,12 @@ jobs:
           [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
           [[ "$xcframework_sha" =~ ^[0-9a-f]{64}$ ]]
           test "$(wc -l < "$manifest" | tr -d ' ')" = 5
-          test "$(git rev-parse HEAD)" = "$source_sha"
-          test "$(git ls-remote origin refs/heads/master | awk '{print $1}')" = "$source_sha"
+          remote_sha="$(git ls-remote origin refs/heads/master | awk '{print $1}')"
+          git merge-base --is-ancestor "$source_sha" "$remote_sha"
           test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .conclusion)" = success
           test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .event)" = workflow_dispatch
           test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .path)" = .github/workflows/release-boost.yml
+          git checkout --detach "$source_sha"
           grep -Fq "/releases/download/${BOOST_VERSION}/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" Package.swift
           grep -Fq "checksum: \"${xcframework_sha}\"" Package.swift
           (
