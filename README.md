@@ -32,6 +32,7 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
+| [1.88.0](https://www.boost.org/users/history/version_1_88_0.html) | C++20 | [![Boost 1.88.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | In preparation |
 | [1.87.0](https://www.boost.org/users/history/version_1_87_0.html) | C++20 | [![Boost 1.87.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.87.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.87.0) |
 | [1.86.0](https://www.boost.org/users/history/version_1_86_0.html) | C++20 | [![Boost 1.86.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.86.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.86.0) |
 | [1.85.0](https://www.boost.org/users/history/version_1_85_0.html) | C++20 | [![Boost 1.85.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.85.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.85.0) |
@@ -225,6 +226,15 @@ carries forward unchanged; Process v2 remains excluded pending its dedicated
 iOS spawning audit. Three-slice, standalone, SwiftPM, CocoaPods, generic Xcode,
 and complete arm64 Simulator and physical arm64 device runtime validation pass.
 
+Boost 1.88.0 remains on C++20 and adds the new header-only Boost.Hash2 and
+Boost.MQTT5 libraries. Both are packaged through the complete header tree.
+Release-specific deterministic coverage exercises a Hash2 digest, offline
+MQTT5 protocol encoding, and Asio's corrected `std::span` buffer overload.
+The compiled 1.87 set carries forward unchanged; Process v2 remains excluded
+pending its dedicated iOS spawning audit. Three-slice, standalone, SwiftPM,
+CocoaPods, generic Xcode, and complete arm64 Simulator runtime validation pass;
+physical-device runtime remains pending.
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -251,7 +261,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.87.0'
+  pod 'ofxiOSBoost', '1.88.0'
 end
 ```
 
@@ -269,13 +279,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.87.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.88.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.87.0`, and add the `ofxiOSBoost` product to the application
+select version `1.88.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -315,8 +325,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.87.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.87.0.tar.gz
+BOOST_VERSION=1.88.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.88.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -404,7 +414,7 @@ the saved files without rebuilding the XCFramework.
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.87.0 ./scripts/build-boost-ios.sh
+BOOST_VERSION=1.88.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -427,7 +437,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.87.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.88.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -447,6 +457,16 @@ application.
 
 
 #### Current Boost release documentation
+
+[Boost 1.88.0 upstream release history](https://www.boost.org/users/history/version_1_88_0.html)
+
+### Version 1.88.0 — April 10, 2025
+
+Boost 1.88.0 remains on C++20 and adds header-only Boost.Hash2 and Boost.MQTT5.
+The compiled 1.87 library set carries forward. Deterministic release-specific
+coverage exercises Hash2, offline MQTT5 encoding, and Asio's corrected
+`std::span` buffer overload. Canonical packaging and arm64 Simulator runtime
+validation pass; physical arm64 device runtime confirmation remains pending.
 
 [Boost 1.87.0 upstream release history](https://www.boost.org/users/history/version_1_87_0.html)
 

@@ -183,6 +183,10 @@
 #if BOOST_VERSION >= 108700
 #include <boost/parser/parser.hpp>
 #endif
+#if BOOST_VERSION >= 108800
+#include <boost/hash2/md5.hpp>
+#include <boost/mqtt5/impl/codecs/message_encoders.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -1008,7 +1012,7 @@ bool testBoost180Features(std::string &detail)
 {
     std::array<unsigned char, 4> bytes{{1, 8, 0, 0}};
     const std::span<unsigned char> span(bytes);
-#if BOOST_VERSION >= 108700
+#if BOOST_VERSION == 108700
     const boost::asio::mutable_buffer buffer(span.data(), span.size_bytes());
 #else
     const boost::asio::mutable_buffer buffer = boost::asio::buffer(span);
@@ -1946,6 +1950,44 @@ bool testBoost187Parser(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108800
+bool testBoost188Hash2(std::string &detail)
+{
+    boost::hash2::md5_128 hash;
+    const std::string input = "abc";
+    hash.update(input.data(), input.size());
+
+    detail = "Hash2 MD5 streaming matches the standard abc digest";
+    return boost::hash2::to_string(hash.result()) ==
+        "900150983cd24fb0d6963f7d28e17f72";
+}
+
+bool testBoost188Mqtt5Codec(std::string &detail)
+{
+    const std::string request =
+        boost::mqtt5::encoders::encode_pingreq();
+    const std::string response =
+        boost::mqtt5::encoders::encode_pingresp();
+
+    detail = "MQTT5 encodes deterministic PINGREQ and PINGRESP packets offline";
+    return request.size() == 2 && response.size() == 2 &&
+        static_cast<unsigned char>(request[0]) == 0xc0 &&
+        static_cast<unsigned char>(request[1]) == 0x00 &&
+        static_cast<unsigned char>(response[0]) == 0xd0 &&
+        static_cast<unsigned char>(response[1]) == 0x00;
+}
+
+bool testBoost188AsioSpan(std::string &detail)
+{
+    std::array<unsigned char, 4> bytes{{1, 8, 8, 0}};
+    std::span<unsigned char> view(bytes);
+    const boost::asio::mutable_buffer buffer = boost::asio::buffer(view);
+
+    detail = "Asio resolves the corrected std::span buffer overload";
+    return buffer.data() == bytes.data() && buffer.size() == bytes.size();
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -2088,6 +2130,11 @@ const std::vector<BoostTestCase> &boostTestCases()
 #endif
 #if BOOST_VERSION >= 108700
         {"Boost 1.87 Parser grammar", testBoost187Parser},
+#endif
+#if BOOST_VERSION >= 108800
+        {"Boost 1.88 Hash2 digest", testBoost188Hash2},
+        {"Boost 1.88 MQTT5 offline codec", testBoost188Mqtt5Codec},
+        {"Boost 1.88 Asio span buffer", testBoost188AsioSpan},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},
