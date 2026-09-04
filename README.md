@@ -20,10 +20,11 @@ libc++. Current release builds contain:
 
 Badges below show the current `master` workflow status. Each row keeps its
 version-specific badge label while sharing the same workflow status and link.
-The tagged workflow builds the XCFramework, installs the consolidated example
-on an iOS Simulator, runs its smoke suite, and requires `ALL TESTS PASSED`
-before publishing release assets. The captured report is included in the
-GitHub Actions job summary.
+The preparation workflow builds the XCFramework, installs the consolidated
+example on an iOS Simulator, runs its smoke suite, and requires
+`ALL TESTS PASSED` before preserving release artifacts. The captured report
+is included in the GitHub Actions job summary. Publication is a separate manual
+workflow that reuses the preserved artifacts.
 
 The same build and Simulator smoke suite runs on every push to `master` using
 the newest supported Boost version. Master runs upload workflow artifacts but
@@ -391,10 +392,14 @@ to the repository. The first automated release is Boost 1.61.0. Its archive
 contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
-Maintainers can create or refresh the current release by running the **Build and
-release Boost for iOS** workflow with version `1.87.0`. Pushing the tag
-`1.87.0` runs the same workflow. The workflow publishes both the archive
-and its SHA-256 checksum to the matching GitHub Release.
+Releases use two manual phases so the published XCFramework is the exact file
+whose checksum is committed to `Package.swift`. Run **Build and prepare Boost
+for iOS** with operation `prepare`. It builds and validates the package,
+commits the final SwiftPM checksum, and saves the tested files as a workflow
+artifact. After that commit is accepted, run **Publish prepared Boost release**
+with the version and preparation run ID. The publish workflow verifies the
+saved manifest and checksums, creates the tag and GitHub Release, and uploads
+the saved files without rebuilding the XCFramework.
 
 To build the same package locally with a current Xcode installation:
 

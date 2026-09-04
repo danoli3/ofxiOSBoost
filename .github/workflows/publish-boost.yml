@@ -1,0 +1,161 @@
+name: Publish prepared Boost release
+
+on:
+  workflow_dispatch:
+    inputs:
+      boost_version:
+        description: Prepared Boost version to publish
+        required: true
+        type: string
+      preparation_run_id:
+        description: Successful Build and prepare workflow run ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: boost-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: macos-15-intel
+    environment: release
+    env:
+      BOOST_VERSION: ${{ inputs.boost_version }}
+      PREPARATION_RUN_ID: ${{ inputs.preparation_run_id }}
+    steps:
+      - name: Check out final source commit
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Download prepared artifacts
+        uses: actions/download-artifact@v7.0.1
+        with:
+          name: ofxiOSBoost-${{ inputs.boost_version }}
+          path: dist
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.preparation_run_id }}
+
+      - name: Verify prepared artifact handoff
+        run: |
+          [[ "$BOOST_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$PREPARATION_RUN_ID" =~ ^[0-9]+$ ]]
+          manifest=dist/release-manifest.env
+          test -s "$manifest"
+          manifest_value() {
+            awk -F= -v key="$1" '$1 == key { sub(/^[^=]*=/, ""); print; found=1 } END { if (!found) exit 1 }' "$manifest"
+          }
+          prepared_version="$(manifest_value BOOST_VERSION)"
+          source_sha="$(manifest_value SOURCE_SHA)"
+          xcframework_sha="$(manifest_value XCFRAMEWORK_SHA256)"
+          prepared_run_id="$(manifest_value PREPARATION_RUN_ID)"
+          test "$prepared_version" = "$BOOST_VERSION"
+          test "$prepared_run_id" = "$PREPARATION_RUN_ID"
+          [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$xcframework_sha" =~ ^[0-9a-f]{64}$ ]]
+          test "$(wc -l < "$manifest" | tr -d ' ')" = 5
+          test "$(git rev-parse HEAD)" = "$source_sha"
+          test "$(git ls-remote origin refs/heads/master | awk '{print $1}')" = "$source_sha"
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .conclusion)" = success
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .event)" = workflow_dispatch
+          test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .path)" = .github/workflows/release-boost.yml
+          grep -Fq "/releases/download/${BOOST_VERSION}/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" Package.swift
+          grep -Fq "checksum: \"${xcframework_sha}\"" Package.swift
+          (
+            cd dist
+            shasum -a 256 -c "ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256"
+            shasum -a 256 -c "ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256"
+          )
+          test "$(swift package compute-checksum "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip")" = "$xcframework_sha"
+          if git ls-remote --exit-code --tags origin "refs/tags/${BOOST_VERSION}" >/dev/null 2>&1; then
+            echo "Tag ${BOOST_VERSION} already exists; refusing to overwrite it." >&2
+            exit 1
+          fi
+          if gh release view "$BOOST_VERSION" >/dev/null 2>&1; then
+            echo "Release ${BOOST_VERSION} already exists; refusing to overwrite it." >&2
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Install CocoaPods
+        run: |
+          log="$RUNNER_TEMP/cocoapods-install.log"
+          if ! sudo gem install cocoapods --no-document >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+
+      - name: Create GitHub Release from prepared artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="$RUNNER_TEMP/release-notes.md"
+          bash ./scripts/generate-release-notes.sh "$BOOST_VERSION" "$notes"
+          gh release create "$BOOST_VERSION" \
+            --target "$(git rev-parse HEAD)" \
+            --title "Boost ${BOOST_VERSION} for iOS" \
+            --notes-file "$notes" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
+            "dist/ofxiOSBoost.podspec" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" \
+            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256"
+
+      - name: Verify published assets and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          manifest=dist/release-manifest.env
+          expected="$(awk -F= '$1 == "XCFRAMEWORK_SHA256" { print $2 }' "$manifest")"
+          digest="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${BOOST_VERSION}" --jq \
+            '.assets[] | select(.name == "ofxiOSBoost-'"${BOOST_VERSION}"'-xcframework.zip") | .digest')"
+          test "$digest" = "sha256:$expected"
+          published="$RUNNER_TEMP/published-checksums"
+          mkdir -p "$published"
+          gh release download "$BOOST_VERSION" \
+            --pattern "ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256" \
+            --dir "$published"
+          grep -Fq "$expected  ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" \
+            "$published/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256"
+          count="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${BOOST_VERSION}" --jq '.assets | length')"
+          test "$count" = 5
+
+      - name: Validate published CocoaPods source
+        run: |
+          log="$RUNNER_TEMP/cocoapods-spec-lint.log"
+          if ! pod spec lint "dist/ofxiOSBoost.podspec" --platforms=ios >"$log" 2>&1; then
+            tail -n 200 "$log"
+            exit 1
+          fi
+
+      - name: Publish CocoaPods release
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          if [[ -z "$COCOAPODS_TRUNK_TOKEN" ]]; then
+            echo "COCOAPODS_TRUNK_TOKEN is not configured; skipping CocoaPods Trunk publication."
+            exit 0
+          fi
+          log="$RUNNER_TEMP/cocoapods-trunk-push.log"
+          for attempt in 1 2 3; do
+            if pod trunk info ofxiOSBoost 2>/dev/null | grep -Fq -- "- ${BOOST_VERSION} ("; then
+              echo "ofxiOSBoost ${BOOST_VERSION} is already published to CocoaPods Trunk."
+              exit 0
+            fi
+            if pod trunk push "dist/ofxiOSBoost.podspec" >"$log" 2>&1; then
+              echo "Published ofxiOSBoost ${BOOST_VERSION} to CocoaPods Trunk."
+              exit 0
+            fi
+            if [[ "$attempt" -lt 3 ]]; then
+              echo "CocoaPods publication attempt ${attempt} failed; retrying."
+              sleep 10
+            fi
+          done
+          tail -n 80 "$log"
+          exit 1

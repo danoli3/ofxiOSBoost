@@ -1,4 +1,4 @@
-name: Build and release Boost for iOS
+name: Build and prepare Boost for iOS
 
 on:
   workflow_dispatch:
@@ -8,11 +8,17 @@ on:
         required: true
         default: 1.87.0
         type: string
+      operation:
+        description: Validate only, or commit the final checksum and preserve release artifacts
+        required: true
+        default: validate
+        type: choice
+        options:
+          - validate
+          - prepare
   push:
     branches:
       - master
-    tags:
-      - "[0-9]*.[0-9]*.[0-9]*"
 
 permissions:
   contents: write
@@ -26,17 +32,13 @@ jobs:
     # Intel is required for the x86_64 Simulator slice in these legacy releases.
     runs-on: macos-15-intel
     env:
-      # Master validates the newest supported version. Tag pushes are replaced
-      # with the exact tag by the Resolve tag version step below.
+      # Master validates the newest supported version. A manual prepare run
+      # preserves the tested binaries and commits their exact SwiftPM checksum.
       BOOST_VERSION: ${{ inputs.boost_version || '1.87.0' }}
       IOS_MIN_VERSION: "12.0"
     steps:
       - name: Check out repository
         uses: actions/checkout@v7.0.1
-
-      - name: Resolve tag version
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "BOOST_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
 
       - name: Validate supported release
         run: case "$BOOST_VERSION" in 1.61.0|1.62.0|1.63.0|1.64.0|1.65.0|1.66.0|1.67.0|1.68.0|1.69.0|1.70.0|1.71.0|1.72.0|1.73.0|1.74.0|1.75.0|1.76.0|1.77.0|1.78.0|1.79.0|1.80.0|1.81.0|1.82.0|1.83.0|1.84.0|1.85.0|1.86.0|1.87.0) ;; *) exit 1 ;; esac
@@ -191,6 +193,35 @@ jobs:
           fi
           echo "Validated the CocoaPods package."
 
+      - name: Commit prepared SwiftPM checksum
+        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'prepare'
+        env:
+          PREPARED_BY: ${{ github.actor }}
+        run: |
+          test "$GITHUB_REF" = "refs/heads/master"
+          zip="dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip"
+          checksum="$(swift package compute-checksum "$zip")"
+          grep -Fq "/releases/download/${BOOST_VERSION}/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" Package.swift
+          sed -E "s/(checksum: \")[0-9a-f]{64}(\")/\1${checksum}\2/" Package.swift > "$RUNNER_TEMP/Package.swift"
+          mv "$RUNNER_TEMP/Package.swift" Package.swift
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- Package.swift; then
+            git add Package.swift
+            git commit -m "Finalize Boost ${BOOST_VERSION} prepared checksum [skip ci]"
+          fi
+          ./scripts/finalize-prepared-artifacts.sh "$BOOST_VERSION" dist
+          source_sha="$(git rev-parse HEAD)"
+          {
+            echo "BOOST_VERSION=$BOOST_VERSION"
+            echo "SOURCE_SHA=$source_sha"
+            echo "XCFRAMEWORK_SHA256=$checksum"
+            echo "PREPARATION_RUN_ID=$GITHUB_RUN_ID"
+            echo "PREPARED_BY=$PREPARED_BY"
+          } > dist/release-manifest.env
+          grep -Fq "checksum: \"${checksum}\"" Package.swift
+          (cd dist && shasum -a 256 -c "ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256")
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -201,67 +232,12 @@ jobs:
             dist/ofxiOSBoost.podspec
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip
             dist/ofxiOSBoost-${{ env.BOOST_VERSION }}-xcframework.zip.sha256
+            dist/release-manifest.env
           if-no-files-found: error
 
-      - name: Create or update GitHub Release
-        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ env.BOOST_VERSION }}
+      - name: Push prepared checksum commit
+        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'prepare'
         run: |
-          notes="$RUNNER_TEMP/release-notes.md"
-          bash ./scripts/generate-release-notes.sh "$BOOST_VERSION" "$notes"
-          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release create "$RELEASE_TAG" \
-              --target "$GITHUB_SHA" \
-              --title "Boost ${BOOST_VERSION} for iOS" \
-              --notes-file "$notes"
-          fi
-          gh release edit "$RELEASE_TAG" \
-            --title "Boost ${BOOST_VERSION} for iOS" \
-            --notes-file "$notes"
-          gh release upload "$RELEASE_TAG" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz.sha256" \
-            "dist/ofxiOSBoost.podspec" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip" \
-            "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256" \
-            --clobber
-
-      - name: Validate published CocoaPods source
-        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
-        run: |
-          log="$RUNNER_TEMP/cocoapods-spec-lint.log"
-          if ! pod spec lint "dist/ofxiOSBoost.podspec" \
-            --platforms=ios >"$log" 2>&1; then
-            tail -n 200 "$log"
-            exit 1
-          fi
-          echo "Validated the published CocoaPods source."
-
-      - name: Publish CocoaPods release
-        if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'
-        env:
-          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        run: |
-          if [[ -z "$COCOAPODS_TRUNK_TOKEN" ]]; then
-            echo "COCOAPODS_TRUNK_TOKEN is not configured; skipping CocoaPods Trunk publication."
-            exit 0
-          fi
-          log="$RUNNER_TEMP/cocoapods-trunk-push.log"
-          for attempt in 1 2 3; do
-            if pod trunk info ofxiOSBoost 2>/dev/null | grep -Fq -- "- ${BOOST_VERSION} ("; then
-              echo "ofxiOSBoost ${BOOST_VERSION} is already published to CocoaPods Trunk."
-              exit 0
-            fi
-            if pod trunk push "dist/ofxiOSBoost.podspec" >"$log" 2>&1; then
-              echo "Published ofxiOSBoost ${BOOST_VERSION} to CocoaPods Trunk."
-              exit 0
-            fi
-            if [[ "$attempt" -lt 3 ]]; then
-              echo "CocoaPods publication attempt ${attempt} failed; retrying."
-              sleep 10
-            fi
-          done
-          tail -n 80 "$log"
-          exit 1
+          remote_sha="$(git ls-remote origin refs/heads/master | awk '{print $1}')"
+          test "$remote_sha" = "$GITHUB_SHA"
+          git push origin HEAD:master
