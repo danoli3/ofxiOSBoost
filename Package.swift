@@ -15,7 +15,7 @@ let package = Package(
         .binaryTarget(
             name: "boost",
             url: "https://github.com/danoli3/ofxiOSBoost/releases/download/1.88.0/ofxiOSBoost-1.88.0-xcframework.zip",
-            checksum: "10f1047c3c8f0d79ade197f2369a2a4c159a8b9691f53bcee34e90547d605154"
+            checksum: "1ce92d8d1aec9654a90121d7fa7a27afd95a1a89d7331d2e09d9535f4b9b2be6"
         ),
         .target(
             name: "ofxiOSBoost",

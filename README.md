@@ -232,8 +232,8 @@ Release-specific deterministic coverage exercises a Hash2 digest, offline
 MQTT5 protocol encoding, and Asio's corrected `std::span` buffer overload.
 The compiled 1.87 set carries forward unchanged; Process v2 remains excluded
 pending its dedicated iOS spawning audit. Three-slice, standalone, SwiftPM,
-CocoaPods, generic Xcode, and complete arm64 Simulator runtime validation pass;
-physical-device runtime remains pending.
+CocoaPods, generic Xcode, and complete arm64 Simulator and physical arm64
+device runtime validation pass.
 
 Install the pinned release expected by this checkout:
 
@@ -465,8 +465,8 @@ application.
 Boost 1.88.0 remains on C++20 and adds header-only Boost.Hash2 and Boost.MQTT5.
 The compiled 1.87 library set carries forward. Deterministic release-specific
 coverage exercises Hash2, offline MQTT5 encoding, and Asio's corrected
-`std::span` buffer overload. Canonical packaging and arm64 Simulator runtime
-validation pass; physical arm64 device runtime confirmation remains pending.
+`std::span` buffer overload. Canonical packaging and the complete arm64
+Simulator and physical arm64 device runtime suites pass.
 
 [Boost 1.87.0 upstream release history](https://www.boost.org/users/history/version_1_87_0.html)
 
