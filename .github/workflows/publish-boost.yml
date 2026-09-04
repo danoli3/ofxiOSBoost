@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download prepared artifacts
-        uses: actions/download-artifact@v7.0.1
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ofxiOSBoost-${{ inputs.boost_version }}
           path: dist
