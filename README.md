@@ -31,7 +31,7 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| [1.87.0](https://www.boost.org/users/history/version_1_87_0.html) | C++20 | [![Boost 1.87.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | In preparation |
+| [1.87.0](https://www.boost.org/users/history/version_1_87_0.html) | C++20 | [![Boost 1.87.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.87.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.87.0) |
 | [1.86.0](https://www.boost.org/users/history/version_1_86_0.html) | C++20 | [![Boost 1.86.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.86.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.86.0) |
 | [1.85.0](https://www.boost.org/users/history/version_1_85_0.html) | C++20 | [![Boost 1.85.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.85.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.85.0) |
 | [1.84.0](https://www.boost.org/users/history/version_1_84_0.html) | C++20 | [![Boost 1.84.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.84.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.84.0) |
