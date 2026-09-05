@@ -21,6 +21,7 @@ on:
       - master
 
 permissions:
+  actions: write
   contents: write
 
 concurrency:
@@ -241,3 +242,13 @@ jobs:
           remote_sha="$(git ls-remote origin refs/heads/master | awk '{print $1}')"
           test "$remote_sha" = "$GITHUB_SHA"
           git push origin HEAD:master
+
+      - name: Start publication from prepared artifact
+        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'prepare'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run publish-boost.yml \
+            --ref master \
+            -f "boost_version=$BOOST_VERSION" \
+            -f "preparation_run_id=$GITHUB_RUN_ID"

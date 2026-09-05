@@ -33,6 +33,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Wait for successful preparation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for _ in {1..60}; do
+            status="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .status)"
+            if [[ "$status" == "completed" ]]; then
+              test "$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREPARATION_RUN_ID}" --jq .conclusion)" = success
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Preparation run did not finish successfully in time." >&2
+          exit 1
+
       - name: Download prepared artifacts
         uses: actions/download-artifact@v8.0.1
         with:
@@ -73,9 +88,9 @@ jobs:
             shasum -a 256 -c "ofxiOSBoost-${BOOST_VERSION}-xcframework.zip.sha256"
           )
           test "$(swift package compute-checksum "dist/ofxiOSBoost-${BOOST_VERSION}-xcframework.zip")" = "$xcframework_sha"
-          if git ls-remote --exit-code --tags origin "refs/tags/${BOOST_VERSION}" >/dev/null 2>&1; then
-            echo "Tag ${BOOST_VERSION} already exists; refusing to overwrite it." >&2
-            exit 1
+          tag_sha="$(git ls-remote --tags origin "refs/tags/${BOOST_VERSION}" | awk '{print $1}')"
+          if [[ -n "$tag_sha" ]]; then
+            test "$tag_sha" = "$source_sha"
           fi
           if gh release view "$BOOST_VERSION" >/dev/null 2>&1; then
             echo "Release ${BOOST_VERSION} already exists; refusing to overwrite it." >&2
@@ -92,6 +107,13 @@ jobs:
             exit 1
           fi
 
+      - name: Push verified release tag
+        run: |
+          if ! git ls-remote --exit-code --tags origin "refs/tags/${BOOST_VERSION}" >/dev/null 2>&1; then
+            git tag "$BOOST_VERSION" "$(git rev-parse HEAD)"
+            git push origin "refs/tags/${BOOST_VERSION}"
+          fi
+
       - name: Create GitHub Release from prepared artifacts
         env:
           GH_TOKEN: ${{ github.token }}
@@ -99,7 +121,6 @@ jobs:
           notes="$RUNNER_TEMP/release-notes.md"
           bash ./scripts/generate-release-notes.sh "$BOOST_VERSION" "$notes"
           gh release create "$BOOST_VERSION" \
-            --target "$(git rev-parse HEAD)" \
             --title "Boost ${BOOST_VERSION} for iOS" \
             --notes-file "$notes" \
             "dist/ofxiOSBoost-${BOOST_VERSION}.tar.gz" \

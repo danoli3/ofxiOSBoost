@@ -402,14 +402,13 @@ to the repository. The first automated release is Boost 1.61.0. Its archive
 contains the Boost headers and a libc++ static XCFramework for arm64 iOS devices
 and arm64/x86_64 iOS Simulator.
 
-Releases use two manual phases so the published XCFramework is the exact file
-whose checksum is committed to `Package.swift`. Run **Build and prepare Boost
-for iOS** with operation `prepare`. It builds and validates the package,
-commits the final SwiftPM checksum, and saves the tested files as a workflow
-artifact. After that commit is accepted, run **Publish prepared Boost release**
-with the version and preparation run ID. The publish workflow verifies the
-saved manifest and checksums, creates the tag and GitHub Release, and uploads
-the saved files without rebuilding the XCFramework.
+Releases require one manual action. Run **Build and prepare Boost for iOS** with
+operation `prepare`. It builds and validates the package, commits the final
+SwiftPM checksum, saves the tested files as a workflow artifact, and starts
+publication automatically. The publication job verifies the saved manifest and
+checksums, creates the tag and GitHub Release, and uploads the saved files
+without rebuilding the XCFramework. **Publish prepared Boost release** remains
+available only as a recovery path for a failed publication.
 
 To build the same package locally with a current Xcode installation:
 
