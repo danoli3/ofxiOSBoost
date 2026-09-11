@@ -187,6 +187,9 @@
 #include <boost/hash2/md5.hpp>
 #include <boost/mqtt5/impl/codecs/message_encoders.hpp>
 #endif
+#if BOOST_VERSION >= 108900
+#include <boost/bloom/filter.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -1988,6 +1991,17 @@ bool testBoost188AsioSpan(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 108900
+bool testBoost189Bloom(std::string &detail)
+{
+    boost::bloom::filter<std::string, 4> filter(4096);
+    filter.insert("boost-1.89");
+
+    detail = "Bloom deterministically retains inserted values";
+    return filter.capacity() >= 4096 && filter.may_contain("boost-1.89");
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -2135,6 +2149,9 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.88 Hash2 digest", testBoost188Hash2},
         {"Boost 1.88 MQTT5 offline codec", testBoost188Mqtt5Codec},
         {"Boost 1.88 Asio span buffer", testBoost188AsioSpan},
+#endif
+#if BOOST_VERSION >= 108900
+        {"Boost 1.89 Bloom filter", testBoost189Bloom},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},

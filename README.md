@@ -23,8 +23,8 @@ version-specific badge label while sharing the same workflow status and link.
 The preparation workflow builds the XCFramework, installs the consolidated
 example on an iOS Simulator, runs its smoke suite, and requires
 `ALL TESTS PASSED` before preserving release artifacts. The captured report
-is included in the GitHub Actions job summary. Publication is a separate manual
-workflow that reuses the preserved artifacts.
+is included in the GitHub Actions job summary. A `prepare` run preserves those
+exact artifacts and hands them to the publication workflow automatically.
 
 The same build and Simulator smoke suite runs on every push to `master` using
 the newest supported Boost version. Master runs upload workflow artifacts but
@@ -32,7 +32,8 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| [1.88.0](https://www.boost.org/users/history/version_1_88_0.html) | C++20 | [![Boost 1.88.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | In preparation |
+| [1.89.0](https://www.boost.org/users/history/version_1_89_0.html) | C++20 | [![Boost 1.89.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | In preparation |
+| [1.88.0](https://www.boost.org/users/history/version_1_88_0.html) | C++20 | [![Boost 1.88.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.88.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.88.0) |
 | [1.87.0](https://www.boost.org/users/history/version_1_87_0.html) | C++20 | [![Boost 1.87.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.87.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.87.0) |
 | [1.86.0](https://www.boost.org/users/history/version_1_86_0.html) | C++20 | [![Boost 1.86.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.86.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.86.0) |
 | [1.85.0](https://www.boost.org/users/history/version_1_85_0.html) | C++20 | [![Boost 1.85.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.85.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.85.0) |
@@ -235,6 +236,13 @@ pending its dedicated iOS spawning audit. Three-slice, standalone, SwiftPM,
 CocoaPods, generic Xcode, and complete arm64 Simulator and physical arm64
 device runtime validation pass.
 
+Boost 1.89.0 remains on C++20 and adds the new header-only Boost.Bloom
+library. Bloom is packaged through the complete header tree and receives a
+dedicated deterministic insert/lookup runtime test. The compiled 1.88 set
+carries forward except System, which is header-only in 1.89 and no longer emits
+a static archive. Three-slice, standalone, SwiftPM, CocoaPods, generic Xcode,
+and complete arm64 Simulator and physical arm64 device validation pass.
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -261,7 +269,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.88.0'
+  pod 'ofxiOSBoost', '1.89.0'
 end
 ```
 
@@ -279,13 +287,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.88.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.89.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.88.0`, and add the `ofxiOSBoost` product to the application
+select version `1.89.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -325,8 +333,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.88.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.88.0.tar.gz
+BOOST_VERSION=1.89.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.89.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -413,7 +421,7 @@ available only as a recovery path for a failed publication.
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.88.0 ./scripts/build-boost-ios.sh
+BOOST_VERSION=1.89.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -436,7 +444,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.88.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.89.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -456,6 +464,14 @@ application.
 
 
 #### Current Boost release documentation
+
+[Boost 1.89.0 upstream release history](https://www.boost.org/users/history/version_1_89_0.html)
+
+### Version 1.89.0 — August 14, 2025
+
+Boost 1.89.0 remains on C++20, adds header-only Boost.Bloom, and makes
+Boost.System header-only. Deterministic Bloom coverage, canonical packaging,
+and the complete arm64 Simulator and physical arm64 device suites pass.
 
 [Boost 1.88.0 upstream release history](https://www.boost.org/users/history/version_1_88_0.html)
 
