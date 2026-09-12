@@ -190,6 +190,10 @@
 #if BOOST_VERSION >= 108900
 #include <boost/bloom/filter.hpp>
 #endif
+#if BOOST_VERSION >= 109000
+#include <boost/openmethod.hpp>
+#include <boost/openmethod/initialize.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -2002,6 +2006,43 @@ bool testBoost189Bloom(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 109000
+namespace boost190_openmethod_test {
+
+struct Shape {
+    virtual ~Shape() = default;
+};
+
+struct Circle : Shape {};
+
+BOOST_OPENMETHOD(renderCode, (boost::openmethod::virtual_ptr<Shape>), int);
+
+BOOST_OPENMETHOD_OVERRIDE(
+    renderCode, (boost::openmethod::virtual_ptr<Shape>), int)
+{
+    return 1;
+}
+
+BOOST_OPENMETHOD_OVERRIDE(
+    renderCode, (boost::openmethod::virtual_ptr<Circle>), int)
+{
+    return 90;
+}
+
+BOOST_OPENMETHOD_CLASSES(Shape, Circle);
+
+} // namespace boost190_openmethod_test
+
+bool testBoost190OpenMethod(std::string &detail)
+{
+    boost::openmethod::initialize();
+    boost190_openmethod_test::Circle circle;
+
+    detail = "OpenMethod dispatches to the most specific registered overrider";
+    return boost190_openmethod_test::renderCode(circle) == 90;
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -2152,6 +2193,9 @@ const std::vector<BoostTestCase> &boostTestCases()
 #endif
 #if BOOST_VERSION >= 108900
         {"Boost 1.89 Bloom filter", testBoost189Bloom},
+#endif
+#if BOOST_VERSION >= 109000
+        {"Boost 1.90 OpenMethod dispatch", testBoost190OpenMethod},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},
