@@ -32,7 +32,8 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| [1.90.0](https://www.boost.org/releases/1.90.0/) | C++20 | [![Boost 1.90.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | In preparation |
+| [1.91.0](https://www.boost.org/releases/1.91.0/) | C++20 | [![Boost 1.91.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | In preparation |
+| [1.90.0](https://www.boost.org/releases/1.90.0/) | C++20 | [![Boost 1.90.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.90.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.90.0) |
 | [1.89.0](https://www.boost.org/users/history/version_1_89_0.html) | C++20 | [![Boost 1.89.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.89.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.89.0) |
 | [1.88.0](https://www.boost.org/users/history/version_1_88_0.html) | C++20 | [![Boost 1.88.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.88.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.88.0) |
 | [1.87.0](https://www.boost.org/users/history/version_1_87_0.html) | C++20 | [![Boost 1.87.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.87.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.87.0) |
@@ -250,6 +251,14 @@ dedicated deterministic multiple-dispatch coverage. The compiled 1.89 set
 carries forward unchanged. Three-slice, standalone, SwiftPM, CocoaPods, generic
 Xcode, and complete arm64 Simulator and physical arm64 device validation pass.
 
+Boost 1.91.0 remains on C++20 and adds the new header-only Boost.Decimal
+library. Decimal is packaged through the complete header tree and receives
+separate deterministic arithmetic and character-conversion coverage. Additional
+1.91 tests cover Charconv negative 128-bit formatting, UUID character
+conversion, URL query/decode conveniences, and System `unsafe_value`. The
+compiled 1.90 set carries forward unchanged. Canonical packaging and the full
+arm64 Simulator and physical arm64 device runtime suites pass.
+
 Install the pinned release expected by this checkout:
 
 ```sh
@@ -276,7 +285,7 @@ Add the versioned pod to your application's `Podfile`:
 platform :ios, '12.0'
 
 target 'YourApp' do
-  pod 'ofxiOSBoost', '1.90.0'
+  pod 'ofxiOSBoost', '1.91.0'
 end
 ```
 
@@ -294,13 +303,13 @@ From an existing Swift package directory, add the exact release and attach its
 
 ```sh
 swift package add-dependency \
-  https://github.com/danoli3/ofxiOSBoost.git --exact 1.90.0
+  https://github.com/danoli3/ofxiOSBoost.git --exact 1.91.0
 swift package add-target-dependency \
   ofxiOSBoost YourTarget --package ofxiosboost
 ```
 
 In Xcode, use **File → Add Package Dependencies**, enter the repository URL,
-select version `1.90.0`, and add the `ofxiOSBoost` product to the application
+select version `1.91.0`, and add the `ofxiOSBoost` product to the application
 target.
 
 Each GitHub Release provides two package archives:
@@ -340,8 +349,8 @@ package targets may depend on the lower-level `boost` product directly.
 Build and verify the example from a local release archive with:
 
 ```sh
-BOOST_VERSION=1.90.0 ./example-swift-package/build.sh \
-  dist/ofxiOSBoost-1.90.0.tar.gz
+BOOST_VERSION=1.91.0 ./example-swift-package/build.sh \
+  dist/ofxiOSBoost-1.91.0.tar.gz
 ```
 
 To use the app interactively, copy `boost.xcframework` from the release archive
@@ -428,7 +437,7 @@ available only as a recovery path for a failed publication.
 To build the same package locally with a current Xcode installation:
 
 ```sh
-BOOST_VERSION=1.90.0 ./scripts/build-boost-ios.sh
+BOOST_VERSION=1.91.0 ./scripts/build-boost-ios.sh
 ```
 
 The generated files are placed in `dist/`, which is intentionally ignored by
@@ -451,7 +460,7 @@ The default command downloads and tests the current supported release:
 To test a locally built archive instead, pass its path explicitly:
 
 ```sh
-./example-xcframework/build.sh dist/ofxiOSBoost-1.90.0.tar.gz
+./example-xcframework/build.sh dist/ofxiOSBoost-1.91.0.tar.gz
 ```
 
 For interactive Simulator or physical-device runtime testing, install or copy
@@ -471,6 +480,17 @@ application.
 
 
 #### Current Boost release documentation
+
+[Boost 1.91.0 upstream release](https://www.boost.org/releases/1.91.0/)
+
+### Version 1.91.0 — April 22, 2026
+
+Boost 1.91.0 remains on C++20 and adds header-only Boost.Decimal. Dedicated
+tests cover exact decimal arithmetic, deterministic character conversion,
+Charconv negative 128-bit formatting, UUID character conversion, URL
+query/decode conveniences, and System `unsafe_value`. The compiled 1.90 library
+set carries forward unchanged. Canonical packaging and the full arm64 Simulator
+and physical arm64 device runtime suites pass.
 
 [Boost 1.90.0 upstream release](https://www.boost.org/releases/1.90.0/)
 

@@ -194,6 +194,13 @@
 #include <boost/openmethod.hpp>
 #include <boost/openmethod/initialize.hpp>
 #endif
+#if BOOST_VERSION >= 109100
+#include <boost/decimal/charconv.hpp>
+#include <boost/decimal/decimal64_t.hpp>
+#include <boost/system/result.hpp>
+#include <boost/url/decode.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -2043,6 +2050,91 @@ bool testBoost190OpenMethod(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 109100
+bool testBoost191DecimalArithmetic(std::string &detail)
+{
+    using boost::decimal::decimal64_t;
+    const decimal64_t price{1250, -2};
+    const decimal64_t tax{25, -2};
+
+    detail = "Decimal preserves exact base-10 arithmetic";
+    return price + tax == decimal64_t{1275, -2};
+}
+
+bool testBoost191DecimalCharconv(std::string &detail)
+{
+    using boost::decimal::decimal64_t;
+    decimal64_t value{};
+    const char input[] = "19.91";
+    const auto parsed = boost::decimal::from_chars(
+        input, input + sizeof(input) - 1, value);
+    std::array<char, 32> output{};
+    const auto formatted = boost::decimal::to_chars(
+        output.data(), output.data() + output.size(), value,
+        boost::decimal::chars_format::fixed, 2);
+
+    detail = "Decimal parses and formats a deterministic fixed-point value";
+    return parsed && parsed.ptr == input + sizeof(input) - 1 && formatted &&
+        std::string(output.data(), formatted.ptr) == "19.91";
+}
+
+bool testBoost191CharconvNegativeInt128(std::string &detail)
+{
+#if defined(__SIZEOF_INT128__)
+    const __int128 value = -static_cast<__int128>(10000000000000000000ULL);
+    std::array<char, 48> output{};
+    const auto converted = boost::charconv::to_chars(
+        output.data(), output.data() + output.size(), value);
+
+    detail = "Charconv formats a negative 128-bit value below 2^64 magnitude";
+    return converted.ec == std::errc{} &&
+        std::string(output.data(), converted.ptr) == "-10000000000000000000";
+#else
+    detail = "Compiler does not provide 128-bit integers";
+    return true;
+#endif
+}
+
+bool testBoost191UuidCharconv(std::string &detail)
+{
+    constexpr char text[] = "123e4567-e89b-12d3-a456-426614174000";
+    boost::uuids::uuid value{};
+    const auto parsed = boost::uuids::from_chars(
+        text, text + sizeof(text) - 1, value);
+    std::array<char, 37> output{};
+    const bool formatted = boost::uuids::to_chars(
+        value, output.data(), output.data() + 36);
+
+    detail = "UUID from_chars and to_chars round-trip without allocation";
+    return parsed && parsed.ptr == text + sizeof(text) - 1 && formatted &&
+        std::string(output.data(), 36) == text;
+}
+
+bool testBoost191UrlConvenience(std::string &detail)
+{
+    const auto parsed = boost::urls::parse_uri_reference("/search?q=boost%20url");
+    if (!parsed) {
+        detail = "URL parse failed";
+        return false;
+    }
+    const std::string query = parsed->params().get_or("q", "missing");
+    std::array<char, 32> decoded{};
+    const auto decodedSize = boost::urls::decode(
+        decoded.data(), decoded.size(), "Boost%201.91");
+
+    detail = "URL get_or and standalone decode return decoded values";
+    return query == "boost url" && decodedSize &&
+        std::string(decoded.data(), *decodedSize) == "Boost 1.91";
+}
+
+bool testBoost191SystemUnsafeValue(std::string &detail)
+{
+    boost::system::result<int> value(91);
+    detail = "System result exposes its checked value through unsafe_value";
+    return value.has_value() && value.unsafe_value() == 91;
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -2196,6 +2288,14 @@ const std::vector<BoostTestCase> &boostTestCases()
 #endif
 #if BOOST_VERSION >= 109000
         {"Boost 1.90 OpenMethod dispatch", testBoost190OpenMethod},
+#endif
+#if BOOST_VERSION >= 109100
+        {"Boost 1.91 Decimal arithmetic", testBoost191DecimalArithmetic},
+        {"Boost 1.91 Decimal charconv", testBoost191DecimalCharconv},
+        {"Boost 1.91 Charconv negative int128", testBoost191CharconvNegativeInt128},
+        {"Boost 1.91 UUID charconv", testBoost191UuidCharconv},
+        {"Boost 1.91 URL convenience APIs", testBoost191UrlConvenience},
+        {"Boost 1.91 System unsafe_value", testBoost191SystemUnsafeValue},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},
