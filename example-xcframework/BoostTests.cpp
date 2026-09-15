@@ -201,6 +201,12 @@
 #include <boost/url/decode.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #endif
+#if BOOST_VERSION >= 109200
+#include <boost/container/hub.hpp>
+#include <boost/decimal.hpp>
+#include <boost/lockfree/bounded_ticket_queue.hpp>
+#include <boost/system/unwrap_and_invoke.hpp>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -2135,6 +2141,54 @@ bool testBoost191SystemUnsafeValue(std::string &detail)
 }
 #endif
 
+#if BOOST_VERSION >= 109200
+bool testBoost192ContainerHub(std::string &detail)
+{
+    boost::container::hub<int> values;
+    for (int value = 0; value < 4; ++value) {
+        values.insert(value);
+    }
+    const auto stable = values.insert(4);
+    for (int value = 5; value < 8; ++value) {
+        values.insert(value);
+    }
+    boost::container::erase_if(values, [](int value) { return value % 2 != 0; });
+
+    detail = "Container hub retains stable references across segmented storage changes";
+    return stable != values.end() && *stable == 4 && values.size() == 4;
+}
+
+bool testBoost192DecimalDecompose(std::string &detail)
+{
+    const boost::decimal::decimal64_t value{-12345, -2};
+    const auto components = boost::decimal::decompose(value);
+
+    detail = "Decimal decompose exposes sign, significand, and exponent";
+    return components.sign && components.sig == 12345U && components.exp == -2;
+}
+
+bool testBoost192LockfreeTicketQueue(std::string &detail)
+{
+    boost::lockfree::bounded_ticket_queue<int, boost::lockfree::capacity<8>> queue;
+    int value = 0;
+
+    detail = "Lockfree bounded ticket queue preserves deterministic FIFO order";
+    return queue.push(19) && queue.push(92) && queue.pop(value) && value == 19 &&
+        queue.pop(value) && value == 92 && queue.empty();
+}
+
+bool testBoost192SystemVoidUnwrap(std::string &detail)
+{
+    int observed = 0;
+    boost::system::result<int> input(92);
+    boost::system::result<void> result = boost::system::unwrap_and_invoke(
+        [&observed](int value) { observed = value; }, input);
+
+    detail = "System unwrap_and_invoke supports void-returning callables";
+    return result.has_value() && observed == 92;
+}
+#endif
+
 } // namespace
 
 namespace {
@@ -2296,6 +2350,12 @@ const std::vector<BoostTestCase> &boostTestCases()
         {"Boost 1.91 UUID charconv", testBoost191UuidCharconv},
         {"Boost 1.91 URL convenience APIs", testBoost191UrlConvenience},
         {"Boost 1.91 System unsafe_value", testBoost191SystemUnsafeValue},
+#endif
+#if BOOST_VERSION >= 109200
+        {"Boost 1.92 Container hub", testBoost192ContainerHub},
+        {"Boost 1.92 Decimal decompose", testBoost192DecimalDecompose},
+        {"Boost 1.92 Lockfree ticket queue", testBoost192LockfreeTicketQueue},
+        {"Boost 1.92 System void unwrap", testBoost192SystemVoidUnwrap},
 #endif
 #if BOOST_VERSION >= 106500
         {"Boost.Context", testContext},
