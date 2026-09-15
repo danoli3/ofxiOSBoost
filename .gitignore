@@ -44,3 +44,4 @@ AGENTS.md
 example-xcframework/boost.xcframework/ios-arm64/Headers/boost/accumulators/statistics/covariance.hpp
 /example-xcframework/boost.xcframework
 /libs/boost.xcframework
+/.build
