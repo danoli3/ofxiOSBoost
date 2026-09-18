@@ -32,7 +32,7 @@ do not create or modify GitHub Releases.
 
 | Boost | C++ | GitHub Actions | Release |
 | --- | --- | --- | --- |
-| [1.92.0](https://www.boost.org/releases/1.92.0/) | C++20 | [![Boost 1.92.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | In preparation |
+| [1.92.0](https://www.boost.org/releases/1.92.0/) | C++20 | [![Boost 1.92.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.92.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.92.0) |
 | [1.91.0](https://www.boost.org/releases/1.91.0/) | C++20 | [![Boost 1.91.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.91.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.91.0) |
 | [1.90.0](https://www.boost.org/releases/1.90.0/) | C++20 | [![Boost 1.90.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.90.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.90.0) |
 | [1.89.0](https://www.boost.org/users/history/version_1_89_0.html) | C++20 | [![Boost 1.89.0 build](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml/badge.svg)](https://github.com/danoli3/ofxiOSBoost/actions/workflows/release-boost.yml) | [Boost 1.89.0](https://github.com/danoli3/ofxiOSBoost/releases/tag/1.89.0) |
